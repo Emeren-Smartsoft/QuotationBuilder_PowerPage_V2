@@ -1,6 +1,6 @@
 ﻿(function () {
   "use strict";
-  console.log("[QT] script loaded build=2026-05-dell-pricelist-v1");
+  console.log("[QT] script loaded build=2026-05-v2");
 
   var GST_RATE = 0.18;
   function fmt(n) { return "\u20B9 " + Number(n || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
@@ -976,7 +976,6 @@
          Documents/MOQ Prices/
        which contains one .xlsx per (brand x product x month), e.g.
          "HP Desktop Workstation June 2025.xlsx"
-         "Dell PowerEdge Server May 2026.xlsx"
          "Lenovo ThinkPad Laptop April 2026.xlsx"
        Each file has a named Table1; column schemas vary per product type.
      - Flow contract:
@@ -992,11 +991,9 @@
     var modeBtnSw  = $("qt-mode-software");
     var modeBtnWs  = $("qt-mode-workstation");
     var modeBtnSv  = $("qt-mode-server");
-    var modeBtnDl  = $("qt-mode-dell");
     var builderSw  = $("qt-builder-software");
     var builderWs  = $("qt-builder-workstation");
     var builderSv  = $("qt-builder-server");
-    var builderDl  = $("qt-builder-dell");
     var sharedArea = $("qt-shared-area");
     var wsModelSel = $("qt-ws-model");
     var wsModelFilterSel = $("qt-ws-modelfilter");
@@ -1029,15 +1026,13 @@
     function setMode(mode) {
       var isWs = (mode === "workstation");
       var isSv = (mode === "server");
-      var isDl = (mode === "dell");
-      var isSw = !isWs && !isSv && !isDl;
+      var isSw = !isWs && !isSv;
       builderSw.classList.toggle("qt-hidden", !isSw);
       builderWs.classList.toggle("qt-hidden", !isWs);
       if (builderSv) {
         builderSv.classList.toggle("qt-hidden", !isSv);
         builderSv.style.display = isSv ? "block" : "";
       }
-      if (builderDl) builderDl.classList.toggle("qt-hidden", !isDl);
       /* qt-shared-area (quotation items table + proposal template + actions)
          is reused by ALL modes â€” keep it visible. */
       if (sharedArea) sharedArea.style.display = "";
@@ -1046,11 +1041,9 @@
       modeBtnSw.classList.toggle("qt-mode-active", isSw);
       modeBtnWs.classList.toggle("qt-mode-active", isWs);
       if (modeBtnSv) modeBtnSv.classList.toggle("qt-mode-active", isSv);
-      if (modeBtnDl) modeBtnDl.classList.toggle("qt-mode-active", isDl);
       modeBtnSw.setAttribute("aria-selected", isSw ? "true" : "false");
       modeBtnWs.setAttribute("aria-selected", isWs ? "true" : "false");
       if (modeBtnSv) modeBtnSv.setAttribute("aria-selected", isSv ? "true" : "false");
-      if (modeBtnDl) modeBtnDl.setAttribute("aria-selected", isDl ? "true" : "false");
       function paint(btn, on) {
         if (!btn) return;
         btn.style.background = on ? "#0b5cab" : "transparent";
@@ -1059,16 +1052,13 @@
       paint(modeBtnSw, isSw);
       paint(modeBtnWs, isWs);
       paint(modeBtnSv, isSv);
-      paint(modeBtnDl, isDl);
 
       if (isWs && !wsListsLoaded) loadPriceLists();
       if (isSv && window.QT_SERVER && !window.QT_SERVER.inited) window.QT_SERVER.init();
-      if (isDl && window.QT_DELL && !window.QT_DELL.inited) window.QT_DELL.init();
     }
     modeBtnSw.addEventListener("click", function () { setMode("software"); });
     modeBtnWs.addEventListener("click", function () { setMode("workstation"); });
     if (modeBtnSv) modeBtnSv.addEventListener("click", function () { setMode("server"); });
-    if (modeBtnDl) modeBtnDl.addEventListener("click", function () { setMode("dell"); });
 
     function pickFirst(row, keys) {
       for (var i = 0; i < keys.length; i++) {
@@ -1622,295 +1612,6 @@
       COMPAT = DATA.compat || {};
       console.log("[" + BUILD + "] loaded", BASES.length, "bases,", Object.keys(OPTIONS).length, "options,", Object.keys(COMPAT).length, "compat");
       setupBasePicker();
-      this.inited = true;
-    }
-  };
-})();
-
-/* ============================================================================
-   Dell Quote Pricelist module (tab "Dell Quote")
-   ----------------------------------------------------------------------------
-   Treats each Dell quotation email as a reusable mini-pricelist.
-   Power Automate ingests each Dell quote email into a single Excel file
-   under SharePoint Documents/Pricelist/Dell/<QuoteNo>.xlsx, built from
-   Documents/Templates/Dell-template.xlsx. Each file contains a named
-   Table1 with columns: SKU, Description, Qty, UnitPrice, TotalPrice
-   (or similar; the renderer is column-tolerant).
-
-   Single flow QuoteSite-GetDellPricelist:
-     POST {}                 -> { lists: ["3700023958518.3", "3700024080237.2", ...] }
-     POST { list: "<file>" } -> { skus: [ {SKU, Description, Qty, UnitPrice, ...}, ... ] }
-
-   Same contract as QuoteSite-GetWorkstationData so the implementation
-   mirrors that module.
-   ============================================================================ */
-(function () {
-  "use strict";
-  function $(id) { return document.getElementById(id); }
-
-  var CONFIG = { flowUrls: {}, defaultMargin: 10 };
-  try {
-    var raw = document.getElementById("productData");
-    if (raw) CONFIG = JSON.parse(raw.textContent);
-  } catch (e) { console.error("[QT-DELL] productData parse", e); }
-
-  var DELL_PRICE_KEYS = ["UnitPrice", "Unit Price", "Price", "DTP", "ERP", "Rate", "UnitPriceInr", "UnitCost"];
-  var DELL_SKU_KEYS   = ["SKU", "Sku", "PartNumber", "Part No", "PartNo", "ProductId", "ProductCode"];
-  var DELL_DESC_KEYS  = ["Description", "ProductTitle", "ProductDescription", "Title", "Item"];
-  var DELL_QTY_KEYS   = ["Qty", "Quantity"];
-  var DELL_HIDDEN     = { "__PowerAppsId__": 1, "ItemInternalId": 1, "TotalPrice": 1, "Total": 1, "LineTotal": 1 };
-
-  var listSel, loadingEl, panelEl, ctxEl, listEl, searchEl, addBtn, emptyEl;
-  var listsLoaded = false;
-  var allSkus = [];
-  var skuCache = {};
-  var currentList = "";
-
-  function pickFirst(row, keys) {
-    for (var i = 0; i < keys.length; i++) {
-      var k = keys[i];
-      if (row[k] != null && String(row[k]).trim() !== "") return row[k];
-    }
-    return "";
-  }
-  function pickPrice(row) {
-    for (var i = 0; i < DELL_PRICE_KEYS.length; i++) {
-      var raw = row[DELL_PRICE_KEYS[i]];
-      if (raw == null) continue;
-      var cleaned = String(raw).replace(/[^0-9.\-]/g, "");
-      if (!cleaned) continue;
-      var v = Number(cleaned);
-      if (v && !isNaN(v)) return v;
-    }
-    return 0;
-  }
-  function pickQty(row) {
-    for (var i = 0; i < DELL_QTY_KEYS.length; i++) {
-      var raw = row[DELL_QTY_KEYS[i]];
-      if (raw == null) continue;
-      var v = Number(String(raw).replace(/[^0-9.\-]/g, ""));
-      if (v && !isNaN(v)) return v;
-    }
-    return 1;
-  }
-  function extraSpecs(row) {
-    var skip = {};
-    [].concat(DELL_PRICE_KEYS, DELL_SKU_KEYS, DELL_DESC_KEYS, DELL_QTY_KEYS).forEach(function (k) { skip[k] = true; });
-    for (var k in DELL_HIDDEN) skip[k] = true;
-    var out = [];
-    for (var k2 in row) {
-      if (!row.hasOwnProperty(k2)) continue;
-      if (skip[k2]) continue;
-      var v = row[k2];
-      if (v == null || String(v).trim() === "" || String(v).trim() === "-") continue;
-      out.push({ label: k2, value: String(v) });
-    }
-    return out;
-  }
-  function escapeHtml(s) {
-    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
-    });
-  }
-  function fmt(n) {
-    return Number(n || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-
-  function loadQuotes() {
-    var url = CONFIG.flowUrls && CONFIG.flowUrls.getDellPricelist;
-    if (!url || url.indexOf("PASTE_") === 0) {
-      listSel.innerHTML = '<option value="">-- Flow not configured --</option>';
-      emptyEl.innerHTML = '<span style="color:#c00;">QuoteSite-GetDellPricelist flow URL is not configured. See PowerAutomate-Flow-Steps.md \u2192 Dell pricelist flows.</span>';
-      return;
-    }
-    listSel.innerHTML = '<option value="">-- Loading Dell quotes... --</option>';
-    fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({})
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        listsLoaded = true;
-        var lists = data.lists || data.quotes || [];
-        listSel.innerHTML = '<option value="">-- Select Dell Quote --</option>';
-        lists.forEach(function (name) {
-          var o = document.createElement("option");
-          o.value = name; o.textContent = name;
-          listSel.appendChild(o);
-        });
-        if (!lists.length) {
-          emptyEl.textContent = "No Dell quotes found. Forward a Dell quote email to the ingestion mailbox, or add an .xlsx file under SharePoint Documents/Pricelist/Dell/.";
-        }
-      })
-      .catch(function (err) {
-        console.error("[QT-DELL] Failed to load Dell quotes", err);
-        listSel.innerHTML = '<option value="">-- Error loading --</option>';
-        emptyEl.innerHTML = '<span style="color:#c00;">Failed to load Dell quotes. Check the flow.</span>';
-      });
-  }
-
-  function loadSkus(listName) {
-    var url = CONFIG.flowUrls && CONFIG.flowUrls.getDellPricelist;
-    if (!url || url.indexOf("PASTE_") === 0) return;
-
-    if (skuCache[listName]) {
-      allSkus = skuCache[listName];
-      showPanel();
-      return;
-    }
-
-    loadingEl.classList.remove("qt-hidden");
-    panelEl.classList.add("qt-hidden");
-    emptyEl.style.display = "none";
-
-    fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ list: listName, file: listName })
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        var rows = data.skus || data.rows || data.lines || [];
-        if (rows.length && Array.isArray(rows[0])) {
-          rows = [].concat.apply([], rows);
-        }
-        allSkus = rows.map(function (row, idx) {
-          var sku   = pickFirst(row, DELL_SKU_KEYS);
-          var desc  = pickFirst(row, DELL_DESC_KEYS);
-          var price = pickPrice(row);
-          var qty   = pickQty(row);
-          return {
-            uid:   "dell::" + listName + "::" + idx + "::" + sku,
-            list:  listName,
-            sku:   String(sku || ""),
-            desc:  String(desc || ""),
-            qty:   qty,
-            price: price,
-            specs: extraSpecs(row),
-            raw:   row
-          };
-        });
-        skuCache[listName] = allSkus;
-        loadingEl.classList.add("qt-hidden");
-        showPanel();
-      })
-      .catch(function (err) {
-        console.error("[QT-DELL] Failed to load SKUs", err);
-        loadingEl.classList.add("qt-hidden");
-        listEl.innerHTML = '<div style="padding:14px;color:#c00;">Failed to load SKUs. Please try again.</div>';
-        panelEl.classList.remove("qt-hidden");
-      });
-  }
-
-  function showPanel() {
-    emptyEl.style.display = "none";
-    panelEl.classList.remove("qt-hidden");
-    renderList();
-  }
-
-  function renderList() {
-    var q = (searchEl && searchEl.value || "").trim().toLowerCase();
-    var items = allSkus.filter(function (s) {
-      if (!q) return true;
-      var blob = s.sku + " " + s.desc + " " + s.specs.map(function (sp) { return sp.value; }).join(" ");
-      return blob.toLowerCase().indexOf(q) !== -1;
-    });
-
-    ctxEl.textContent = "(" + currentList + " - " + items.length + " line" + (items.length === 1 ? "" : "s") + ")";
-
-    function cardHtml(s) {
-      var specsHtml = s.specs.map(function (sp) {
-        return '<span><b>' + escapeHtml(sp.label) + ':</b>' + escapeHtml(sp.value) + '</span>';
-      }).join("");
-      return '<label class="qt-ws-card">' +
-        '<input type="checkbox" value="' + escapeHtml(s.uid) + '" />' +
-        '<div class="qt-ws-body">' +
-          '<div class="qt-ws-head">' +
-            '<span class="qt-ws-sku">' + escapeHtml(s.sku || "(no SKU)") + '</span>' +
-            (s.qty > 1 ? '<span class="qt-ws-plant">Qty ' + s.qty + '</span>' : '') +
-            '<span class="qt-ws-price">' + fmt(s.price) + '</span>' +
-          '</div>' +
-          (s.desc ? '<div style="font-size:12.5px;color:#333;margin-bottom:4px;">' + escapeHtml(s.desc) + '</div>' : '') +
-          (specsHtml ? '<div class="qt-ws-specs">' + specsHtml + '</div>' : '') +
-        '</div>' +
-      '</label>';
-    }
-
-    if (!items.length) {
-      listEl.innerHTML = '<div style="padding:14px;color:#888;">No line items match.</div>';
-    } else {
-      listEl.innerHTML = items.map(cardHtml).join("");
-    }
-
-    listEl.querySelectorAll("input[type=checkbox]").forEach(function (cb) {
-      cb.addEventListener("change", function () {
-        addBtn.disabled = !listEl.querySelector("input[type=checkbox]:checked");
-      });
-    });
-    addBtn.disabled = true;
-  }
-
-  function buildDescription(s) {
-    var bits = [];
-    var head = "Dell Quote " + s.list + (s.sku ? " - SKU " + s.sku : "");
-    bits.push(head);
-    if (s.desc) bits.push(s.desc);
-    s.specs.forEach(function (sp) { bits.push(sp.label + ": " + sp.value); });
-    return bits.join(" | ");
-  }
-
-  function bind() {
-    listSel    = $("qt-dl-list");
-    loadingEl  = $("qt-dl-loading");
-    panelEl    = $("qt-dl-panel");
-    ctxEl      = $("qt-dl-context");
-    listEl     = $("qt-dl-list-skus");
-    searchEl   = $("qt-dl-search");
-    addBtn     = $("qt-dl-add");
-    emptyEl    = $("qt-dl-empty");
-    if (!listSel || !panelEl || !listEl || !addBtn) return false;
-
-    listSel.addEventListener("change", function () {
-      currentList = listSel.value || "";
-      if (!currentList) {
-        panelEl.classList.add("qt-hidden");
-        emptyEl.style.display = "";
-        allSkus = [];
-        return;
-      }
-      loadSkus(currentList);
-    });
-
-    if (searchEl) searchEl.addEventListener("input", renderList);
-
-    addBtn.addEventListener("click", function () {
-      if (!window.QT_API) return;
-      var selected = Array.prototype.slice.call(listEl.querySelectorAll("input[type=checkbox]:checked")).map(function (c) { return c.value; });
-      selected.forEach(function (uid) {
-        var s = allSkus.filter(function (x) { return x.uid === uid; })[0];
-        if (!s) return;
-        window.QT_API.addItem({
-          sku: s.sku,
-          description: buildDescription(s),
-          dtp: Number(s.price || 0),
-          margin: CONFIG.defaultMargin || 10,
-          qty: Number(s.qty || 1)
-        });
-      });
-      listEl.querySelectorAll("input[type=checkbox]").forEach(function (c) { c.checked = false; });
-      addBtn.disabled = true;
-    });
-
-    return true;
-  }
-
-  window.QT_DELL = {
-    inited: false,
-    init: function () {
-      if (this.inited) return;
-      if (!bind()) { console.warn("[QT-DELL] DOM not ready, init aborted"); return; }
-      loadQuotes();
       this.inited = true;
     }
   };

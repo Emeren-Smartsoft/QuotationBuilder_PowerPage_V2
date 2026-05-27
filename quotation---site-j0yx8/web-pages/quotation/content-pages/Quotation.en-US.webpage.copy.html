@@ -67,8 +67,6 @@
         style="flex:1; padding:9px 14px; border:0; background:transparent; color:#1a2533; font:600 13px Segoe UI,system-ui,sans-serif; cursor:pointer;">Hardware Quotation</button>
       <button type="button" id="qt-mode-server"      class="qt-mode-btn"                 data-mode="server"      role="tab" aria-selected="false"
         style="flex:1; padding:9px 14px; border:0; background:transparent; color:#1a2533; font:600 13px Segoe UI,system-ui,sans-serif; cursor:pointer;">Server Quotation</button>
-      <button type="button" id="qt-mode-dell"        class="qt-mode-btn"                 data-mode="dell"        role="tab" aria-selected="false"
-        style="flex:1; padding:9px 14px; border:0; background:transparent; color:#1a2533; font:600 13px Segoe UI,system-ui,sans-serif; cursor:pointer;">Dell Quote</button>
     </div>
 
     <!-- ============ Software builder (existing) ============ -->
@@ -143,39 +141,9 @@
       </div>
     </div>
 
-    <!-- ============ Dell builder (new) — backed by Documents/Pricelist/Dell/ (Dell quote emails ingested into Excel) ============ -->
-    <div class="qt-builder qt-hidden" id="qt-builder-dell">
-      <div class="qt-builder-row qt-ws-selectors">
-        <label style="flex:1;min-width:220px;">Dell Quote
-          <select id="qt-dl-list">
-            <option value="">-- Loading Dell quotes... --</option>
-          </select>
-          <small style="display:block;margin-top:4px;color:#666;font-size:11px;">One option per Dell quote email auto-saved to SharePoint <em>Documents/Pricelist/Dell/</em>.</small>
-        </label>
-      </div>
 
-      <div id="qt-dl-loading" class="qt-hidden" style="padding:12px;color:#666;">
-        <span>⏳ Loading SKUs from Dell quote...</span>
-      </div>
-
-      <div id="qt-dl-panel" class="qt-products-panel qt-hidden">
-        <div class="qt-panel-head">
-          <h3>Quote SKUs <small id="qt-dl-context"></small></h3>
-          <input type="search" id="qt-dl-search" placeholder="Search by SKU or description..." />
-        </div>
-        <div id="qt-dl-list-skus" class="qt-products-list"></div>
-        <div class="qt-panel-actions">
-          <button type="button" id="qt-dl-add" class="qt-btn qt-btn-primary" disabled>Add selected</button>
-        </div>
-      </div>
-
-      <div id="qt-dl-empty" style="padding:14px;color:#888;font-size:13px;">
-        Choose a Dell quote above to view its line items.
-      </div>
-    </div>
 
     <style>
-      #qt-builder-dell #qt-dl-list-skus { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; }
       .qt-ws-selectors { display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start; }
       #qt-builder-workstation #qt-ws-list { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; }
       #qt-builder-workstation .qt-ws-section { grid-column:1 / -1; }
@@ -328,8 +296,7 @@
     "getProducts": "https://9812337a468ced9ca7578b2d70425b.8d.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/2949d19dbbd54a4ea63cfaa6326ad746/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LZoJEHbKjmWnhmSmObewW1mMqutgcd4wM3gzO-GyHRU",
     "saveQuotation": "https://9812337a468ced9ca7578b2d70425b.8d.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/4a292ca5b50e47cab5968c8efb382a94/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KP2ASS0-Ugdmqze_3OCinU9xryybXqK2-Tup-PszZUw",
     "getProposalTemplates": "https://9812337a468ced9ca7578b2d70425b.8d.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/54c9adc1566b4c6c94106f936ea366a8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=lZW2LDYMbBrCf4MJ13Kaedg3kXXznejJsZC3e1FfH3g",
-    "getWorkstationData": "https://9812337a468ced9ca7578b2d70425b.8d.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/d245367393164d849c1ef322b45fdfb7/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=le0iyw4JxDszsGlKxDUViY-0vWR5MJo1rgY3ayhE7GY",
-    "getDellPricelist": "PASTE_DELL_PRICELIST_FLOW_URL"
+    "getWorkstationData": "https://9812337a468ced9ca7578b2d70425b.8d.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/d245367393164d849c1ef322b45fdfb7/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=le0iyw4JxDszsGlKxDUViY-0vWR5MJo1rgY3ayhE7GY"
   },
   "defaultMargin": 10
 }
