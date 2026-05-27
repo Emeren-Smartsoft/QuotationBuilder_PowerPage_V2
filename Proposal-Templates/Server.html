@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<!-- saved from url=(0044)http://192.168.1.2:5501/server-proposal.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server Solutions &amp; Managed Services - Proposal Annexure | SmartSoft</title>
+  <meta name="description" content="SmartSoft server solutions proposal annexure - Dell PowerEdge &amp; HPE ProLiant server portfolio, deployment, virtualization, backup &amp; DR, server centralization, monitoring &amp; managed support plans with pricing.">
+  <link href="Server%20Solutions%20%26%20Managed%20Services%20-%20Proposal%20Annexure%20_%20SmartSoft_files/css2" rel="stylesheet">
+  <link rel="stylesheet" href="Server%20Solutions%20%26%20Managed%20Services%20-%20Proposal%20Annexure%20_%20SmartSoft_files/all.min.css">
+  <style>
+    :root {
+      --primary: #0a1f3f;
+      --primary-2: #15376b;
+      --accent: #f7d840;
+      --green: #16a34a;
+      --orange: #f4a261;
+      --ink: #1a2740;
+      --muted: #5b6677;
+      --line: #e3e7ee;
+      --bg: #f4f6fa;
+      --card: #ffffff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg); color: var(--ink); line-height: 1.55;
+      font-size: 14px;
+    }
+
+    /* Toolbar (screen only) */
+    .toolbar {
+      position: sticky; top: 0; z-index: 50;
+      background: #fff; border-bottom: 1px solid var(--line);
+      padding: 12px 20px; display: flex; align-items: center;
+      justify-content: space-between; gap: 12px;
+    }
+    .toolbar .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--primary); }
+    .toolbar .brand img { height: 26px; }
+    .toolbar .actions { display: flex; gap: 8px; }
+    .toolbar .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; border: 1px solid var(--primary); background: #fff; color: var(--primary);
+      text-decoration: none; transition: all 0.15s;
+    }
+    .toolbar .btn.primary { background: var(--primary); color: #fff; }
+    .toolbar .btn:hover { transform: translateY(-1px); }
+
+    /* Page (A4-friendly) */
+    .page {
+      max-width: 1000px; margin: 18px auto; background: var(--card);
+      box-shadow: 0 6px 24px rgba(10,31,63,0.08);
+      padding: 0;
+    }
+    @media print {
+      body { background: #fff; font-size: 11.5px; }
+      .toolbar { display: none; }
+      .page { box-shadow: none; margin: 0; max-width: none; }
+      .page-break { break-before: page; page-break-before: always; }
+      .tier, .plan-card, .service-card { break-inside: avoid; }
+      .notes, .accept-grid, table, .step { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+
+    /* Cover */
+    .cover {
+      background: linear-gradient(135deg, #0a1f3f 0%, #15376b 60%, #1a4a8c 100%);
+      color: #fff; padding: 56px 56px 48px; position: relative; overflow: hidden;
+    }
+    .cover::after {
+      content: ''; position: absolute; right: -120px; top: -120px;
+      width: 360px; height: 360px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(247,216,64,0.18), transparent 70%);
+    }
+    .cover .cover-top {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px; margin-bottom: 60px; position: relative; z-index: 2; flex-wrap: wrap;
+    }
+    .cover .cover-top .smart-logo { height: 36px; filter: brightness(0) invert(1); }
+    .cover .cover-top .partner-pills {
+      display: inline-flex; gap: 8px; flex-wrap: wrap;
+    }
+    .cover .cover-top .ppill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.1); padding: 7px 13px; border-radius: 50px;
+      font-size: 0.74rem; font-weight: 700; border: 1px solid rgba(255,255,255,0.2);
+    }
+    .cover .cover-top .ppill .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .cover .eyebrow {
+      display: inline-block; font-size: 0.72rem; letter-spacing: 2px;
+      text-transform: uppercase; font-weight: 800; color: var(--accent); margin-bottom: 14px;
+    }
+    .cover h1 {
+      font-size: 2.6rem; font-weight: 900; line-height: 1.1; letter-spacing: -1px;
+      max-width: 780px;
+    }
+    .cover h1 .ac { color: var(--accent); }
+    .cover .lead {
+      font-size: 1.05rem; color: rgba(255,255,255,0.78); max-width: 680px;
+      margin-top: 18px; line-height: 1.55;
+    }
+    .cover .meta-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+      margin-top: 44px; position: relative; z-index: 2;
+      padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.15);
+    }
+    .cover .meta-grid .mi { display: flex; flex-direction: column; gap: 3px; }
+    .cover .meta-grid .mi .l { font-size: 0.62rem; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+    .cover .meta-grid .mi .v { font-size: 0.88rem; font-weight: 700; color: #fff; }
+
+    /* Sections */
+    .page-section { padding: 44px 56px; }
+    .page-section + .page-section { border-top: 1px solid var(--line); }
+    .page-section .section-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.66rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--primary); background: rgba(10,31,63,0.06);
+      padding: 5px 12px; border-radius: 50px; margin-bottom: 14px;
+    }
+    .page-section h2 {
+      font-size: 1.7rem; font-weight: 900; color: var(--primary);
+      letter-spacing: -0.5px; line-height: 1.2;
+    }
+    .page-section h2 .ac { color: #d97706; }
+    .page-section .section-lead {
+      color: var(--muted); margin-top: 10px; max-width: 760px; font-size: 0.95rem;
+    }
+
+    /* About strip */
+    .about-strip {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;
+      margin-top: 28px;
+    }
+    .about-strip .stat {
+      background: #f8fafc; border: 1px solid var(--line); border-radius: 10px;
+      padding: 16px 14px;
+    }
+    .about-strip .stat .v { font-size: 1.55rem; font-weight: 900; color: var(--primary); line-height: 1; }
+    .about-strip .stat .l { font-size: 0.72rem; color: var(--muted); margin-top: 6px; font-weight: 600; }
+
+    /* Server portfolio cards */
+    .plans-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 24px;
+    }
+    .plan-card {
+      border: 1px solid var(--line); border-radius: 12px; padding: 18px;
+      display: flex; flex-direction: column; gap: 10px; background: #fff;
+    }
+    .plan-card .plan-head {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .plan-card .plan-head .pi {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: var(--accent-color, var(--primary)); color: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 0.95rem;
+    }
+    .plan-card.cat-rack    { --accent-color: #0078d4; }
+    .plan-card.cat-tower   { --accent-color: #16a34a; }
+    .plan-card.cat-ai      { --accent-color: #b148ff; }
+    .plan-card .pname { font-size: 0.95rem; font-weight: 800; color: var(--primary); line-height: 1.2; }
+    .plan-card .ptag { font-size: 0.7rem; color: var(--muted); font-weight: 600; }
+    .plan-card ul { list-style: none; display: flex; flex-direction: column; gap: 5px; font-size: 0.82rem; color: var(--ink); }
+    .plan-card ul li { display: flex; gap: 7px; line-height: 1.4; }
+    .plan-card ul li i { color: var(--green); font-size: 0.72rem; margin-top: 5px; flex-shrink: 0; }
+    .plan-card .pfoot {
+      margin-top: auto; padding-top: 8px; border-top: 1px dashed var(--line);
+      font-size: 0.75rem; color: var(--muted); font-weight: 600;
+    }
+
+    /* Services list */
+    .services {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 28px;
+    }
+    .service-card {
+      border: 1px solid var(--line); border-radius: 12px; padding: 20px;
+      background: #fff; display: flex; flex-direction: column; gap: 10px;
+      position: relative; overflow: hidden;
+    }
+    .service-card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+      background: var(--accent-color, var(--primary));
+    }
+    .service-card.s-deploy { --accent-color: #0078d4; }
+    .service-card.s-virt   { --accent-color: #038387; }
+    .service-card.s-backup { --accent-color: #f59e0b; }
+    .service-card.s-cent   { --accent-color: #b148ff; }
+    .service-card.s-mon    { --accent-color: #0ea5e9; }
+    .service-card.s-sec    { --accent-color: #16a34a; }
+    .service-card .s-head {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .service-card .s-icn {
+      width: 38px; height: 38px; border-radius: 9px;
+      background: var(--accent-color); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.05rem; flex-shrink: 0;
+    }
+    .service-card h3 {
+      font-size: 1rem; font-weight: 800; color: var(--primary); line-height: 1.25;
+    }
+    .service-card .s-sub {
+      font-size: 0.78rem; color: var(--muted); font-weight: 600;
+    }
+    .service-card .s-desc {
+      font-size: 0.85rem; color: var(--ink); line-height: 1.5; margin-top: 2px;
+    }
+    .service-card ul.s-list {
+      list-style: none; display: flex; flex-direction: column; gap: 4px; margin-top: 6px;
+      font-size: 0.8rem; color: var(--ink);
+    }
+    .service-card ul.s-list li { display: flex; gap: 7px; line-height: 1.4; }
+    .service-card ul.s-list li i {
+      color: var(--accent-color); font-size: 0.7rem; margin-top: 5px; flex-shrink: 0;
+    }
+    .service-card .s-meta {
+      margin-top: auto; padding-top: 10px; border-top: 1px dashed var(--line);
+      display: flex; justify-content: space-between; gap: 10px;
+      font-size: 0.72rem; color: var(--muted); font-weight: 700;
+    }
+    .service-card .s-meta strong { color: var(--primary); }
+
+    /* Pricing tiers */
+    .tiers {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 28px;
+    }
+    .tier {
+      border: 1px solid var(--line); border-radius: 14px; padding: 22px 20px;
+      background: #fff; display: flex; flex-direction: column; position: relative;
+    }
+    .tier.featured {
+      border: 2px solid var(--primary);
+      box-shadow: 0 10px 28px rgba(10,31,63,0.12);
+      background: linear-gradient(180deg, #fff 0%, #f8faff 100%);
+    }
+    .tier .ribbon {
+      position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+      background: var(--primary); color: var(--accent);
+      font-size: 0.62rem; font-weight: 800; padding: 4px 12px; border-radius: 50px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .tier .t-name { font-size: 1.1rem; font-weight: 900; color: var(--primary); }
+    .tier .t-tag { font-size: 0.74rem; color: var(--muted); font-weight: 600; margin-top: 2px; }
+    .tier .t-price { display: flex; align-items: baseline; gap: 4px; margin-top: 14px; }
+    .tier .t-price .cur { font-size: 1.05rem; font-weight: 800; color: var(--primary); }
+    .tier .t-price .amt { font-size: 2.1rem; font-weight: 900; color: var(--primary); line-height: 1; letter-spacing: -1px; }
+    .tier .t-price .per { font-size: 0.7rem; color: var(--muted); font-weight: 600; margin-left: 4px; }
+    .tier ul.t-features {
+      list-style: none; margin-top: 16px; padding-top: 14px;
+      border-top: 1px solid var(--line);
+      display: flex; flex-direction: column; gap: 7px;
+      font-size: 0.83rem; color: var(--ink); flex: 1;
+    }
+    .tier ul.t-features li { display: flex; gap: 8px; line-height: 1.4; }
+    .tier ul.t-features li i {
+      color: var(--green); font-size: 0.78rem; margin-top: 4px; flex-shrink: 0;
+    }
+    .tier ul.t-features li.hd {
+      font-weight: 700; color: var(--primary); font-size: 0.74rem;
+      text-transform: uppercase; letter-spacing: 0.6px; margin-top: 4px; gap: 0;
+    }
+    .tier .t-foot {
+      margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--line);
+      font-size: 0.72rem; color: var(--muted); font-weight: 600; text-align: center;
+    }
+
+    /* SLA table */
+    .sla-table {
+      width: 100%; border-collapse: collapse; margin-top: 22px; font-size: 0.85rem;
+      border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+    }
+    .sla-table th, .sla-table td {
+      padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--line);
+    }
+    .sla-table th {
+      background: var(--primary); color: #fff; font-size: 0.74rem;
+      text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700;
+    }
+    .sla-table tr:last-child td { border-bottom: none; }
+    .sla-table tr:nth-child(even) td { background: #f8fafc; }
+    .sla-table td .sev {
+      display: inline-block; padding: 2px 8px; border-radius: 50px;
+      font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .sla-table td .sev.s1 { background: #fee2e2; color: #b91c1c; }
+    .sla-table td .sev.s2 { background: #fef3c7; color: #92400e; }
+    .sla-table td .sev.s3 { background: #dbeafe; color: #1e40af; }
+    .sla-table td .sev.s4 { background: #d1fae5; color: #065f46; }
+
+    /* Notes */
+    .notes {
+      background: #f8fafc; border: 1px solid var(--line); border-radius: 10px;
+      padding: 18px 22px; margin-top: 24px; font-size: 0.83rem; color: var(--ink);
+    }
+    .notes h4 {
+      font-size: 0.78rem; font-weight: 800; color: var(--primary);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .notes ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .notes ul li { display: flex; gap: 8px; line-height: 1.5; }
+    .notes ul li::before {
+      content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--primary);
+      margin-top: 9px; flex-shrink: 0;
+    }
+
+    /* Approach steps */
+    .steps {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-top: 26px;
+    }
+    .step {
+      background: #fff; border: 1px solid var(--line); border-radius: 10px;
+      padding: 14px 12px; text-align: center; position: relative;
+    }
+    .step .num {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--primary);
+      color: var(--accent); font-weight: 900; font-size: 0.85rem;
+      display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;
+    }
+    .step h4 { font-size: 0.82rem; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+    .step p { font-size: 0.72rem; color: var(--muted); line-height: 1.4; }
+
+    /* Acceptance / signature */
+    .accept-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 30px;
+    }
+    .accept-block {
+      border-top: 1.5px solid var(--ink); padding-top: 8px;
+    }
+    .accept-block .l { font-size: 0.72rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+    .accept-block .v { font-size: 0.85rem; color: var(--ink); margin-top: 4px; }
+    .accept-block .sigline {
+      height: 38px; border-bottom: 1px dashed #94a3b8; margin: 18px 0 6px;
+    }
+
+    /* Footer */
+    .doc-footer {
+      background: var(--primary); color: #fff; padding: 28px 56px;
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;
+      font-size: 0.82rem;
+    }
+    .doc-footer .col h5 {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;
+      color: var(--accent); font-weight: 800; margin-bottom: 8px;
+    }
+    .doc-footer .col p, .doc-footer .col a {
+      color: rgba(255,255,255,0.85); text-decoration: none; line-height: 1.6;
+      display: block; font-size: 0.82rem;
+    }
+    .doc-footer .col a:hover { color: var(--accent); }
+    .doc-footer .col i { width: 16px; color: var(--accent); }
+
+    @media (max-width: 800px) {
+      .page-section { padding: 28px 22px; }
+      .cover { padding: 36px 22px; }
+      .cover h1 { font-size: 1.7rem; }
+      .cover .meta-grid { grid-template-columns: repeat(2, 1fr); }
+      .about-strip, .plans-grid, .services, .tiers { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: repeat(2, 1fr); }
+      .accept-grid { grid-template-columns: 1fr; }
+      .doc-footer { grid-template-columns: 1fr; padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Screen toolbar (hidden when printing) -->
+  <div class="toolbar">
+    <div class="brand">
+      <img src="Server%20Solutions%20%26%20Managed%20Services%20-%20Proposal%20Annexure%20_%20SmartSoft_files/Web_Logo.png" alt="SmartSoft">
+      <span>Server Solutions Proposal Annexure</span>
+    </div>
+    <div class="actions">
+      <a href="http://192.168.1.2:5501/dell-servers.html" class="btn"><i class="fas fa-arrow-left"></i> Back</a>
+      <button class="btn primary" onclick="window.print()"><i class="fas fa-print"></i> Print / Save as PDF</button>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- ============================================================ -->
+    <!-- COVER                                                         -->
+    <!-- ============================================================ -->
+    <div class="cover">
+      <div class="cover-top">
+        <img src="Server%20Solutions%20%26%20Managed%20Services%20-%20Proposal%20Annexure%20_%20SmartSoft_files/Web_Logo.png" alt="SmartSoft" class="smart-logo">
+        <span class="partner-pills">
+          <span class="ppill"><span class="dot" style="background:#007db8;"></span> Dell Technologies Partner</span>
+          <span class="ppill"><span class="dot" style="background:#01a982;"></span> HPE Business Partner</span>
+        </span>
+      </div>
+      <span class="eyebrow">Proposal Annexure  -  Server Solutions</span>
+      <h1>Server Hardware, Deployment <span class="ac">&amp; Managed Services.</span></h1>
+      <p class="lead">A clear summary of the server platforms, professional services and managed-support plans referenced in the accompanying commercial quotation. Designed to be reviewed, shared with stakeholders, and signed.</p>
+
+      <div class="meta-grid">
+        <div class="mi"><span class="l">Prepared by</span><span class="v">SmartSoft</span></div>
+        <div class="mi"><span class="l">Document</span><span class="v">Server Annexure v1.0</span></div>
+        <div class="mi"><span class="l">Issued</span><span class="v" id="doc-date">19 May 2026</span></div>
+        <div class="mi"><span class="l">Validity</span><span class="v">30 days from issue</span></div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ABOUT                                                         -->
+    <!-- ============================================================ -->
+    <section class="page-section">
+      <span class="section-eyebrow"><i class="fas fa-handshake"></i> About SmartSoft</span>
+      <h2>Your authorised partner for <span class="ac">end-to-end server delivery.</span></h2>
+      <p class="section-lead">For 25+ years SmartSoft has helped Indian businesses size, supply, deploy and manage server infrastructure from Dell Technologies and HPE. From the initial workload assessment through racking, OS &amp; virtualization configuration, backup, security hardening and ongoing managed support  -  one accountable team.</p>
+
+      <div class="about-strip">
+        <div class="stat"><div class="v">25+</div><div class="l">Years in IT</div></div>
+        <div class="stat"><div class="v">1,500+</div><div class="l">Servers Deployed</div></div>
+        <div class="stat"><div class="v">99.9%</div><div class="l">Uptime SLA Met</div></div>
+        <div class="stat"><div class="v">India</div><div class="l">Local Engineers</div></div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SERVER PORTFOLIO                                              -->
+    <!-- ============================================================ -->
+    <section class="page-section">
+      <span class="section-eyebrow"><i class="fas fa-server"></i> Server Portfolio</span>
+      <h2>Hardware summary  -  pick the right form factor.</h2>
+      <p class="section-lead">All servers are sized to match your workloads (file/AD, ERP, virtualization host, database, AI). Configurations and unit pricing are provided in the accompanying commercial quotation. Standard 3-year ProSupport / Foundation Care included unless stated otherwise.</p>
+
+      <div class="plans-grid">
+
+        <div class="plan-card cat-rack">
+          <div class="plan-head">
+            <div class="pi"><i class="fas fa-server"></i></div>
+            <div>
+              <div class="pname">Rack Servers  -  Dell PowerEdge R-series / HPE ProLiant DL</div>
+              <div class="ptag">Datacentre &amp; server-room workloads</div>
+            </div>
+          </div>
+          <ul>
+            <li><i class="fas fa-check"></i> Dell PowerEdge R760 / R660 / R750xs</li>
+            <li><i class="fas fa-check"></i> HPE ProLiant DL380 Gen11 / DL360 Gen11</li>
+            <li><i class="fas fa-check"></i> Intel Xeon Scalable / AMD EPYC processors</li>
+            <li><i class="fas fa-check"></i> Up to 8 TB DDR5 ECC memory</li>
+            <li><i class="fas fa-check"></i> NVMe / SAS storage with hardware RAID</li>
+            <li><i class="fas fa-check"></i> Redundant PSUs, hot-swap fans &amp; drives</li>
+            <li><i class="fas fa-check"></i> iDRAC9 / iLO6 out-of-band management</li>
+          </ul>
+          <div class="pfoot">Best for: virtualization hosts, ERP, databases, file servers.</div>
+        </div>
+
+        <div class="plan-card cat-tower">
+          <div class="plan-head">
+            <div class="pi"><i class="fas fa-tower-broadcast"></i></div>
+            <div>
+              <div class="pname">Tower Servers  -  Dell PowerEdge T-series / HPE ProLiant ML</div>
+              <div class="ptag">Office &amp; branch deployments  -  no rack required</div>
+            </div>
+          </div>
+          <ul>
+            <li><i class="fas fa-check"></i> Dell PowerEdge T550 / T350 / T160</li>
+            <li><i class="fas fa-check"></i> HPE ProLiant ML350 Gen11 / ML30 Gen11</li>
+            <li><i class="fas fa-check"></i> Quiet operation  -  office-friendly</li>
+            <li><i class="fas fa-check"></i> Single &amp; dual-socket Xeon options</li>
+            <li><i class="fas fa-check"></i> Hardware RAID 1/5/6/10 storage</li>
+            <li><i class="fas fa-check"></i> Redundant PSU options</li>
+            <li><i class="fas fa-check"></i> Optional rack-conversion kit</li>
+          </ul>
+          <div class="pfoot">Best for: SMB AD/file server, small ERP, branch offices.</div>
+        </div>
+
+        <div class="plan-card cat-ai">
+          <div class="plan-head">
+            <div class="pi"><i class="fas fa-microchip"></i></div>
+            <div>
+              <div class="pname">AI / GPU Servers  -  Dell PowerEdge XE / HPE ProLiant DL3xx</div>
+              <div class="ptag">Generative AI, training &amp; inference workloads</div>
+            </div>
+          </div>
+          <ul>
+            <li><i class="fas fa-check"></i> Dell PowerEdge XE9680 / R760xa</li>
+            <li><i class="fas fa-check"></i> HPE ProLiant DL380a / DL385 Gen11</li>
+            <li><i class="fas fa-check"></i> NVIDIA H100 / L40S / A100 GPUs</li>
+            <li><i class="fas fa-check"></i> NVLink / NVSwitch interconnect</li>
+            <li><i class="fas fa-check"></i> High-throughput NVMe storage</li>
+            <li><i class="fas fa-check"></i> 100/200 GbE networking</li>
+            <li><i class="fas fa-check"></i> Liquid-cooling options for high TDP</li>
+          </ul>
+          <div class="pfoot">Best for: LLM training, fine-tuning, AI inference, analytics.</div>
+        </div>
+
+      </div>
+
+      <div class="notes">
+        <h4>Hardware Notes</h4>
+        <ul>
+          <li>BOM (Bill of Materials), unit pricing, taxes and lead times are provided in the commercial quotation.</li>
+          <li>Standard support: 3-year ProSupport (Dell) / Foundation Care (HPE) Next Business Day on-site. 4-hour, 24x7 and Mission-Critical SLAs available on request.</li>
+          <li>Storage (Dell PowerStore / PowerVault, HPE MSA / Alletra), networking, racks, KVMs, UPS &amp; precision cooling can be added to the same proposal.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- PROFESSIONAL SERVICES                                         -->
+    <!-- ============================================================ -->
+    <section class="page-section page-break">
+      <span class="section-eyebrow"><i class="fas fa-screwdriver-wrench"></i> Professional Services</span>
+      <h2>What we deliver alongside <span class="ac">your hardware.</span></h2>
+      <p class="section-lead">One-time engagements that get your servers racked, configured and integrated into your business properly. Each service is scoped, fixed-priced and quoted separately.</p>
+
+      <div class="services">
+
+        <!-- Deployment & configuration -->
+        <div class="service-card s-deploy">
+          <div class="s-head">
+            <div class="s-icn"><i class="fas fa-cubes"></i></div>
+            <div>
+              <h3>Deployment &amp; Configuration</h3>
+              <div class="s-sub">Unboxing, racking, OS &amp; firmware  -  ready to use</div>
+            </div>
+          </div>
+          <p class="s-desc">We deliver the server fully built, racked and integrated into your network  -  not just dropped in a box at reception.</p>
+          <ul class="s-list">
+            <li><i class="fas fa-check"></i> Site survey  -  power, cooling, rack space, network ports</li>
+            <li><i class="fas fa-check"></i> Unboxing, racking &amp; cabling (power + network)</li>
+            <li><i class="fas fa-check"></i> BIOS / firmware update to vendor-recommended baseline</li>
+            <li><i class="fas fa-check"></i> RAID configuration &amp; storage provisioning</li>
+            <li><i class="fas fa-check"></i> OS install (Windows Server / Linux / VMware ESXi)</li>
+            <li><i class="fas fa-check"></i> iDRAC / iLO setup for remote management</li>
+            <li><i class="fas fa-check"></i> Documentation &amp; handover</li>
+          </ul>
+          <div class="s-meta">
+            <span><strong>Typical timeline:</strong> 1-2 weeks per server</span>
+            <span><strong>Pricing:</strong> Per server, see quotation</span>
+          </div>
+        </div>
+
+        <!-- Virtualization -->
+        <div class="service-card s-virt">
+          <div class="s-head">
+            <div class="s-icn"><i class="fas fa-layer-group"></i></div>
+            <div>
+              <h3>Virtualization Setup</h3>
+              <div class="s-sub">VMware vSphere, Microsoft Hyper-V or Proxmox VE</div>
+            </div>
+          </div>
+          <p class="s-desc">Run multiple workloads on a single host with high availability, snapshots and live migration. We design and deploy the right hypervisor for your scale and budget.</p>
+          <ul class="s-list">
+            <li><i class="fas fa-check"></i> Hypervisor install &amp; cluster configuration</li>
+            <li><i class="fas fa-check"></i> Shared storage / vSAN / Storage Spaces Direct</li>
+            <li><i class="fas fa-check"></i> Networking  -  vSwitches, VLANs, NIC teaming</li>
+            <li><i class="fas fa-check"></i> High Availability &amp; live migration setup</li>
+            <li><i class="fas fa-check"></i> P2V / V2V migration of existing workloads</li>
+            <li><i class="fas fa-check"></i> Resource templates &amp; VM provisioning standards</li>
+            <li><i class="fas fa-check"></i> Admin training &amp; runbook handover</li>
+          </ul>
+          <div class="s-meta">
+            <span><strong>Typical timeline:</strong> 2-3 weeks</span>
+            <span><strong>Pricing:</strong> Per cluster, see quotation</span>
+          </div>
+        </div>
+
+        <!-- Backup & DR -->
+        <div class="service-card s-backup">
+          <div class="s-head">
+            <div class="s-icn"><i class="fas fa-shield-virus"></i></div>
+            <div>
+              <h3>Backup &amp; Disaster Recovery</h3>
+              <div class="s-sub">Veeam, Commvault, Acronis or Dell PowerProtect</div>
+            </div>
+          </div>
+          <p class="s-desc">A backup you've never tested isn't a backup. We design, deploy and test backup &amp; DR solutions aligned to your RPO and RTO targets, with off-site / cloud copies for ransomware protection.</p>
+          <ul class="s-list">
+            <li><i class="fas fa-check"></i> RPO / RTO assessment &amp; backup policy design</li>
+            <li><i class="fas fa-check"></i> Backup software install &amp; repository sizing</li>
+            <li><i class="fas fa-check"></i> 3-2-1 strategy  -  on-site, off-site, immutable cloud copy</li>
+            <li><i class="fas fa-check"></i> Application-aware backups (SQL, Exchange, AD, file)</li>
+            <li><i class="fas fa-check"></i> DR site / replication setup (where applicable)</li>
+            <li><i class="fas fa-check"></i> Quarterly test restores &amp; DR drills</li>
+            <li><i class="fas fa-check"></i> Documented recovery runbooks</li>
+          </ul>
+          <div class="s-meta">
+            <span><strong>Typical timeline:</strong> 2-4 weeks</span>
+            <span><strong>Pricing:</strong> Per workload set, see quotation</span>
+          </div>
+        </div>
+
+        <!-- Server centralization -->
+        <div class="service-card s-cent">
+          <div class="s-head">
+            <div class="s-icn"><i class="fas fa-network-wired"></i></div>
+            <div>
+              <h3>Server Centralization &amp; Remote Desktop</h3>
+              <div class="s-sub">Active Directory, file server, RDS / Citrix, branch consolidation</div>
+            </div>
+          </div>
+          <p class="s-desc">Consolidate scattered desktops, branch servers and shared drives into one well-governed central server. Users get the same office experience  -  from the office, home, branch or client site.</p>
+          <ul class="s-list">
+            <li><i class="fas fa-check"></i> Active Directory / DNS / DHCP / Group Policy design</li>
+            <li><i class="fas fa-check"></i> Centralised file server with quotas &amp; access controls</li>
+            <li><i class="fas fa-check"></i> Remote Desktop Services (RDS) farm or Citrix VAD</li>
+            <li><i class="fas fa-check"></i> Branch-office VPN / SD-WAN integration</li>
+            <li><i class="fas fa-check"></i> Profile management &amp; printer redirection</li>
+            <li><i class="fas fa-check"></i> User migration from existing servers / NAS</li>
+            <li><i class="fas fa-check"></i> End-user training session</li>
+          </ul>
+          <div class="s-meta">
+            <span><strong>Typical timeline:</strong> 3-6 weeks</span>
+            <span><strong>Pricing:</strong> Per site, see quotation</span>
+          </div>
+        </div>
+
+        <!-- Monitoring -->
+        <div class="service-card s-mon">
+          <div class="s-head">
+            <div class="s-icn"><i class="fas fa-chart-line"></i></div>
+            <div>
+              <h3>Monitoring &amp; Alerting</h3>
+              <div class="s-sub">PRTG / Zabbix / Nagios + vendor tools (OME, OneView)</div>
+            </div>
+          </div>
+          <p class="s-desc">Know about a problem before your users do. We deploy and tune a monitoring platform covering hardware health, OS, applications and network  -  with alerts to email, SMS and Teams.</p>
+          <ul class="s-list">
+            <li><i class="fas fa-check"></i> Monitoring tool install &amp; agent rollout</li>
+            <li><i class="fas fa-check"></i> Hardware health (CPU, memory, disk, fans, PSU, RAID)</li>
+            <li><i class="fas fa-check"></i> OS / service / application probes</li>
+            <li><i class="fas fa-check"></i> Network &amp; bandwidth monitoring</li>
+            <li><i class="fas fa-check"></i> Threshold tuning &amp; alert routing</li>
+            <li><i class="fas fa-check"></i> Dashboards &amp; monthly executive reports</li>
+          </ul>
+          <div class="s-meta">
+            <span><strong>Typical timeline:</strong> 1-2 weeks</span>
+            <span><strong>Pricing:</strong> Per environment, see quotation</span>
+          </div>
+        </div>
+
+        <!-- Security hardening -->
+        <div class="service-card s-sec">
+          <div class="s-head">
+            <div class="s-icn"><i class="fas fa-shield-halved"></i></div>
+            <div>
+              <h3>Server Security Hardening</h3>
+              <div class="s-sub">CIS / Microsoft baselines + endpoint protection</div>
+            </div>
+          </div>
+          <p class="s-desc">A factory-default server is a soft target. We harden the OS, hypervisor and management plane against current threats and prepare your environment for audits.</p>
+          <ul class="s-list">
+            <li><i class="fas fa-check"></i> CIS / Microsoft Security Baseline applied via GPO</li>
+            <li><i class="fas fa-check"></i> Patch management policy &amp; rollout schedule</li>
+            <li><i class="fas fa-check"></i> Endpoint protection (Defender / EDR) deployment</li>
+            <li><i class="fas fa-check"></i> Privileged Access  -  least privilege, MFA on admin</li>
+            <li><i class="fas fa-check"></i> iDRAC / iLO &amp; management network segmentation</li>
+            <li><i class="fas fa-check"></i> Audit logging &amp; SIEM integration (where in scope)</li>
+            <li><i class="fas fa-check"></i> Security baseline report</li>
+          </ul>
+          <div class="s-meta">
+            <span><strong>Typical timeline:</strong> 2-3 weeks</span>
+            <span><strong>Pricing:</strong> Per server / per environment, see quotation</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- MANAGED SERVICES PRICING                                      -->
+    <!-- ============================================================ -->
+    <section class="page-section">
+      <span class="section-eyebrow"><i class="fas fa-headset"></i> Managed Server Services</span>
+      <h2>Three flavours of managed support  -  <span class="ac">flat monthly pricing.</span></h2>
+      <p class="section-lead">Once your servers are live, pick a managed-support plan and stop firefighting. All plans are billed monthly per managed server, with India-based engineers, no lock-in (30-day notice) and a minimum of 2 servers per plan.</p>
+
+      <div class="tiers">
+
+        <div class="tier">
+          <div class="t-name">Essential</div>
+          <div class="t-tag">Single-site, up to 5 servers</div>
+          <div class="t-price">
+            <span class="cur"></span><span class="amt">5,999</span><span class="per">/ server / month</span>
+          </div>
+          <ul class="t-features">
+            <li class="hd">Included</li>
+            <li><i class="fas fa-check"></i> Helpdesk via portal &amp; email (business hours)</li>
+            <li><i class="fas fa-check"></i> Hardware health monitoring (iDRAC / iLO)</li>
+            <li><i class="fas fa-check"></i> OS &amp; firmware patching (monthly window)</li>
+            <li><i class="fas fa-check"></i> Backup job monitoring &amp; failure alerts</li>
+            <li><i class="fas fa-check"></i> Vendor warranty case logging &amp; co-ordination</li>
+            <li><i class="fas fa-check"></i> Monthly health report</li>
+            <li><i class="fas fa-check"></i> Same business-day response</li>
+          </ul>
+          <div class="t-foot">Best for small offices &amp; single-site SMBs</div>
+        </div>
+
+        <div class="tier featured">
+          <span class="ribbon">Most popular</span>
+          <div class="t-name">Professional</div>
+          <div class="t-tag">5-25 servers, virtualization clusters</div>
+          <div class="t-price">
+            <span class="cur"></span><span class="amt">11,999</span><span class="per">/ server / month</span>
+          </div>
+          <ul class="t-features">
+            <li class="hd">Everything in Essential, plus</li>
+            <li><i class="fas fa-check"></i> Hypervisor administration (vSphere / Hyper-V / Proxmox)</li>
+            <li><i class="fas fa-check"></i> AD, file server &amp; RDS administration</li>
+            <li><i class="fas fa-check"></i> Backup design changes &amp; quarterly test restores</li>
+            <li><i class="fas fa-check"></i> Capacity reporting (CPU, memory, storage trends)</li>
+            <li><i class="fas fa-check"></i> Endpoint protection &amp; security baseline upkeep</li>
+            <li><i class="fas fa-check"></i> Quarterly business review &amp; roadmap</li>
+            <li><i class="fas fa-check"></i> 4 business-hour response  -  phone, Teams, email</li>
+          </ul>
+          <div class="t-foot">Best for growing businesses (recommended)</div>
+        </div>
+
+        <div class="tier">
+          <div class="t-name">Enterprise</div>
+          <div class="t-tag">25+ servers, multi-site / mission-critical</div>
+          <div class="t-price">
+            <span class="cur"></span><span class="amt">19,999</span><span class="per">/ server / month</span>
+          </div>
+          <ul class="t-features">
+            <li class="hd">Everything in Professional, plus</li>
+            <li><i class="fas fa-check"></i> Dedicated Customer Success Manager</li>
+            <li><i class="fas fa-check"></i> 24x7 critical incident support</li>
+            <li><i class="fas fa-check"></i> DR drill management &amp; runbook upkeep</li>
+            <li><i class="fas fa-check"></i> SAN / NAS / backup-appliance administration</li>
+            <li><i class="fas fa-check"></i> Advanced security  -  EDR tuning, threat hunting, IR retainer</li>
+            <li><i class="fas fa-check"></i> Compliance support  -  DPDP, ISO 27001, audit prep</li>
+            <li><i class="fas fa-check"></i> 1-hour critical / 2-hour standard response</li>
+          </ul>
+          <div class="t-foot">Best for regulated &amp; multi-site organisations</div>
+        </div>
+
+      </div>
+
+      <div class="notes">
+        <h4>Pricing &amp; Terms</h4>
+        <ul>
+          <li>All prices in INR, exclusive of GST. OEM warranty / ProSupport / Foundation Care renewal billed separately.</li>
+          <li>Minimum commitment: 2 servers on any plan; 12-month term recommended.</li>
+          <li>Cancellation: 30-day written notice. No early-exit penalty.</li>
+          <li>Out-of-scope work (e.g. major migrations, new hypervisor cluster, capacity expansion) is quoted separately at our standard professional services rates.</li>
+          <li>Spares &amp; parts are covered under the OEM ProSupport / Foundation Care contract  -  not the managed-services plan.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SUPPORT SLA                                                   -->
+    <!-- ============================================================ -->
+    <section class="page-section">
+      <span class="section-eyebrow"><i class="fas fa-stopwatch"></i> Support SLA</span>
+      <h2>Response targets per severity.</h2>
+      <p class="section-lead">Measured during covered hours per the chosen plan. Hardware repair times are governed by the OEM ProSupport / Foundation Care contract.</p>
+
+      <table class="sla-table">
+        <thead>
+          <tr>
+            <th>Severity</th>
+            <th>Description</th>
+            <th>Essential</th>
+            <th>Professional</th>
+            <th>Enterprise</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="sev s1">Sev 1</span></td>
+            <td>Production server / cluster down, business stopped</td>
+            <td>Same business day</td>
+            <td>4 business hours</td>
+            <td>1 hour, 24x7</td>
+          </tr>
+          <tr>
+            <td><span class="sev s2">Sev 2</span></td>
+            <td>Major feature impaired, workaround available</td>
+            <td>Next business day</td>
+            <td>8 business hours</td>
+            <td>2 hours, 24x7</td>
+          </tr>
+          <tr>
+            <td><span class="sev s3">Sev 3</span></td>
+            <td>Minor issue, single user / non-critical</td>
+            <td>2 business days</td>
+            <td>1 business day</td>
+            <td>4 business hours</td>
+          </tr>
+          <tr>
+            <td><span class="sev s4">Sev 4</span></td>
+            <td>Question, change request, advisory</td>
+            <td>3 business days</td>
+            <td>2 business days</td>
+            <td>1 business day</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- DELIVERY APPROACH                                             -->
+    <!-- ============================================================ -->
+    <section class="page-section">
+      <span class="section-eyebrow"><i class="fas fa-route"></i> Our Delivery Approach</span>
+      <h2>Six steps  -  from order to <span class="ac">running smoothly.</span></h2>
+
+      <div class="steps">
+        <div class="step"><span class="num">1</span><h4>Assess</h4><p>Workload sizing, site survey, requirements review.</p></div>
+        <div class="step"><span class="num">2</span><h4>Design</h4><p>BOM, rack &amp; network plan, security baseline.</p></div>
+        <div class="step"><span class="num">3</span><h4>Procure</h4><p>OEM order placement, logistics, asset tagging.</p></div>
+        <div class="step"><span class="num">4</span><h4>Deploy</h4><p>Rack, cable, OS, hypervisor, backup &amp; DR config.</p></div>
+        <div class="step"><span class="num">5</span><h4>Hand over</h4><p>Documentation, admin training, go-live sign-off.</p></div>
+        <div class="step"><span class="num">6</span><h4>Manage</h4><p>Ongoing support per chosen managed plan.</p></div>
+      </div>
+    </section>
+
+
+
+    <!-- ============================================================ -->
+    <!-- DOC FOOTER                                                    -->
+    <!-- ============================================================ -->
+    <div class="doc-footer">
+      <div class="col">
+        <h5>SmartSoft</h5>
+        <p>Authorised Dell Technologies &amp; HPE Partner</p>
+        <p>25+ years of enterprise IT delivery</p>
+        <p>India-based engineering &amp; support</p>
+      </div>
+      <div class="col">
+        <h5>Get in touch</h5>
+        <a href="mailto:sales@smartsoft.co.in"><i class="fas fa-envelope"></i> sales@smartsoft.co.in</a>
+        <a href="https://wa.me/919846253143"><i class="fab fa-whatsapp"></i> +91 98462 53143</a>
+        <a href="https://smartsoft.co.in/"><i class="fas fa-globe"></i> smartsoft.co.in</a>
+      </div>
+      <div class="col">
+        <h5>Document</h5>
+        <p>Server Annexure v1.0</p>
+        <p>Confidential  -  for the addressed customer only.</p>
+        <p>Valid 30 days from date of issue.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Auto-fill issue date
+    (function() {
+      var d = new Date();
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var formatted = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+      var el = document.getElementById('doc-date');
+      if (el) el.textContent = formatted;
+    })();
+  </script>
+
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+
+
+</body></html>

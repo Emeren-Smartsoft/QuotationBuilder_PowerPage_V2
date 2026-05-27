@@ -1,0 +1,137 @@
+<div class="qt-wrapper">
+
+  <header class="qt-brand">
+    <img src="/smartsoft-logo.png" alt="Smartsoft - 29 years of trusted IT solutions" class="qt-brand-logo" />
+  </header>
+
+  <header class="qt-header">
+    <h1>Quotation Preparation</h1>
+    <p class="qt-sub">Fill in customer details, then build the quotation.</p>
+    <ol class="qt-steps">
+      <li class="qt-step active" data-step="1"><span>1</span> Customer Details</li>
+      <li class="qt-step"        data-step="2"><span>2</span> Build Quotation</li>
+    </ol>
+  </header>
+
+  <section id="qt-step-1" class="qt-card">
+    <h2>Customer Details</h2>
+    <form id="qt-customer-form" class="qt-grid" novalidate>
+      <label>Customer / Company Name <span class="req">*</span>
+        <input type="text" name="company" required />
+      </label>
+      <label>Contact Person <span class="req">*</span>
+        <input type="text" name="contact" required />
+      </label>
+      <label>Email <span class="req">*</span>
+        <input type="email" name="email" required />
+      </label>
+      <label>Phone
+        <input type="tel" name="phone" />
+      </label>
+      <label>GSTIN
+        <input type="text" name="gstin" maxlength="15" />
+      </label>
+      <label>Quote Date
+        <input type="date" name="quoteDate" />
+      </label>
+      <label class="qt-span-2">Billing Address
+        <textarea name="address" rows="2"></textarea>
+      </label>
+      <label class="qt-span-2">Notes / Reference
+        <input type="text" name="notes" />
+      </label>
+
+      <div class="qt-actions qt-span-2">
+        <button type="submit" class="qt-btn qt-btn-primary">Continue to Quotation &rarr;</button>
+      </div>
+    </form>
+  </section>
+
+  <section id="qt-step-2" class="qt-card qt-hidden">
+
+    <div class="qt-customer-summary" id="qt-customer-summary"></div>
+
+    <h2>Build Quotation</h2>
+
+    <div class="qt-builder">
+      <div class="qt-builder-row">
+        <label>Product Category
+          <select id="qt-category">
+            <option value="">-- Select --</option>
+          </select>
+        </label>
+
+        <label>Type
+          <select id="qt-type" disabled>
+            <option value="">-- Select --</option>
+            <option value="Server">Server</option>
+            <option value="Software">Software</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="qt-products-panel" class="qt-products-panel qt-hidden">
+        <div class="qt-panel-head">
+          <h3>Select products <small id="qt-panel-context"></small></h3>
+          <input type="search" id="qt-search" placeholder="Search products..." />
+        </div>
+        <div id="qt-products-list" class="qt-products-list"></div>
+        <div class="qt-panel-actions">
+          <button type="button" id="qt-add-selected" class="qt-btn qt-btn-primary" disabled>Add selected</button>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="qt-table-title">Quotation Items</h3>
+    <div class="qt-table-wrap">
+      <table class="qt-table" id="qt-table">
+        <thead>
+          <tr>
+            <th style="width:60px;">Sl.No.</th>
+            <th>Product Description</th>
+            <th style="width:120px;">Unit Price</th>
+            <th style="width:90px;">Qty.</th>
+            <th style="width:110px;">GST (18%)</th>
+            <th style="width:150px;">Unit Price Incl. GST</th>
+            <th style="width:140px;">Total Price</th>
+            <th style="width:60px;"></th>
+          </tr>
+        </thead>
+        <tbody id="qt-table-body">
+          <tr class="qt-empty"><td colspan="8">No products added yet. Use the selector above.</td></tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="6" class="qt-grand-label">Grand Total</td>
+            <td id="qt-grand-total" class="qt-grand-value">&#8377; 0.00</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="qt-actions qt-actions-end">
+      <button type="button" id="qt-back"  class="qt-btn">&larr; Back</button>
+      <button type="button" id="qt-print" class="qt-btn">Print</button>
+      <button type="button" id="qt-save"  class="qt-btn qt-btn-primary">Save Quotation</button>
+    </div>
+  </section>
+
+</div>
+
+<script id="productData" type="application/json">
+{
+  "categories": {
+    "Microsoft": {
+      "Server": [
+        { "sku": "DG7GMGF0PWHC", "description": "Windows Server 2025 Standard - 16 Core License Pack",       "unitPrice": 91932.11 }
+      ],
+      "Software": [
+        { "sku": "DG7GMGF0L4TL", "description": "Windows GGWA - Windows 11 Pro - Legalization Get Genuine", "unitPrice": 14695.89 },
+        { "sku": "DG7GMGF0PN5F", "description": "Office LTSC Professional Plus 2024",                       "unitPrice": 52766.99 },
+        { "sku": "DG7GMGF0PN5D", "description": "Office LTSC Standard 2024",                                "unitPrice": 38695.86 }
+      ]
+    }
+  }
+}
+</script>

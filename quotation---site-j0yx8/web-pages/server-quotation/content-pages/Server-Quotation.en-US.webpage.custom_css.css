@@ -1,0 +1,84 @@
+/* Server Quotation page — prefix sq- */
+.sq-wrapper{max-width:1180px;margin:0 auto;padding:18px;font:14px/1.45 "Segoe UI",system-ui,sans-serif;color:#1a2533}
+.sq-brand{margin-bottom:8px}
+.sq-brand-logo{max-height:54px}
+.sq-header h1{margin:0 0 4px;font-size:22px}
+.sq-sub{margin:0 0 12px;color:#555}
+.sq-steps{list-style:none;padding:0;display:flex;gap:6px;margin:0 0 16px;flex-wrap:wrap}
+.sq-step{background:#f1f3f5;color:#4b5560;padding:6px 12px;border-radius:18px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px}
+.sq-step span{background:#cfd4da;color:#fff;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+.sq-step.active{background:#0b5cab;color:#fff}
+.sq-step.active span{background:#fff;color:#0b5cab}
+.sq-card{background:#fff;border:1px solid #e0e4e8;border-radius:8px;padding:18px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.sq-card h2{margin:0 0 12px;font-size:17px}
+.sq-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.sq-grid label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:#3a4452;font-weight:600}
+.sq-grid input,.sq-grid textarea,.sq-grid select{font:13px Segoe UI,system-ui,sans-serif;padding:7px 9px;border:1px solid #cfd4da;border-radius:5px;background:#fff;color:#1a2533}
+.sq-grid input:focus,.sq-grid select:focus,.sq-grid textarea:focus{outline:0;border-color:#0b5cab;box-shadow:0 0 0 2px rgba(11,92,171,.15)}
+.sq-span-2{grid-column:span 2}
+.sq-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:6px}
+.sq-btn{font:600 13px Segoe UI,system-ui,sans-serif;padding:8px 16px;border-radius:5px;border:1px solid #0b5cab;background:#fff;color:#0b5cab;cursor:pointer}
+.sq-btn:hover{background:#eaf2fb}
+.sq-btn-primary{background:#0b5cab;color:#fff}
+.sq-btn-primary:hover{background:#094a89}
+.sq-btn-ghost{border-color:#cfd4da;color:#3a4452}
+.sq-btn-danger{border-color:#c44;color:#c44;padding:4px 9px;font-size:12px}
+.sq-btn-danger:hover{background:#fbeaea}
+.sq-hidden{display:none !important}
+.req{color:#c44}
+.sq-customer-summary{background:#f7f9fb;border:1px solid #e0e4e8;border-radius:6px;padding:10px 12px;margin-bottom:14px;font-size:12.5px;color:#3a4452;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px 18px}
+.sq-customer-summary b{color:#1a2533}
+.sq-filter-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;align-items:flex-end}
+.sq-filter-row label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:#3a4452;min-width:150px}
+.sq-filter-row select,.sq-filter-row input{font:13px Segoe UI,system-ui,sans-serif;padding:6px 8px;border:1px solid #cfd4da;border-radius:5px;background:#fff}
+.sq-base-list{max-height:340px;overflow:auto;border:1px solid #e0e4e8;border-radius:6px}
+.sq-base-row{padding:9px 12px;border-bottom:1px solid #eef1f4;cursor:pointer;display:grid;grid-template-columns:140px 1fr 130px;gap:10px;align-items:center;font-size:12.5px}
+.sq-base-row:hover{background:#f1f6fb}
+.sq-base-row.selected{background:#e3eef9;border-left:4px solid #0b5cab;padding-left:8px}
+.sq-base-row .sq-bp-id{font-family:Consolas,monospace;font-size:11.5px;color:#555}
+.sq-base-row .sq-bp-fam{font-weight:600;color:#0b5cab}
+.sq-base-row .sq-bp-spec{color:#3a4452}
+.sq-base-row .sq-bp-price{text-align:right;font-weight:700;color:#1a2533}
+.sq-empty{padding:18px;color:#777;text-align:center}
+.sq-base-detail{background:#f7f9fb;border:1px solid #d6dee6;border-radius:6px;padding:12px 14px;margin-top:14px;font-size:12.5px}
+.sq-base-detail h3{margin:0 0 8px;font-size:14px;color:#0b5cab}
+.sq-base-detail dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 14px;margin:0}
+.sq-base-detail dt{font-weight:600;color:#555;font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;margin-top:6px}
+.sq-base-detail dd{margin:0;color:#1a2533}
+.sq-options-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.sq-options-toolbar input[type=search],.sq-options-toolbar select{font:13px Segoe UI,system-ui,sans-serif;padding:6px 9px;border:1px solid #cfd4da;border-radius:5px;flex:1;min-width:180px}
+.sq-options-list{max-height:340px;overflow:auto;border:1px solid #e0e4e8;border-radius:6px}
+.sq-opt-row{display:grid;grid-template-columns:30px 110px 1fr 110px 110px;gap:8px;align-items:center;padding:7px 10px;border-bottom:1px solid #eef1f4;font-size:12.5px}
+.sq-opt-row:hover{background:#f7faff}
+.sq-opt-row .sq-opt-type{font-size:11px;color:#0b5cab;font-weight:700;text-transform:uppercase}
+.sq-opt-row .sq-opt-pn{font-family:Consolas,monospace;font-size:11.5px;color:#555}
+.sq-opt-row .sq-opt-price{text-align:right;font-weight:600}
+.sq-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12.5px}
+.sq-table th,.sq-table td{border:1px solid #d6dee6;padding:7px 9px;vertical-align:top}
+.sq-table thead th{background:#0b5cab;color:#fff;text-align:left;font-weight:600}
+.sq-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+.sq-table tfoot td{font-weight:700;background:#f3f7fc}
+.sq-qty{width:60px;padding:3px 6px;font:13px Segoe UI;border:1px solid #cfd4da;border-radius:4px;text-align:right}
+.sq-grand{margin-top:10px;text-align:right;font-size:16px;font-weight:700;color:#0b5cab}
+.sq-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+@media (max-width:720px){
+  .sq-grid{grid-template-columns:1fr}
+  .sq-span-2{grid-column:auto}
+  .sq-base-row{grid-template-columns:1fr;gap:2px}
+  .sq-opt-row{grid-template-columns:24px 1fr 100px;gap:6px}
+  .sq-opt-row .sq-opt-pn,.sq-opt-row .sq-opt-type{display:none}
+}
+@media print{
+  .sq-no-print{display:none !important}
+  .sq-card{box-shadow:none;border-color:#bbb;page-break-inside:avoid}
+  .sq-base-list,.sq-options-list{max-height:none}
+  body{background:#fff}
+  /* Always print the quotation section even if user pressed Ctrl+P from another step */
+  #sq-step-1,#sq-step-2{display:none !important}
+  #sq-step-3{display:block !important}
+  .sq-steps,.sq-brand,.sq-toolbar,.sq-options-toolbar,.sq-options-list,.sq-filter-row{display:none !important}
+  .sq-base-detail dl{display:grid;grid-template-columns:1fr 1fr}
+  .sq-table{font-size:11.5px}
+  .sq-table th,.sq-table td{padding:5px 7px}
+  a[href]:after{content:""}
+}

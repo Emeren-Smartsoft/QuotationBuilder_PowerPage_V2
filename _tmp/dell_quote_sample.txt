@@ -1,0 +1,343 @@
+
+ <https://img.dell.com/sites/csimages/Banner_Imagery/all/delltechnolgy_blue.png>
+
+
+
+Your quote is ready for purchase.
+Complete the purchase of your personalized quote through our secure
+online checkout before the quote expires on May. 25, 2026.
+
+You can download a copy of this quote during checkout.
+
+        Place your order <https://www.dell.com/quote/purchase/ordernow/en-in/validatequote?context=kQ4OumQYKJ7na9rxipx5zCb6OK3sc0%2BAbwP3WgAOkSluxNkHAHgA2xvH4k7NbhFj%2F4hLHy4AWSvWbDc66H7j7kp5YUl%2BBjGWkO%2F5JeA7ywA0Fob%2BErRb8xaf20BaFyAzYhlWGDCOLpZaBRlu5e6VYgEsWCwQAHwp5O%2Fed3D08xs%3D&contextversion=2&ref=cce_em_qto>
+
+
+
+
+
+
+
+Quote No.:       3700024080237.2
+Total (INR):    ₹32,49,271.32
+Quoted On:       May. 11, 2026
+Expires By:      May. 25, 2026
+
+
+        Company Name:    INGRAM MICRO INDIA PRIVATE LIMITED
+Customer Name:   Pratik Modi
+Customer Number:         791509904
+End User:        NAVAL PHYSICAL AND OCEANOGRAPHIC LABORATORY | *****5884
+
+
+
+Sales Representative:    Kaushik N
+Email:   Kaushik.N@Dell.com<mailto:Kaushik.N@Dell.com>
+
+
+Message from your Sales Rep:
+Please use the Order button to securely place the order with your preferred payment method online. You may contact your Dell sales team if you have any questions. Thank you for shopping with Dell.
+
+Regards,
+Kaushik N
+
+
+
+
+Additional Comments:
+Unless otherwise expressly stated herein, the pricing is valid for fourteen (14) days from the date of this Quote. All products, pricing, and other information is based on the latest information available and is subject to change for any reason, including but not limited to tariffs imposed by government authorities, shortages in materials or resources, increase in the cost of manufacturing or other factors beyond Dell’s reasonable control. Pricing may be adjusted even after an order has been placed if the foregoing changes occur, and Dell will notify you of any revisions. Dell reserves the right to cancel this Quote and your purchase orders arising from industry pricing actions and/or your changes to Dell’s planned delivery date
+
+
+        Billing Address:
+INGRAM MICRO INDIA PRIVATE LIMITED
+Pratik Modi
+DHAWALPURA,P.S MEHNDIGANJ
+DISTRICTPATNA NEAR TOLL PLAZA
+KARMALICHAK
+800007, Bihar. Patna
+India
+GSTIN: 10AABCT1296R1Z2
+PAN No: AABCT1296R
+Sold To Address:
+INGRAM MICRO INDIA PRIVATE LIMITED
+Pratik Modi
+DHAWALPURA,P.S MEHNDIGANJ
+DISTRICTPATNA NEAR TOLL PLAZA
+KARMALICHAK
+800007, Bihar. Patna
+India
+
+AD Code is a mandatory requirement for Dollar transactions. Kindly provide valid AD Code.
+
+
+
+
+
+
+
+Pricing Summary
+
+
+
+        Qty
+        Unit Price
+        Subtotal
+
+
+
+        1.
+Dell EMC S5224F-ON Switch, 24x 25GbE SFP28, 4x 100GbE QSFP28 ports, IO to PSU air, 2x PSU
+        2
+        ₹13,76,809.88
+        ₹27,53,619.76
+
+
+
+Tax Summary
+                INR
+GST Type        GST Rate(%)     GST
+
+IGST    18      4,95,651.56
+
+Subtotal:
+        ₹27,53,619.76
+
+Total Tax Amount:
+        ₹4,95,651.56
+
+
+
+Total (INR):
+        ₹32,49,271.32
+
+
+        Alternate payment solutions are available! For financing and usage-based payment, please feel free to contact your DFS India Sales : dfs.india.sales.enquiry@dell.com
+
+
+
+        Shipping Address:
+INGRAM MICRO INDIA PRIVATE LIMITED
+Pratik Modi
+DHAWALPURA,P.S MEHNDIGANJ
+DISTRICTPATNA NEAR TOLL PLAZA
+KARMALICHAK
+800007, Bihar. Patna
+India
+GSTIN: 10AABCT1296R1Z2
+PAN No: AABCT1296R
+
+
+
+
+AD Code is a mandatory requirement for Dollar transactions. Kindly provide valid AD Code.
+
+Bill & Ship From: DELL INTERNATIONAL SERVICES INDIA PRIVATE LIMITED C/o YCH Logistics India Private Limited, Plot No D-VI (DTA UNIT) SIPCOT HITECH SEZ Phase II, Srimangadu Village Sriperumbudur Taluk, Kancheepuram, Tamil Nadu - 602105.
+GSTIN: 33AAACH1925Q1ZH PAN NO: AAACH1925Q
+
+
+
+
+        Product Details
+                                Qty
+        Unit Price
+        Subtotal
+        Tax
+        Tax Amount
+
+1.
+<https://si.cdn.dell.com/das/dih.ashx/100x100/images/global/configurator/chassis/nwk-s-srs-10gbe-on-lt-120x107.jpg>
+Dell EMC S5224F-ON Switch, 24x 25GbE SFP28, 4x 100GbE QSFP28 ports, IO to PSU air, 2x PSU
+(210-APHQ)
+        2
+        ₹13,76,809.88
+        ₹27,53,619.76
+        IGST (18%)
+
+        ₹4,95,651.56
+
+
+        Estimated delivery if purchased today: Jun. 12, 2026
+        Shipping Method: Air
+        Place of Supply: BR
+        HSN/SAC: 85176290
+
+
+Module
+Description
+        SKU
+        Qty
+
+
+Components
+
+
+Base
+Dell EMC S5224F-ON Switch, 24x 25GbE SFP28, 4x 100GbE QSFP28 ports, IO to PSU air, 2x PSU
+        210-APHQ
+        1
+
+
+Ethernet Optics
+Dell Networking, Transceiver, SFP+, 10GbE, SR, 850nm Wavelength, 300m Reach
+        407-BCZR
+        12
+
+
+25/40/100G Cables with Embedded Optics
+Dell Networking, Cable, QSFP+ to QSFP+, 40GbE Passive Copper Direct Attach Cable, 1 Meter
+        470-AAFE
+        1
+
+
+Info Mod - Factory Pass Through Process
+Info Mod - Factory Pass Through Process
+        800-BBET
+        1
+
+
+Boxing Label Mod
+Boxing Label Mod
+        389-BBCC
+        1
+
+
+Power Cords
+Jumper Cord - C13/C14, 2M, 250V, 10A (India BIS)
+        450-AGDI
+        2
+
+
+Documentation/Disks
+Dell EMC Networking S52xx-ON APJC User Guide
+        340-CHNP
+        1
+
+
+
+Software
+
+
+Operating System
+Enterprise SONiC Distribution
+        634-BUXX
+        1
+
+
+SONiC by Dell EMC Licenses
+Enterprise SONiC Distribution, Standard, 5-year subscription, 25/100G platforms
+        528-CIEV
+        1
+
+
+
+Service
+
+
+Dell Services:Hardware Support
+Limited Warranty:Yr1 Return to Depot (POW)
+        709-16504
+        1
+
+
+Dell Services:Hardware Support
+Included 90 Days Software Support
+        821-19032
+        1
+
+
+Dell Services:Hardware Support
+5Yr ProSupport:Next Business Day Onsite Service
+        865-10586
+        1
+
+
+Dell Services:Hardware Support
+5Yr ProSupport:(7x24) Technical Support & Assistance
+        865-76325
+        1
+
+
+Dell Services:Hardware Support
+Yr1 ProSupport:Next Business Day Onsite Service
+        865-76348
+        1
+
+
+Dell Services:Hardware Support
+Yr2-5 ProSupport:Next Business Day Onsite Service
+        865-76396
+        1
+
+
+Dell Services:Hardware Support
+Info:3rd Party Software Warranty provided by Vendor
+        883-16039
+        1
+
+
+Dell Services:Hardware Support
+Visit //www.dell.com/contactdell
+        883-16123
+        1
+
+
+Infrastructure Deployment Svcs
+ProDeploy Plus SONiC Switch 25/100Gb
+        683-BFKV
+        1
+
+
+Dell Services: SONIC Software Support
+5 Years ProSupport SONiC Standard 25/100G Software Support-Maintenance
+        487-14988
+        1
+
+
+Dell Services:Future Technical Support
+1Yr Technical Support
+        303-11248
+        1
+
+
+
+        Connect with Dell:              <https://www.facebook.com/dellindia/>     <https://twitter.com/delltechindia>    <https://www.linkedin.com/company/delltechnologies/>
+
+
+
+Effective 1st July 2017, we will be charging GST on all applicable goods and services supplied to you. We will also be enhancing our tax invoices issued in order to be fully-compliant and enable you to claim GST input tax credits, where entitled.
+
+
+The Finance Act, 2020 has introduced Tax Collection at Source (TCS) provisions in the Income-tax Act, 1961 (“the Act”) which require seller of goods to collect TCS on consideration received in excess of INR 50 lakhs in a Financial Year, towards such sale of goods. While determining applicability of TCS, Dell would evaluate relevant provisions of the Act including analysing whether taxes have been deducted under section 194Q or under any other provisions of the Act. Hence, while making payment, you are requested to provide the payment details along with details of tax deducted (if any) including the rate and section under which tax is deducted.
+
+Where it is determined that TCS is applicable for any transaction(s), Dell, in accordance with the provisions of the Act, reserves the right to charge / collect / adjust TCS through an intimation in any form including by way of a debit / credit note, invoice(s) or any other means.
+
+
+
+Terms of Sale
+
+
+(1) The transaction in this document (“Quote”) (including all sales and services) is subject to (a) a separate written agreement between you and Dell (including the respective affiliates) to the extent that the agreement expressly applies to the quoted items in this Quote, or to the extent there is no such written agreement, the Dell Terms and Conditions available at https://www.dell.com/en-in/lp/legal/terms-of-sale, or available upon request; (b) the relevant service agreement (which may comprise order forms, "Service Descriptions", "Technical Specification Forms" or "Statements of Work", as appliable) for the services provided by Dell; and (c) all the other terms and conditions of this Quote ((a), (b) and (c) together, the “Agreement”).
+(2) By signing a Quote and/or submitting a purchase order to Dell pursuant to a Quote, you acknowledge that you have read and agreed to be bound by the Agreement and to sharing your personal information with Dell and its affiliates and Partners. The Agreement is the final agreement between the parties in connection with the transaction, replacing any preprinted or other terms in any purchase order, invoice or other document issued by either party.
+(3) The Agreement may not be amended or varied by any other subsequent terms or conditions imposed by you without prior written approval and signature of Dell's authorized signatory or their delegate, such approval to include a specific reference to this paragraph (3).
+(4) These commodities, technology or software were exported in accordance with the United States' Export Administration Regulations. Diversion contrary to US law is prohibited.
+(5) The recipient of products may be required to present his/her identification prior to delivery of products. Our logistics partner may note the recipient's name and ID number on the Proof of Delivery for security purposes. Failing to comply will result in delayed delivery. Failure to take delivery and collection of products on the date(s) advised by Dell will entitle Dell the right to charge a penalty of Rs 150 per carton for each day that the carton is left uncollected in Dell's warehouse until the actual collection date.
+(6) For the protection and security of your credit card information, Dell requests that you do not send any credit card information through either email or fax.
+(7) Notwithstanding anything to the contrary in the Agreement, title, possession and risk of loss for hardware products purchased by you shall not pass to you before arrival of the hardware at the ship-to-address in the purchase order. The same applies to media on which software purchased by you is provided outside of a Transformational License Agreement or similar enterprise licensing arrangement.
+(8) The prices quoted are at the current INR/USD forex rate as on the date of this quote. If the INR depreciates beyond 3%, Dell reserves the right to revise the prices.
+(9) All products, pricing, and other information is based on the latest information available and is subject to change for any reason, including but not limited to tariffs imposed by government authorities, shortages in materials or resources, increase in the cost of manufacturing or other factors beyond Dell’s reasonable control. Pricing may be adjusted or purchase orders may be cancelled by Dell, even after an order has been placed if the foregoing changes occur, and Dell will notify you of any revisions. Dell reserves the right to cancel this Quote and your purchase orders arising from pricing errors and/or your changes to Dell’s planned delivery date..
+
+
+Payment Solutions: Leasing and financing provided by Dell International Services India Pvt. Ltd or its affiliate or designee (“DFS”) to qualified customers. All payments are excluding taxes. Offers may be changed without notice and are subject to product availability, credit approval, execution of documentation provided by and acceptable to DFS, and may be subject to minimum transaction size. Offers not available for personal, family or household use. Dell and the Dell logo are trademarks of Dell Inc. Proposal is property of DFS, contains confidential information and shall not be duplicated or disclosed in whole or part. Proposal valid through the expiration date shown above, or if none is specified, for 30 calendar days from date of presentation. E&OE.
+
+
+
+
+
+
+Dell International Services India Pvt.,Ltd., Crystal Downs Survey no. 7/1, 7/2, 7/3, Embassy Golf Links Business Park, Off-Intermediate Ring Road, Domlur, Challaghatta Village, Varthur Hobli, Bengaluru- 560071, Karnataka, India.
+
+
+
+
+
+Export or re-export to Russia or Belarus or for use in Russia or Belarus are expressly prohibited. Dell reserves all rights and remedies to enforce this restriction, including injunctive relief, damages, and cancellation/termination.
+

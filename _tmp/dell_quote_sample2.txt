@@ -1,0 +1,530 @@
+
+ <https://img.dell.com/sites/csimages/Banner_Imagery/all/delltechnolgy_blue.png>
+
+
+
+Your quote is ready for purchase.
+Complete the purchase of your personalized quote through our secure
+online checkout before the quote expires on May. 25, 2026.
+
+You can download a copy of this quote during checkout.
+
+        Place your order <https://www.dell.com/quote/purchase/ordernow/en-in/validatequote?context=kQ4OumQYKJ7na9rxipx5zIh6RMBMfkruiXjceSveCmHGrUuIAnt2%2BXxOiWkHidJY1%2F1qJ%2FQqOHnj1pLAsgZ%2Ff2Jbk5ti429AXbQkWBRMguxcQrPQePxRazBerDXLm2F9Rr8MjUv7SKUXrmglCbahHBVT2Equgu5hLjz5UuJAcP0%3D&contextversion=2&ref=cce_em_qto>
+
+
+
+
+
+
+
+Quote No.:       3700023958518.3
+Total (INR):    ₹16,61,75,622.33
+Quoted On:       May. 11, 2026
+Expires By:      May. 25, 2026
+
+
+        Company Name:    INGRAM MICRO INDIA PRIVATE LIMITED
+Customer Name:   JYOTI KAMBLE
+Customer Number:         782770212
+Deal ID:         30599564
+End User:        NAVAL PHYSICAL & OCEANOGRAPHIC LABORATORY | *****3093
+
+
+
+Sales Representative:    Kaushik N
+Email:   Kaushik.N@Dell.com<mailto:Kaushik.N@Dell.com>
+
+
+Message from your Sales Rep:
+Please use the Order button to securely place the order with your preferred payment method online. You may contact your Dell sales team if you have any questions. Thank you for shopping with Dell.
+
+Regards,
+Kaushik N
+
+
+
+
+Additional Comments:
+Unless otherwise expressly stated herein, the pricing is valid for fourteen (14) days from the date of this Quote. All products, pricing, and other information is based on the latest information available and is subject to change for any reason, including but not limited to tariffs imposed by government authorities, shortages in materials or resources, increase in the cost of manufacturing or other factors beyond Dell’s reasonable control. Pricing may be adjusted even after an order has been placed if the foregoing changes occur, and Dell will notify you of any revisions. Dell reserves the right to cancel this Quote and your purchase orders arising from industry pricing actions and/or your changes to Dell’s planned delivery date
+
+
+        Billing Address:
+INGRAM MICRO INDIA PRIVATE LIMITED
+JYOTI KAMBLE
+BUILDING NO 11, K SQUARE IND
+PARK
+MUMBAI NASIK HIGHWAY BHIWANDI
+421101, Maharashtra. BHIWANDI
+India
+GSTIN: 27AABCT1296R1ZN
+PAN No: AABCT1296R
+Sold To Address:
+INGRAM MICRO INDIA PRIVATE LIMITED
+JYOTI KAMBLE
+BUILDING NO 11, K SQUARE IND
+PARK
+MUMBAI NASIK HIGHWAY BHIWANDI
+421101, Maharashtra. BHIWANDI
+India
+
+AD Code is a mandatory requirement for Dollar transactions. Kindly provide valid AD Code.
+
+
+
+
+
+
+
+Pricing Summary
+
+
+
+        Qty
+        Unit Price
+        Subtotal
+
+
+
+        1.
+PowerEdge R770 Server
+        3
+        ₹4,69,42,266.18
+        ₹14,08,26,798.54
+
+
+
+Tax Summary
+                INR
+GST Type        GST Rate(%)     GST
+
+IGST    18      2,53,48,823.79
+
+Subtotal:
+        ₹14,08,26,798.54
+
+Total Tax Amount:
+        ₹2,53,48,823.79
+
+
+
+Total (INR):
+        ₹16,61,75,622.33
+
+
+        Alternate payment solutions are available! For financing and usage-based payment, please feel free to contact your DFS India Sales : dfs.india.sales.enquiry@dell.com
+
+
+
+        Shipping Address:
+INGRAM MICRO INDIA PRIVATE LIMITED
+JYOTI KAMBLE
+BUILDING NO 11, K SQUARE IND
+PARK
+MUMBAI NASIK HIGHWAY BHIWANDI
+421101, Maharashtra. BHIWANDI
+India
+GSTIN: 27AABCT1296R1ZN
+PAN No: AABCT1296R
+
+
+
+
+AD Code is a mandatory requirement for Dollar transactions. Kindly provide valid AD Code.
+
+Bill & Ship From: Dell International Services India Pvt.,Ltd., Plot No. M - 4, SIPCOT industrial park, Sriperumbudur Hi Tech SEZ, Sirumangadu Village, Sriperumbudur Taluk, Kancheepuram 602 106
+GSTIN: 33AAACH1925Q2ZG PAN NO: AAACH1925Q
+
+
+
+
+        Product Details
+                                Qty
+        Unit Price
+        Subtotal
+        Tax
+        Tax Amount
+
+1.
+<https://si.cdn.dell.com/das/dih.ashx/100x100/images/global/configurator/chassis/ent-pedge-srv-r770-lft-120x107.jpg>
+PowerEdge R770 Server
+(210-BNWX)
+        3
+        ₹4,69,42,266.18
+        ₹14,08,26,798.54
+        IGST (18%)
+
+        ₹2,53,48,823.79
+
+
+        Estimated delivery if purchased today: Sep. 23, 2026
+        Shipping Method: Standard
+        Place of Supply: Maharashtra(MH)
+        HSN/SAC: 84715000
+
+
+Module
+Description
+        SKU
+        Qty
+
+
+Components
+
+
+Base
+PowerEdge R770 Server
+        210-BNWX
+        1
+
+
+Chassis Configuration
+EDSFF E3.S Chassis with up to 16 Drives (NVMe Gen5 HW RAID), Smart Flow, Front PERC (H975i)
+        321-BLWX
+        1
+
+
+Processor
+Intel Xeon 6 Performance 6530P 2.3G, 32C/64T, 24GT/s, 144M Cache, Turbo, (225W) DDR5-6400
+        338-CTBG
+        1
+
+
+Additional Processor
+Intel Xeon 6 Performance 6530P 2.3G, 32C/64T, 24GT/s, 144M Cache, Turbo, (225W) DDR5-6400
+        338-CTBG
+        1
+
+
+Additional Processor
+Additional Processor Selected
+        379-BDCO
+        1
+
+
+Thermal Configuration
+Heatsink for 2 CPU with GPU Configuration (CPU less than or equal to 250W)
+        412-BBJT
+        1
+
+
+Memory Configuration Type
+Performance Optimized
+        370-AAIP
+        1
+
+
+Memory DIMM Type and Speed
+6400MT/s RDIMMs
+        370-BCCX
+        1
+
+
+Memory Capacity
+64GB RDIMM, 6400MT/s, Dual Rank
+        370-BCCZ
+        16
+
+
+RAID Configuration
+C34, RAID 5 with NVMe and front PERC
+        379-BEGF
+        1
+
+
+RAID Controller
+PERC, H975i Controller, Front, PQC Quantum Ready
+        403-BDTB
+        1
+
+
+Hard Drives
+No Hard Drive
+        400-ABHL
+        1
+
+
+Hard Drives (PCIe SSD/Flex Bay)
+3.84TB Data Center NVMe Read Intensive AG Drive E3s Gen5 with carrier
+        345-BKLR
+        4
+
+
+BIOS and Advanced System Configuration Settings
+Performance BIOS Settings
+        384-BBBL
+        1
+
+
+Fans
+PowerEdge 2U High Performance Platinum Fan
+        384-BDTQ
+        1
+
+
+Power Supply
+Dual,Redundant(1+1),Hot-Plug MHS PSU,3200W MM HLAC(Only for 200-240Vac)Titanium
+        450-BDTD
+        1
+
+
+Power Cords
+Jumper Cord - C19/C20, 2.5M, 250V, 16A (India BIS)
+        450-AGDJ
+        2
+
+
+PCIe Riser
+Riser Config 11-2, Rear 2x16 LP (Gen5), 1x16 FH (Gen5), 1x8/1x16 OCP (Gen5), 2nd OCP x8 (Gen5), 2x16 DWFL (Gen5)
+        330-BDCJ
+        1
+
+
+Motherboard
+PowerEdge R770 Motherboard for RTS1.2, ROW
+        338-CRTY
+        1
+
+
+OCP 3.0 Network Adapters
+No OCP Card, No Primary MAC Address
+        780-BCZG
+        1
+
+
+OCP 3.0 Accessories
+No OCP - 2 Rear Blanks
+        470-BCNP
+        1
+
+
+GPU/FPGA/Acceleration Cards
+NVIDIA H200 NVL, PCIe, 450W for Rack Servers, 600W for XE Servers, 141GB Passive, Double Wide, Full Height GPU
+        490-BKPN
+        2
+
+
+Acceleration Cards Cables
+No Cables Required
+        470-AEYU
+        1
+
+
+SPF Modules
+GPU Factory Installed R5 600W Cable for DW GPU
+        470-BFCB
+        1
+
+
+SPF Modules
+GPU Factory Installed R1 600W Cable for DW GPU
+        470-BFCC
+        1
+
+
+Bezel
+Dell Luggage Tag, R770
+        350-BCYM
+        1
+
+
+Bezel
+PowerEdge 2U Standard Bezel
+        350-BDBP
+        1
+
+
+Boot Optimized Storage Cards
+BOSS-N1 controller card + with 2 M.2 960GB (RAID 1) (22x80)
+        403-BDMC
+        1
+
+
+Embedded Systems Management
+iDRAC10, Enterprise 17G
+        634-CSHY
+        1
+
+
+Embedded Systems Management
+OpenManage Enterprise Advanced
+        634-CSGW
+        1
+
+
+Embedded Systems Management
+Dell Connectivity Client - Enabled
+        379-BFXS
+        1
+
+
+Embedded Systems Management
+Dell Connectivity Module 17G
+        634-CZRP
+        1
+
+
+KVM
+Blank Left Ear Module
+        350-BCYL
+        1
+
+
+BMC Password
+Force password for No OCP Mac Scan, No LOM MAC Scan
+        379-BFSV
+        1
+
+
+Rack Rails
+ReadyRails Sliding Rails (B21)
+        770-BECC
+        1
+
+
+SHIPPING
+PowerEdge Shipping APCC, CCC, ICC
+        340-DRWQ
+        1
+
+
+SHIPPING
+PowerEdge R770 Shipping, APCC,CCC4,ICC
+        340-DSDX
+        1
+
+
+Shipping Material
+PowerEdge 2U Shipping Material
+        340-DPDX
+        1
+
+
+Regulatory
+PowerEdge No CCC, No CE Label Marking
+        389-FHHY
+        1
+
+
+BIS Marking
+BIS label on E.3 Chassis with 3200W MM Power Supply, ICC
+        389-FKPS
+        1
+
+
+
+Software
+
+
+Advanced System Configurations
+UEFI BIOS Boot Mode with GPT Partition
+        800-BBDM
+        1
+
+
+Operating System
+No Operating System
+        611-BBBF
+        1
+
+
+OS Media Kits
+No Media Required
+        605-BBFN
+        1
+
+
+Embedded Systems Management
+Secure Enterprise Key Manager License 3.0
+        634-CSHS
+        1
+
+
+Embedded Systems Management
+Secured Component Verification
+        634-CSHT
+        1
+
+
+Dell Secure Onboarding
+Dell Secure Onboarding Client 17G - Disabled
+        634-CZWJ
+        1
+
+
+
+Service
+
+
+Dell Services: Hardware Support
+Basic Next Business Day 36 Months
+        709-BBHI
+        1
+
+
+Extended Service
+ProSupport and Next Business Day Onsite Service Initial, 36 Month(s)
+        865-BBMY
+        1
+
+
+Extended Service
+ProSupport and Next Business Day Onsite Service Extension, 24 Month(s)
+        865-BBMZ
+        1
+
+
+Keep Your Hard Drive for Enterprise Services
+Keep Your Hard Drive For Enterprise, 60 Month(s)
+        711-BCXN
+        1
+
+
+Infrastructure Deployment Svcs
+ProDeploy Plus PowerEdge R Series 1u2u
+        683-BBGH
+        1
+
+
+
+        Connect with Dell:              <https://www.facebook.com/dellindia/>     <https://twitter.com/delltechindia>    <https://www.linkedin.com/company/delltechnologies/>
+
+
+
+Effective 1st July 2017, we will be charging GST on all applicable goods and services supplied to you. We will also be enhancing our tax invoices issued in order to be fully-compliant and enable you to claim GST input tax credits, where entitled.
+
+
+The Finance Act, 2020 has introduced Tax Collection at Source (TCS) provisions in the Income-tax Act, 1961 (“the Act”) which require seller of goods to collect TCS on consideration received in excess of INR 50 lakhs in a Financial Year, towards such sale of goods. While determining applicability of TCS, Dell would evaluate relevant provisions of the Act including analysing whether taxes have been deducted under section 194Q or under any other provisions of the Act. Hence, while making payment, you are requested to provide the payment details along with details of tax deducted (if any) including the rate and section under which tax is deducted.
+
+Where it is determined that TCS is applicable for any transaction(s), Dell, in accordance with the provisions of the Act, reserves the right to charge / collect / adjust TCS through an intimation in any form including by way of a debit / credit note, invoice(s) or any other means.
+
+
+
+Terms of Sale
+
+
+(1) The transaction in this document (“Quote”) (including all sales and services) is subject to (a) a separate written agreement between you and Dell (including the respective affiliates) to the extent that the agreement expressly applies to the quoted items in this Quote, or to the extent there is no such written agreement, the Dell Terms and Conditions available at https://www.dell.com/en-in/lp/legal/terms-of-sale, or available upon request; (b) the relevant service agreement (which may comprise order forms, "Service Descriptions", "Technical Specification Forms" or "Statements of Work", as appliable) for the services provided by Dell; and (c) all the other terms and conditions of this Quote ((a), (b) and (c) together, the “Agreement”).
+(2) By signing a Quote and/or submitting a purchase order to Dell pursuant to a Quote, you acknowledge that you have read and agreed to be bound by the Agreement and to sharing your personal information with Dell and its affiliates and Partners. The Agreement is the final agreement between the parties in connection with the transaction, replacing any preprinted or other terms in any purchase order, invoice or other document issued by either party.
+(3) The Agreement may not be amended or varied by any other subsequent terms or conditions imposed by you without prior written approval and signature of Dell's authorized signatory or their delegate, such approval to include a specific reference to this paragraph (3).
+(4) These commodities, technology or software were exported in accordance with the United States' Export Administration Regulations. Diversion contrary to US law is prohibited.
+(5) The recipient of products may be required to present his/her identification prior to delivery of products. Our logistics partner may note the recipient's name and ID number on the Proof of Delivery for security purposes. Failing to comply will result in delayed delivery. Failure to take delivery and collection of products on the date(s) advised by Dell will entitle Dell the right to charge a penalty of Rs 150 per carton for each day that the carton is left uncollected in Dell's warehouse until the actual collection date.
+(6) For the protection and security of your credit card information, Dell requests that you do not send any credit card information through either email or fax.
+(7) Notwithstanding anything to the contrary in the Agreement, title, possession and risk of loss for hardware products purchased by you shall not pass to you before arrival of the hardware at the ship-to-address in the purchase order. The same applies to media on which software purchased by you is provided outside of a Transformational License Agreement or similar enterprise licensing arrangement.
+(8) The prices quoted are at the current INR/USD forex rate as on the date of this quote. If the INR depreciates beyond 3%, Dell reserves the right to revise the prices.
+(9) All products, pricing, and other information is based on the latest information available and is subject to change for any reason, including but not limited to tariffs imposed by government authorities, shortages in materials or resources, increase in the cost of manufacturing or other factors beyond Dell’s reasonable control. Pricing may be adjusted or purchase orders may be cancelled by Dell, even after an order has been placed if the foregoing changes occur, and Dell will notify you of any revisions. Dell reserves the right to cancel this Quote and your purchase orders arising from pricing errors and/or your changes to Dell’s planned delivery date.
+
+
+Payment Solutions: Leasing and financing provided by Dell International Services India Pvt. Ltd or its affiliate or designee (“DFS”) to qualified customers. All payments are excluding taxes. Offers may be changed without notice and are subject to product availability, credit approval, execution of documentation provided by and acceptable to DFS, and may be subject to minimum transaction size. Offers not available for personal, family or household use. Dell and the Dell logo are trademarks of Dell Inc. Proposal is property of DFS, contains confidential information and shall not be duplicated or disclosed in whole or part. Proposal valid through the expiration date shown above, or if none is specified, for 30 calendar days from date of presentation. E&OE.
+
+
+
+
+
+
+Dell International Services India Pvt. Ltd, M-4, SIPCOT Industrial Park, Sunguvarchatram Post, Sriperumbudur Taluk, Kancheepuram District, Tamil Nadu – 602106
+
+
+
+
+
+Export or re-export to Russia or Belarus or for use in Russia or Belarus are expressly prohibited. Dell reserves all rights and remedies to enforce this restriction, including injunctive relief, damages, and cancellation/termination.
+

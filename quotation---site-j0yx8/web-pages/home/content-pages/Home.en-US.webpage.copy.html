@@ -1,0 +1,124 @@
+<!--
+    Home page layout for Quotation Site.
+    Sections: Hero · Intro · Feature cards · SharePoint embed · Teams embed · Footer CTA
+
+    Configure the embeds:
+      * SharePoint: replace the src on #qs-sp-frame with your document library
+        URL appended with ?web=1 (e.g. https://contoso.sharepoint.com/sites/Sales/Shared%20Documents/Forms/AllItems.aspx?web=1).
+      * Teams: replace the src on #qs-teams-frame and the href on #qs-teams-link
+        with your channel deep-link. Teams sets X-Frame-Options=SAMEORIGIN so the
+        iframe may stay blank for some tenants — the "Open in Teams" button is
+        the supported fallback.
+-->
+
+<!-- ============ HERO ============ -->
+<div class="row sectionBlockLayout" data-component-theme="portalThemeColor1" style="display:flex; flex-wrap:wrap; text-align:left; min-height:auto;">
+    <div class="container" style="padding:0; display:flex; flex-wrap:wrap; flex-direction:row-reverse;">
+        <div class="col-lg-6 columnBlockLayout" style="flex-grow:1; display:flex; flex-direction:column; min-width:300px; justify-content:center;">
+            <img src="/Geometric-4.png" alt="" name="Geometric-4.png" style="width:100%; height:auto; max-width:100%;">
+        </div>
+        <div class="col-lg-6 columnBlockLayout" style="flex-grow:1; display:flex; flex-direction:column; min-width:300px; justify-content:center; padding:24px;">
+            <h1 style="margin-bottom:8px;">Build a quotation in minutes</h1>
+            <p style="font-size:1.1rem; margin-bottom:24px;">Pick a category, choose products from the latest price list and generate a branded PDF proposal — all from one page.</p>
+            <div>
+                <button onclick="window.location.href='/quotation/'" type="button" class="button1" style="margin-right:8px;">Start a quotation</button>
+                <button onclick="document.getElementById('qs-files').scrollIntoView({behavior:'smooth'});" type="button" class="button1" style="background:transparent; border:1px solid currentColor;">Browse files</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row sectionBlockLayout" data-component-theme="portalThemeColor3" style="display:flex; flex-wrap:wrap; min-height:28px;"></div>
+
+<!-- ============ INTRO ============ -->
+<div class="row sectionBlockLayout" style="display:flex; flex-wrap:wrap; text-align:left; min-height:auto;">
+    <div class="container" style="padding:0; display:flex; flex-wrap:wrap;">
+        <div class="col-lg-12 columnBlockLayout" style="flex-grow:1; display:flex; flex-direction:column; min-width:300px;">
+            <h2 style="text-align:center;">Everything your sales team needs</h2>
+            <p style="text-align:center; max-width:780px; margin:0 auto;">The Quotation portal connects directly to your SharePoint price lists, proposal templates and saved quotations through Power Automate — so the numbers, branding and approvals stay in one governed place.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ============ FEATURE CARDS ============ -->
+<div class="row sectionBlockLayout" style="display:flex; flex-wrap:wrap; text-align:left; min-height:auto;">
+    <div class="container" style="padding:0; display:flex; flex-wrap:wrap;">
+        <div class="col-lg-4 columnBlockLayout" style="flex-grow:1; display:flex; flex-direction:column; min-width:300px; padding:16px;">
+            <img src="/Circle-1.png" alt="" style="width:96px; height:96px; max-width:100%; margin:0 auto 12px;">
+            <h3 style="text-align:center;">Live price lists</h3>
+            <p style="text-align:center;">Categories and products are read straight from the <em>Pricelist</em> library in SharePoint. Update an Excel file and the quotation form picks it up instantly.</p>
+        </div>
+        <div class="col-lg-4 columnBlockLayout" style="flex-grow:1; display:flex; flex-direction:column; min-width:300px; padding:16px;">
+            <img src="/Circle-2.png" alt="" style="width:96px; height:96px; max-width:100%; margin:0 auto 12px;">
+            <h3 style="text-align:center;">Branded proposals</h3>
+            <p style="text-align:center;">Append any annexure from the <em>Proposal Templates</em> library and export the full quotation as a single, print-ready PDF.</p>
+        </div>
+        <div class="col-lg-4 columnBlockLayout" style="flex-grow:1; display:flex; flex-direction:column; min-width:300px; padding:16px;">
+            <img src="/Circle-3.png" alt="" style="width:96px; height:96px; max-width:100%; margin:0 auto 12px;">
+            <h3 style="text-align:center;">One-click delivery</h3>
+            <p style="text-align:center;">Save the quotation back to SharePoint and (optionally) email it to the customer via Outlook — all in a single submit.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row sectionBlockLayout" data-component-theme="portalThemeColor6" style="display:flex; flex-wrap:wrap; min-height:52px;"></div>
+
+<!-- ============ SHAREPOINT EMBED ============ -->
+<div id="qs-files" class="row sectionBlockLayout" data-component-theme="portalThemeColor3" style="display:flex; flex-wrap:wrap; text-align:left; min-height:auto;">
+    <div class="container" style="padding:0; display:flex; flex-wrap:wrap;">
+        <div class="col-lg-12 columnBlockLayout" style="flex-grow:1; display:flex; flex-direction:column; min-width:300px; padding:16px;">
+            <h2>Shared files</h2>
+            <p>Browse the supporting documents library directly below. Use the SharePoint toolbar to upload, sort or open files in their native apps.</p>
+            <div style="position:relative; width:100%; padding-top:62.5%; overflow:hidden; border:1px solid #ddd; border-radius:6px; background:#f7f7f7;">
+                <iframe id="qs-sp-frame"
+                        title="SharePoint document library"
+                        src="https://your-tenant.sharepoint.com/sites/YourSite/Shared%20Documents/Forms/AllItems.aspx?web=1"
+                        frameborder="0"
+                        allowfullscreen
+                        style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;">
+                </iframe>
+            </div>
+            <p style="font-size:0.85rem; color:#666; margin-top:8px;">Replace the <code>src</code> on <code>#qs-sp-frame</code> with your library URL (append <code>?web=1</code> for the embeddable view).</p>
+        </div>
+    </div>
+</div>
+
+<!-- ============ TEAMS EMBED ============ -->
+<div class="row sectionBlockLayout" style="display:flex; flex-wrap:wrap; text-align:left; min-height:auto;">
+    <div class="container" style="padding:0; display:flex; flex-wrap:wrap;">
+        <div class="col-lg-12 columnBlockLayout" style="flex-grow:1; display:flex; flex-direction:column; min-width:300px; padding:16px;">
+            <h2>Talk to the team</h2>
+            <p>Reach the sales desk on Microsoft Teams. Sign-in may be required the first time.</p>
+            <div style="position:relative; width:100%; padding-top:56.25%; overflow:hidden; border:1px solid #ddd; border-radius:6px; background:#f7f7f7;">
+                <iframe id="qs-teams-frame"
+                        title="Microsoft Teams channel"
+                        src="https://teams.microsoft.com/_#/conversations/General?threadId=REPLACE_THREAD_ID&ctx=channel"
+                        frameborder="0"
+                        allow="camera; microphone; fullscreen; display-capture; autoplay"
+                        style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;">
+                </iframe>
+            </div>
+            <div style="margin-top:12px;">
+                <a id="qs-teams-link" class="button1"
+                   href="https://teams.microsoft.com/l/channel/REPLACE_THREAD_ID/General?groupId=REPLACE_GROUP_ID&tenantId=REPLACE_TENANT_ID"
+                   target="_blank" rel="noopener">Open in Teams</a>
+            </div>
+            <p style="font-size:0.85rem; color:#666; margin-top:8px;">Teams blocks most iframe hosts via <code>X-Frame-Options</code>. If the frame stays blank, keep the <em>Open in Teams</em> deep-link as the fallback.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row sectionBlockLayout" data-component-theme="portalThemeColor5" style="display:flex; flex-wrap:wrap; min-height:52px;"></div>
+
+<!-- ============ FOOTER CTA ============ -->
+<div class="row sectionBlockLayout" data-component-theme="portalThemeColor1" style="display:flex; flex-wrap:wrap; text-align:left; min-height:auto;">
+    <div class="container" style="padding:0; display:flex; flex-wrap:wrap;">
+        <div class="col-lg-12 columnBlockLayout" style="flex-grow:1; display:flex; flex-direction:column; min-width:300px; text-align:center; padding:32px 16px;">
+            <h2>Ready to send your next quote?</h2>
+            <p>Jump straight to the builder and have a PDF in your inbox before the kettle boils.</p>
+            <div>
+                <button onclick="window.location.href='/quotation/'" type="button" class="button1">Open the Quotation Builder</button>
+            </div>
+        </div>
+    </div>
+</div>
