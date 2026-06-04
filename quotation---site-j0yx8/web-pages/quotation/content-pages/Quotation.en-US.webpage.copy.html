@@ -248,6 +248,20 @@
           <tr class="qt-empty"><td colspan="9">No products added yet. Use the selector above.</td></tr>
         </tbody>
         <tfoot>
+          <tr class="qt-subtotal-row">
+            <td class="qt-grand-spacer qt-grand-merged" colspan="5"></td>
+            <td class="qt-grand-spacer qt-col-hide-print"></td>
+            <td class="qt-grand-spacer qt-col-hide-print"></td>
+            <td class="qt-grand-label">Subtotal (&#8377;)</td>
+            <td id="qt-subtotal" class="qt-grand-value">&#8377; 0.00</td>
+          </tr>
+          <tr class="qt-discount-row" style="display:none;">
+            <td class="qt-grand-spacer qt-grand-merged" colspan="5"></td>
+            <td class="qt-grand-spacer qt-col-hide-print"></td>
+            <td class="qt-grand-spacer qt-col-hide-print"></td>
+            <td class="qt-grand-label" id="qt-discount-label">Discount</td>
+            <td id="qt-discount-amount" class="qt-grand-value" style="color:#b00;">&#8377; 0.00</td>
+          </tr>
           <tr>
             <td class="qt-grand-spacer qt-grand-merged" colspan="5"></td>
             <td class="qt-grand-spacer qt-col-hide-print"></td>
@@ -257,6 +271,18 @@
           </tr>
         </tfoot>
       </table>
+    </div>
+
+    <div class="qt-discount-row-input qt-no-print" style="margin-top:14px; padding:12px 14px; background:#fff8e1; border:1px solid #f0d97a; border-radius:6px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+      <label for="qt-discount-mode" style="font-size:13px; font-weight:600; color:#1a2533; margin:0;">Discount:</label>
+      <select id="qt-discount-mode" style="font:inherit; padding:7px 10px; border:1px solid #cfd4da; border-radius:6px; background:#fff;">
+        <option value="none">None</option>
+        <option value="pct">Percentage (%)</option>
+        <option value="value">Flat amount (&#8377;)</option>
+      </select>
+      <input type="number" id="qt-discount-value" min="0" step="0.01" value="0" placeholder="0"
+        style="font:inherit; padding:7px 10px; border:1px solid #cfd4da; border-radius:6px; background:#fff; width:130px; display:none;" />
+      <span id="qt-discount-preview" style="font-size:12px; color:#666;">No discount applied.</span>
     </div>
 
     <div class="qt-cl-row" style="margin-top:18px; padding:12px 14px; background:#f8fafd; border:1px solid #d4dfed; border-radius:6px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
@@ -292,11 +318,11 @@
 <script id="productData" type="application/json">
 {
   "flowUrls": {
-    "getCategories": "https://9812337a468ced9ca7578b2d70425b.8d.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/236ee2a153774307bbe46ebaca9abef7/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=S8FXq8tOJWtng3a8d1n7J8Itja9-M3-ZKs0CE6SLjlo",
-    "getProducts": "https://9812337a468ced9ca7578b2d70425b.8d.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/2949d19dbbd54a4ea63cfaa6326ad746/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LZoJEHbKjmWnhmSmObewW1mMqutgcd4wM3gzO-GyHRU",
-    "saveQuotation": "https://9812337a468ced9ca7578b2d70425b.8d.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/4a292ca5b50e47cab5968c8efb382a94/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KP2ASS0-Ugdmqze_3OCinU9xryybXqK2-Tup-PszZUw",
-    "getProposalTemplates": "https://9812337a468ced9ca7578b2d70425b.8d.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/54c9adc1566b4c6c94106f936ea366a8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=lZW2LDYMbBrCf4MJ13Kaedg3kXXznejJsZC3e1FfH3g",
-    "getWorkstationData": "https://9812337a468ced9ca7578b2d70425b.8d.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/d245367393164d849c1ef322b45fdfb7/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=le0iyw4JxDszsGlKxDUViY-0vWR5MJo1rgY3ayhE7GY"
+    "getCategories": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/4dedd668ea5b4211a877776d18daaf9e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=BQXolqJ5BHhfg903MRX1f8CeD66ZfoW539fFaEp9iPs",
+    "getProducts": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f729dbb5b10b42c081c8131c91d8464f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hTqPdSox8w4WJw48N3T9ILp9ZfIZ5q7pyur6Lwzi-uc",
+    "saveQuotation": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/26dbc82788ac43f291929ead45a5462f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=pV4yD3RFHl-GAXS_S4CbMm0CyIBvx1PVf7ScvsmIX4g",
+    "getProposalTemplates": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a0083e6903a54891a2c3e8eacc29fbe5/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=kAHAcH6fsJ7tKIBnM68daRl4N5kVDBkp8ANy_Z9JnPA",
+    "getWorkstationData": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/c1339acf61544fbd9160751596f1547f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MTDYvlb8sNfzJyf9-9-b6FFqgQwjSWuSzkpOIkWHSZk"
   },
   "defaultMargin": 10
 }

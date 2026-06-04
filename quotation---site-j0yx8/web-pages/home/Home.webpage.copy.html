@@ -1,0 +1,297 @@
+<!--
+    Home page layout for Quotation Site.
+
+    Structure (all sections scoped under .qs-home so styles cannot leak):
+      1. Hero            — gradient band, headline, primary CTAs, illustration
+      2. Trust strip     — quick "powered by" row with brand mark
+      3. Features        — three cards backed by Circle-1/2/3 badges
+      4. How it works    — three numbered steps + Graph-1 illustration
+      5. Embeds          — SharePoint + Teams in matching cards
+      6. CTA band        — closing gradient band with one primary action
+
+    Configure the embeds:
+      * SharePoint: replace the src on #qs-sp-frame with your document library
+        URL appended with ?web=1 (e.g.
+        https://contoso.sharepoint.com/sites/Sales/Shared%20Documents/Forms/AllItems.aspx?web=1).
+      * Teams: replace the src on #qs-teams-frame and the href on #qs-teams-link
+        with your channel deep-link. Teams sets X-Frame-Options=SAMEORIGIN so
+        the iframe may stay blank for some tenants — the "Open in Teams" button
+        is the supported fallback.
+
+    All visual styling lives in Home.en-US.webpage.custom_css.css. The `qs-`
+    class prefix is reserved for this page (Quotation Builder uses `qt-`).
+-->
+
+<div class="qs-home">
+
+    <!-- ============ 1. HERO ============ -->
+    <section class="qs-hero">
+        <div class="qs-hero-inner">
+            <div class="qs-hero-copy">
+                <span class="qs-eyebrow">Quotation Portal</span>
+                <h1>Build a quotation in&nbsp;minutes.</h1>
+                <p>Pick a category, choose products from the latest price list and generate a branded PDF proposal &mdash; all from one page, powered by SharePoint and Power Automate.</p>
+                <div class="qs-cta-row">
+                    <a href="/quotation/" class="qs-btn">Start a quotation &rarr;</a>
+                    <a href="/dell-quote/" class="qs-btn qs-btn--accent">Build Dell quote</a>
+                    <a href="#qs-files" class="qs-btn qs-btn--ghost">Browse files</a>
+                </div>
+            </div>
+            <div class="qs-hero-art">
+                <svg class="qs-hero-svg" viewBox="0 0 560 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Quotation proposal illustration">
+                    <defs>
+                        <linearGradient id="qsPaper" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0" stop-color="#ffffff"/>
+                            <stop offset="1" stop-color="#eef3ff"/>
+                        </linearGradient>
+                        <linearGradient id="qsBlue" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0" stop-color="#22d3ee"/>
+                            <stop offset="1" stop-color="#2563eb"/>
+                        </linearGradient>
+                        <linearGradient id="qsBar" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0" stop-color="#2563eb"/>
+                            <stop offset="1" stop-color="#22d3ee"/>
+                        </linearGradient>
+                        <filter id="qsShadow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#000" flood-opacity="0.35"/>
+                        </filter>
+                    </defs>
+
+                    <!-- Decorative orbs -->
+                    <circle cx="70" cy="80" r="54" fill="#22d3ee" opacity="0.18"/>
+                    <circle cx="500" cy="360" r="70" fill="#2563eb" opacity="0.22"/>
+
+                    <!-- Back document -->
+                    <g transform="translate(110 70) rotate(-6 170 200)" filter="url(#qsShadow)">
+                        <rect width="320" height="380" rx="14" fill="#dbeafe"/>
+                        <rect x="24" y="24" width="160" height="14" rx="4" fill="#93c5fd"/>
+                        <rect x="24" y="52" width="100" height="10" rx="3" fill="#bfdbfe"/>
+                    </g>
+
+                    <!-- Front document (quotation) -->
+                    <g transform="translate(130 50)" filter="url(#qsShadow)">
+                        <rect width="340" height="380" rx="16" fill="url(#qsPaper)"/>
+                        <!-- Header band -->
+                        <rect width="340" height="64" rx="16" fill="url(#qsBar)"/>
+                        <rect y="48" width="340" height="16" fill="url(#qsBar)"/>
+                        <text x="24" y="40" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#ffffff">QUOTATION</text>
+                        <circle cx="310" cy="32" r="14" fill="#ffffff" opacity="0.85"/>
+                        <path d="M304 32 l5 5 l11 -11" stroke="#2563eb" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+                        <!-- Meta rows -->
+                        <rect x="24" y="86" width="120" height="8" rx="3" fill="#cbd5e1"/>
+                        <rect x="24" y="102" width="180" height="10" rx="3" fill="#0a1733"/>
+                        <rect x="230" y="86" width="86" height="8" rx="3" fill="#cbd5e1"/>
+                        <rect x="230" y="102" width="86" height="10" rx="3" fill="#0a1733"/>
+
+                        <!-- Table header -->
+                        <rect x="24" y="140" width="292" height="22" rx="4" fill="#eff6ff"/>
+                        <rect x="34" y="148" width="70" height="6" rx="2" fill="#2563eb"/>
+                        <rect x="180" y="148" width="40" height="6" rx="2" fill="#2563eb"/>
+                        <rect x="250" y="148" width="56" height="6" rx="2" fill="#2563eb"/>
+
+                        <!-- Line items -->
+                        <g fill="#e2e8f0">
+                            <rect x="24" y="176" width="292" height="1"/>
+                            <rect x="24" y="210" width="292" height="1"/>
+                            <rect x="24" y="244" width="292" height="1"/>
+                            <rect x="24" y="278" width="292" height="1"/>
+                        </g>
+                        <g fill="#0a1733">
+                            <rect x="34" y="186" width="130" height="8" rx="2"/>
+                            <rect x="34" y="220" width="110" height="8" rx="2"/>
+                            <rect x="34" y="254" width="140" height="8" rx="2"/>
+                        </g>
+                        <g fill="#64748b">
+                            <rect x="185" y="187" width="30" height="6" rx="2"/>
+                            <rect x="185" y="221" width="30" height="6" rx="2"/>
+                            <rect x="185" y="255" width="30" height="6" rx="2"/>
+                            <rect x="260" y="187" width="46" height="6" rx="2"/>
+                            <rect x="260" y="221" width="46" height="6" rx="2"/>
+                            <rect x="260" y="255" width="46" height="6" rx="2"/>
+                        </g>
+
+                        <!-- Total -->
+                        <rect x="180" y="300" width="136" height="40" rx="8" fill="#0a1733"/>
+                        <text x="194" y="326" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#94a3b8">TOTAL</text>
+                        <text x="306" y="326" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#22d3ee" text-anchor="end">$ 12,480</text>
+                    </g>
+
+                    <!-- Floating badge: PDF -->
+                    <g transform="translate(60 290)" filter="url(#qsShadow)">
+                        <rect width="96" height="96" rx="20" fill="#ffffff"/>
+                        <rect x="22" y="18" width="42" height="54" rx="4" fill="url(#qsBlue)"/>
+                        <path d="M52 18 L64 30 L52 30 Z" fill="#0a1733" opacity="0.25"/>
+                        <text x="43" y="60" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">PDF</text>
+                        <text x="48" y="86" font-family="Segoe UI, Arial, sans-serif" font-size="9" font-weight="600" fill="#0a1733" text-anchor="middle">Ready</text>
+                    </g>
+
+                    <!-- Floating badge: spark/AI -->
+                    <g transform="translate(440 60)" filter="url(#qsShadow)">
+                        <circle cx="40" cy="40" r="40" fill="#ffffff"/>
+                        <path d="M40 22 L44 36 L58 40 L44 44 L40 58 L36 44 L22 40 L36 36 Z" fill="url(#qsBlue)"/>
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 2. TRUST STRIP ============ -->
+    <div class="qs-trust">
+        <div class="qs-trust-inner">
+            <img src="/smartsoft-logo.png" alt="Smartsoft">
+            <span class="qs-dot"></span>
+            <span>Powered by <strong>SharePoint</strong></span>
+            <span class="qs-dot"></span>
+            <span><strong>Power Automate</strong></span>
+            <span class="qs-dot"></span>
+            <span><strong>Outlook</strong></span>
+            <span class="qs-dot"></span>
+            <span><strong>Microsoft Teams</strong></span>
+        </div>
+    </div>
+
+    <!-- ============ 3. FEATURES ============ -->
+    <section class="qs-section qs-section--white">
+        <div class="qs-section-inner">
+            <div class="qs-section-head">
+                <span class="qs-eyebrow">Why this portal</span>
+                <h2>Everything your sales team needs</h2>
+                <p>The Quotation portal connects directly to your SharePoint price lists, proposal templates and saved quotations through Power Automate &mdash; so the numbers, branding and approvals stay in one governed place.</p>
+            </div>
+
+            <div class="qs-features">
+                <article class="qs-feature">
+                    <div class="qs-feature-icon"><img src="/Circle-1.png" alt=""></div>
+                    <h3>Live price lists</h3>
+                    <p>Categories and products are read straight from the <em>Pricelist</em> library in SharePoint. Update an Excel file and the quotation form picks it up instantly.</p>
+                </article>
+                <article class="qs-feature">
+                    <div class="qs-feature-icon"><img src="/Circle-2.png" alt=""></div>
+                    <h3>Branded proposals</h3>
+                    <p>Append any annexure from the <em>Proposal Templates</em> library and export the full quotation as a single, print-ready PDF.</p>
+                </article>
+                <article class="qs-feature">
+                    <div class="qs-feature-icon"><img src="/Circle-3.png" alt=""></div>
+                    <h3>One-click delivery</h3>
+                    <p>Save the quotation back to SharePoint and (optionally) email it to the customer via Outlook &mdash; all in a single submit.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 4. HOW IT WORKS ============ -->
+    <section class="qs-section">
+        <div class="qs-section-inner">
+            <div class="qs-howto">
+                <div class="qs-howto-art">
+                    <img src="/Graph-1.png" alt="" loading="lazy">
+                </div>
+                <div>
+                    <span class="qs-eyebrow">How it works</span>
+                    <h2>From blank page to PDF in three steps</h2>
+                    <ol class="qs-steps">
+                        <li class="qs-step">
+                            <div class="qs-step-num">1</div>
+                            <div>
+                                <h3>Choose a category</h3>
+                                <p>The portal pulls the latest folders from <code>Documents/Pricelist/</code> on SharePoint &mdash; no manual sync.</p>
+                            </div>
+                        </li>
+                        <li class="qs-step">
+                            <div class="qs-step-num">2</div>
+                            <div>
+                                <h3>Pick products &amp; set quantities</h3>
+                                <p>SKUs, titles and prices come directly from the Excel price list. Totals, margins and discounts update live.</p>
+                            </div>
+                        </li>
+                        <li class="qs-step">
+                            <div class="qs-step-num">3</div>
+                            <div>
+                                <h3>Save, email or download</h3>
+                                <p>Generate the branded PDF, store it back in SharePoint and optionally send it to the customer via Outlook in one click.</p>
+                            </div>
+                        </li>
+                    </ol>
+                    <div class="qs-cta-row">
+                        <a href="/quotation/" class="qs-btn qs-btn--outline">Open the builder</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 5. EMBEDS ============ -->
+    <section id="qs-files" class="qs-section qs-section--white">
+        <div class="qs-section-inner">
+            <div class="qs-section-head">
+                <span class="qs-eyebrow">Shared workspace</span>
+                <h2>Files and conversations, in one place</h2>
+                <p>Browse the supporting document library and reach the sales desk on Microsoft Teams without leaving the portal.</p>
+            </div>
+
+            <div class="qs-embed-grid">
+                <!-- SharePoint -->
+                <div class="qs-embed">
+                    <div class="qs-embed-head">
+                        <h3>SharePoint files</h3>
+                        <span style="font-size:0.8rem; color:var(--qs-muted);">Documents library</span>
+                    </div>
+                    <div class="qs-embed-body">
+                        <p>Browse the supporting documents library directly below. Use the SharePoint toolbar to upload, sort or open files in their native apps.</p>
+                    </div>
+                    <div class="qs-embed-frame">
+                        <iframe id="qs-sp-frame"
+                                title="SharePoint document library"
+                                src="https://your-tenant.sharepoint.com/sites/YourSite/Shared%20Documents/Forms/AllItems.aspx?web=1"
+                                frameborder="0"
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="qs-embed-foot">
+                        <small>Replace the <code>src</code> on <code>#qs-sp-frame</code> with your library URL (append <code>?web=1</code>).</small>
+                    </div>
+                </div>
+
+                <!-- Teams -->
+                <div class="qs-embed">
+                    <div class="qs-embed-head">
+                        <h3>Talk to the team</h3>
+                        <span style="font-size:0.8rem; color:var(--qs-muted);">Microsoft Teams</span>
+                    </div>
+                    <div class="qs-embed-body">
+                        <p>Reach the sales desk on Microsoft Teams. The Open in Teams button is the most reliable way in &mdash; the embedded view depends on tenant settings.</p>
+                    </div>
+                    <div class="qs-embed-frame">
+                        <iframe id="qs-teams-frame"
+                                title="Microsoft Teams channel"
+                                src="https://teams.microsoft.com/_#/conversations/General?threadId=REPLACE_THREAD_ID&ctx=channel"
+                                frameborder="0"
+                                allow="camera; microphone; fullscreen; display-capture; autoplay">
+                        </iframe>
+                    </div>
+                    <div class="qs-embed-foot">
+                        <a id="qs-teams-link" class="qs-btn qs-btn--outline"
+                           href="https://teams.microsoft.com/l/channel/REPLACE_THREAD_ID/General?groupId=REPLACE_GROUP_ID&tenantId=REPLACE_TENANT_ID"
+                           target="_blank" rel="noopener">Open in Teams &rarr;</a>
+                        <small>Teams may block the iframe via <code>X-Frame-Options</code>; the deep-link is the fallback.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 6. CTA BAND ============ -->
+    <section class="qs-cta-band">
+        <img src="/Cat-PC.png" alt="" class="qs-cta-decor" aria-hidden="true">
+        <div class="qs-cta-band-inner">
+            <h2>Ready to send your next quote?</h2>
+            <p>Jump straight to the builder and have a PDF in your inbox before the kettle boils.</p>
+            <div class="qs-cta-row" style="justify-content:center;">
+                <a href="/quotation/" class="qs-btn">Open the Quotation Builder</a>
+                <a href="/dell-quote/" class="qs-btn qs-btn--ghost">Build a Dell quote</a>
+            </div>
+        </div>
+    </section>
+
+</div>

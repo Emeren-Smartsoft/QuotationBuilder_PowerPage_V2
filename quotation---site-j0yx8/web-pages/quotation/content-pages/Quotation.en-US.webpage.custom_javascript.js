@@ -1,6 +1,6 @@
 ﻿(function () {
   "use strict";
-  console.log("[QT] script loaded build=2026-05-v2");
+  console.log("[QT] script loaded build=2026-06-smartsoft-india");
 
   var GST_RATE = 0.18;
   function fmt(n) { return "\u20B9 " + Number(n || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
@@ -29,6 +29,13 @@
   var addBtn     = $("qt-add-selected");
   var tbody      = $("qt-table-body");
   var grandEl    = $("qt-grand-total");
+  var subtotalEl = $("qt-subtotal");
+  var discRowEl  = document.querySelector(".qt-discount-row");
+  var discLblEl  = $("qt-discount-label");
+  var discAmtEl  = $("qt-discount-amount");
+  var discModeEl = $("qt-discount-mode");
+  var discValEl  = $("qt-discount-value");
+  var discPrevEl = $("qt-discount-preview");
   var backBtn    = $("qt-back");
   var printBtn   = $("qt-print");
   var saveBtn    = $("qt-save");
@@ -39,6 +46,7 @@
 
   var customer = {};
   var cart = [];
+  var discount = { mode: "none", value: 0 };
   var currentProductsCache = [];
   var allProductsForCategory = [];
   var lastLoadedCategory = "";
@@ -365,16 +373,19 @@
   function renderTable() {
     if (cart.length === 0) {
       tbody.innerHTML = '<tr class="qt-empty"><td colspan="9">No products added yet. Use the selector above.</td></tr>';
+      if (subtotalEl) subtotalEl.textContent = fmt(0);
       grandEl.textContent = fmt(0);
+      if (discRowEl) discRowEl.style.display = "none";
+      if (discPrevEl) discPrevEl.textContent = "No discount applied.";
       return;
     }
-    var grand = 0;
+    var subtotal = 0;
     tbody.innerHTML = cart.map(function (it, idx) {
       var custPrice = Math.round(it.dtp * (1 + it.margin / 100) * 100) / 100;
       var gst = custPrice * GST_RATE;
       var custPriceIncl = custPrice + gst;
       var total = custPriceIncl * it.qty;
-      grand += total;
+      subtotal += total;
       return '<tr data-idx="' + idx + '">' +
              '<td>' + (idx + 1) + '</td>' +
              '<td>' + escapeHtml(it.description) + '</td>' +
@@ -387,7 +398,23 @@
              '<td class="num">' + fmt(total) + ' <button class="qt-remove" title="Remove">&times;</button></td>' +
              '</tr>';
     }).join("");
-    grandEl.textContent = fmt(grand);
+    var d = computeDiscount(subtotal);
+    if (subtotalEl) subtotalEl.textContent = fmt(subtotal);
+    if (discRowEl) {
+      if (d.amount > 0) {
+        discRowEl.style.display = "";
+        if (discLblEl) discLblEl.textContent = d.label;
+        if (discAmtEl) discAmtEl.textContent = "- " + fmt(d.amount);
+      } else {
+        discRowEl.style.display = "none";
+      }
+    }
+    if (discPrevEl) {
+      discPrevEl.textContent = d.amount > 0
+        ? "Discount: " + d.label + " = " + fmt(d.amount) + "  |  Grand Total: " + fmt(d.grand)
+        : "No discount applied.";
+    }
+    grandEl.textContent = fmt(d.grand);
 
     tbody.querySelectorAll("input.qt-margin").forEach(function (inp) {
       inp.addEventListener("input", function (e) {
@@ -412,6 +439,47 @@
         cart.splice(idx, 1);
         renderTable();
       });
+    });
+  }
+
+  /* --- Discount: pure helper used by renderTable + PDF/print builders --- */
+  function computeDiscount(subtotal) {
+    var amount = 0, label = "Discount";
+    var raw = Math.max(0, Number(discount.value) || 0);
+    if (discount.mode === "pct" && raw > 0) {
+      var pct = Math.min(100, raw);
+      amount = subtotal * pct / 100;
+      label = "Discount (" + (pct === Math.floor(pct) ? pct : pct.toFixed(2)) + "%)";
+    } else if (discount.mode === "value" && raw > 0) {
+      amount = Math.min(subtotal, raw);
+      label = "Discount";
+    }
+    amount = Math.round(amount * 100) / 100;
+    var grand = Math.max(0, Math.round((subtotal - amount) * 100) / 100);
+    return { amount: amount, label: label, grand: grand };
+  }
+
+  /* Discount controls wiring */
+  if (discModeEl) {
+    discModeEl.addEventListener("change", function () {
+      discount.mode = discModeEl.value;
+      if (discount.mode === "none") {
+        discount.value = 0;
+        if (discValEl) { discValEl.value = "0"; discValEl.style.display = "none"; }
+      } else {
+        if (discValEl) {
+          discValEl.style.display = "";
+          discValEl.placeholder = discount.mode === "pct" ? "e.g. 5" : "e.g. 5000";
+          discValEl.focus();
+        }
+      }
+      renderTable();
+    });
+  }
+  if (discValEl) {
+    discValEl.addEventListener("input", function () {
+      discount.value = Math.max(0, parseFloat(discValEl.value) || 0);
+      renderTable();
     });
   }
 
@@ -497,6 +565,7 @@
         '<td class="num">' + fmt(total) + '</td>' +
         '</tr>';
     });
+    var discInfo = computeDiscount(grand);
 
     var pw = window.open('', '_blank', 'width=850,height=1100');
     if (!pw) { alert("Please allow popups for printing."); return; }
@@ -529,9 +598,14 @@
         '<th style="width:15%;">Unit Price<br>Including<br>GST (\u20B9)</th>' +
         '<th style="width:15%;">Total<br>Price<br>(\u20B9)</th>' +
       '</tr></thead><tbody>' + tableRows + '</tbody>' +
-      '<tfoot><tr>' +
+      '<tfoot>' +
+        (discInfo.amount > 0
+          ? '<tr><td colspan="6" class="grand-label">Subtotal (\u20B9)</td><td class="grand-value">' + fmt(grand) + '</td></tr>' +
+            '<tr><td colspan="6" class="grand-label">' + escapeHtml(discInfo.label) + ' (\u20B9)</td><td class="grand-value" style="color:#b00;">- ' + fmt(discInfo.amount) + '</td></tr>'
+          : '') +
+        '<tr>' +
         '<td colspan="6" class="grand-label">Grand Total (\u20B9)</td>' +
-        '<td class="grand-value">' + fmt(grand) + '</td>' +
+        '<td class="grand-value">' + fmt(discInfo.grand) + '</td>' +
       '</tr></tfoot></table>' +
       '<div class="footer">' +
         '<p><strong>Terms &amp; Conditions:</strong> Prices are valid for 15 days from the date of this quotation. All prices are in INR. GST @18% is applicable as shown. Payment terms: 100% advance. Delivery as per product availability.</p>' +
@@ -684,6 +758,7 @@
         '<td style="' + qtTdBase + 'text-align:right;white-space:nowrap;">' + fmt(total) + '</td>' +
         '</tr>';
     });
+    var qtDisc = computeDiscount(grand);
 
     var quotationBlock =
       '<div class="qt-pdf-block" style="font-family:Segoe UI,system-ui,sans-serif;color:#222;padding:12px 36px;background:#fff;box-sizing:border-box;">' +
@@ -713,9 +788,20 @@
           '<th style="' + qtThStyle + 'width:18%;">Unit Price<br>Including GST (\u20B9)</th>' +
           '<th style="' + qtThStyle + 'width:17%;">Total<br>Price (\u20B9)</th>' +
         '</tr></thead><tbody>' + qtRows + '</tbody>' +
-        '<tfoot><tr>' +
+        '<tfoot>' +
+          (qtDisc.amount > 0
+            ? '<tr>' +
+                '<td colspan="6" style="' + qtTdBase + 'text-align:right;background:#f7f9fb;font-weight:600;color:#1a2533;font-size:15px;">Subtotal (\u20B9)</td>' +
+                '<td style="' + qtTdBase + 'text-align:right;background:#f7f9fb;color:#1a2533;font-size:15px;font-weight:600;white-space:nowrap;">' + fmt(grand) + '</td>' +
+              '</tr>' +
+              '<tr>' +
+                '<td colspan="6" style="' + qtTdBase + 'text-align:right;background:#f7f9fb;font-weight:600;color:#b00;font-size:15px;">' + escapeHtml(qtDisc.label) + ' (\u20B9)</td>' +
+                '<td style="' + qtTdBase + 'text-align:right;background:#f7f9fb;color:#b00;font-size:15px;font-weight:700;white-space:nowrap;">- ' + fmt(qtDisc.amount) + '</td>' +
+              '</tr>'
+            : '') +
+          '<tr>' +
           '<td colspan="6" style="' + qtTdBase + 'text-align:right;background:#f0f2f5;font-weight:700;color:#1a2533;font-size:17px;">Grand Total (\u20B9)</td>' +
-          '<td style="' + qtTdBase + 'text-align:right;background:#f0f2f5;color:#0b5cab;font-size:18px;font-weight:800;white-space:nowrap;">' + fmt(grand) + '</td>' +
+          '<td style="' + qtTdBase + 'text-align:right;background:#f0f2f5;color:#0b5cab;font-size:18px;font-weight:800;white-space:nowrap;">' + fmt(qtDisc.grand) + '</td>' +
         '</tr></tfoot></table>' +
         '<div style="margin-top:16px;padding-top:10px;border-top:1px solid #bbb;font-size:14px;color:#555;line-height:1.5;font-family:Segoe UI,system-ui,sans-serif;">' +
           '<p style="margin:0;"><strong>Terms &amp; Conditions:</strong> Prices are valid for 15 days from the date of this quotation. All prices are in INR. GST @18% is applicable as shown. Payment terms: 100% advance. Delivery as per product availability.</p>' +

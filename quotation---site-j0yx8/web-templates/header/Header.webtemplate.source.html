@@ -1,5 +1,202 @@
 {% assign defaultlang = settings['LanguageLocale/Code'] | default: 'en-us' %}
 {% assign homeurl = website.adx_partialurl %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* =========================================================
+     Quote Site — global typography
+     ========================================================= */
+  html, body,
+  body, p, span, a, li, td, th, input, button, select, textarea, label, div {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6,
+  .qs-hero h1, .qs-section h2, .qs-cta-band h2,
+  .navbar-brand, .qs-brand-tag {
+    font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+    letter-spacing: -0.01em;
+  }
+  /* =========================================================
+     Quote Site — global navbar (Intrys-inspired theme)
+     Clean white sticky bar, navy text, blue pill CTA, underline-on-hover
+     ========================================================= */
+  :root {
+    --qs-nav-bg: #ffffff;
+    --qs-nav-accent: #2563eb;
+    --qs-nav-accent-dark: #1d4ed8;
+    --qs-nav-ink: #0a1733;
+    --qs-nav-ink-muted: #475569;
+    --qs-nav-hover: rgba(37, 99, 235, 0.08);
+    --qs-nav-border: rgba(10, 23, 51, 0.08);
+  }
+  body { background: #ffffff; }
+
+  /* Sticky white bar */
+  .navbar.static-top {
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: saturate(180%) blur(10px);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+    border-bottom: 1px solid var(--qs-nav-border);
+    box-shadow: 0 1px 0 rgba(10, 23, 51, 0.02), 0 6px 20px rgba(10, 23, 51, 0.04);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+  }
+  .navbar.static-top .custom-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  /* Brand (logo only) */
+  .navbar.static-top .navbar-brand,
+  .navbar.static-top .navbar-header { margin: 0; padding: 0; }
+  .qs-brand {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none !important;
+    padding: 2px 4px;
+    border-radius: 8px;
+    transition: opacity 0.15s ease;
+  }
+  .qs-brand:hover { opacity: 0.85; }
+  .qs-brand-logo {
+    height: 58px;
+    width: auto;
+    display: block;
+  }
+
+  /* Nav links — Intrys style: soft pill highlight, no underline */
+  .navbar.static-top .navbar-nav { align-items: center; gap: 2px; }
+  .navbar.static-top .nav-link,
+  .navbar.static-top .weblinks a,
+  .navbar.static-top .weblinks .dropdown-toggle {
+    color: var(--qs-nav-ink) !important;
+    font-weight: 500;
+    font-size: 0.82rem;
+    padding: 8px 14px !important;
+    border-radius: 999px;
+    position: relative;
+    text-decoration: none !important;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .navbar.static-top .nav-link:hover,
+  .navbar.static-top .weblinks a:hover,
+  .navbar.static-top .weblinks .dropdown-toggle:hover,
+  .navbar.static-top .nav-link:focus {
+    background: var(--qs-nav-hover);
+    color: var(--qs-nav-accent) !important;
+    text-decoration: none !important;
+  }
+
+  /* Active / focused / open states — soft blue pill, no underline */
+  .navbar.static-top .nav-link:focus,
+  .navbar.static-top .nav-link:active,
+  .navbar.static-top .nav-link.active,
+  .navbar.static-top .nav-link.show,
+  .navbar.static-top .weblinks a:focus,
+  .navbar.static-top .weblinks a:active,
+  .navbar.static-top .weblinks li.active > a,
+  .navbar.static-top .weblinks .dropdown-toggle:focus,
+  .navbar.static-top .weblinks .dropdown-toggle:active,
+  .navbar.static-top .weblinks .dropdown-toggle.show,
+  .navbar.static-top .weblinks .dropdown.show > .dropdown-toggle {
+    background: var(--qs-nav-hover) !important;
+    color: var(--qs-nav-accent) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    text-decoration: none !important;
+  }
+  .navbar.static-top .weblinks .dropdown-toggle:focus-visible {
+    outline: 2px solid var(--qs-nav-accent) !important;
+    outline-offset: 2px;
+  }
+
+  /* Remove vertical dividers — Intrys uses spacing only */
+  .navbar.static-top .nav-item.divider-vertical { display: none; }
+
+  /* Last weblink — (CTA pill removed since Contact us removed) */
+
+  .navbar.static-top .navbar-icon .glyphicon { color: var(--qs-nav-ink); font-size: 0.95rem; }
+  .navbar.static-top .username { color: var(--qs-nav-ink); }
+
+  /* Caret: use only the template's <span class="caret">, hide Bootstrap's ::after */
+  .navbar.static-top .dropdown-toggle::after,
+  .navbar.static-top .weblinks .dropdown-toggle::after { display: none !important; }
+  .navbar.static-top .weblinks .dropdown-toggle { /* keep caret span visible */ }
+  .navbar.static-top .caret {
+    display: inline-block;
+    margin-left: 6px;
+    border-top: 4px solid currentColor;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+    vertical-align: middle;
+    opacity: 0.7;
+  }
+
+  /* Dropdowns */
+  .navbar.static-top .dropdown-menu {
+    border: 1px solid var(--qs-nav-border) !important;
+    border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(10, 23, 51, 0.12);
+    padding: 8px;
+    margin-top: 10px;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+  }
+  .navbar.static-top .dropdown-item {
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--qs-nav-ink) !important;
+    background: transparent !important;
+    font-weight: 500;
+    font-size: 0.82rem;
+  }
+  .navbar.static-top .dropdown-item:hover,
+  .navbar.static-top .dropdown-item:focus,
+  .navbar.static-top .dropdown-item:active,
+  .navbar.static-top .dropdown-item.active {
+    background: var(--qs-nav-hover) !important;
+    color: var(--qs-nav-accent) !important;
+  }
+  .navbar.static-top .dropdown-divider { border-top-color: var(--qs-nav-border); }
+
+  /* Toggler (mobile) */
+  .navbar.static-top .navbar-toggler {
+    border: 1px solid var(--qs-nav-border);
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 6px 10px;
+  }
+  .navbar.static-top .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%230a1733' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+  }
+
+  @media (max-width: 991px) {
+    .navbar.static-top { position: relative; }
+    .navbar.static-top .custom-container { padding: 0 16px; }
+    .qs-brand-logo { height: 48px; }
+    .navbar.static-top .navbar-collapse { width: 100% !important; margin-top: 8px; }
+    .navbar.static-top .navbar-nav { align-items: stretch; gap: 2px; }
+    .navbar.static-top .nav-link,
+    .navbar.static-top .weblinks a,
+    .navbar.static-top .weblinks .dropdown-toggle { width: 100%; }
+    .navbar.static-top .nav-link::after,
+    .navbar.static-top .weblinks > li > a::after,
+    .navbar.static-top .weblinks .dropdown-toggle::after { display: none; }
+    .navbar.static-top .weblinks > li.weblink:last-child > a:not(.dropdown-toggle) {
+      margin-left: 0;
+      margin-top: 8px;
+      text-align: center;
+      display: block;
+    }
+  }
+</style>
 <div class=' navbar-expand-xl navbar navbar-dark static-top' style="flex-wrap:wrap;" role='banner'>
   <div class='skip-to-content'>
     <a href='#mainContent'>{{ resx.Skip_To_Content | default: 'Skip to main content' }}</a>
@@ -79,28 +276,6 @@
                 </a>
                 {% if sublinks.size > 0 %}
                   <ul class='dropdown-menu dropdown-menu-end'>
-                    {% if link.name %}
-                      <li>
-                        <a
-                          aria-label='{{ link.name | escape }}'
-                          class='dropdown-item'
-                          aria-roledescription='link'
-                          href='{{ link.url }}'
-                          {% if link.Open_In_New_Window %}
-                            target='_blank'
-                          {% endif %}
-                          {% if link.nofollow %}
-                            rel='nofollow'
-                          {% endif %}
-                          {% if link.tooltip %}
-                            title='{{ link.tooltip | escape }}'
-                          {% endif %}
-                        >
-                          {{- link.name | escape -}}
-                        </a>
-                      </li>
-                      <div class='dropdown-divider'></div>
-                    {% endif %}
                     {% for sublink in sublinks %}
                       <li>
                         <a
@@ -127,17 +302,6 @@
               </li>
             {% endfor %}
             {% assign search_enabled = settings['Search/Enabled'] | boolean | default: true %}
-            {% if search_enabled %}
-              <li class=' nav-item divider-vertical' aria-hidden='true'></li>
-              <li class=' nav-item dropdown'>
-                <a id='search' class=' nav-link navbar-icon' href='#' data-bs-toggle='dropdown' role='button' aria-expanded='false' aria-label='{{ snippets["Header/Search/ToolTip"] | default:resx["Search_DefaultText"] | escape }}'>
-                  <span class='glyphicon fa-solid fa-magnifying-glass'></span>
-                </a>
-                <div class='dropdown-menu dropdown-search dropdown-menu-end'>
-                  {% include 'Search', search_id: 'q' %}
-                </div>
-              </li>
-            {% endif %}
             <li class=' nav-item divider-vertical' aria-hidden='true'></li>
             {% if website.languages.size > 1 %}
               <li class=' nav-item dropdown'>
@@ -185,6 +349,17 @@
                 <a class="nav-link" aria-label='{{ snippets["links/login"] | default:resx["Sign_In"] | escape }}' aria-roledescription='link' href='{% if homeurl%}/{{ homeurl }}{% endif %}{{ website.sign_in_url_substitution }}'>
                   {{ snippets['links/login'] | default: resx.Sign_In | escape }}
                 </a>
+              </li>
+            {% endif %}
+            {% if search_enabled %}
+              <li class=' nav-item divider-vertical' aria-hidden='true'></li>
+              <li class=' nav-item dropdown'>
+                <a id='search' class=' nav-link navbar-icon' href='#' data-bs-toggle='dropdown' role='button' aria-expanded='false' aria-label='{{ snippets["Header/Search/ToolTip"] | default:resx["Search_DefaultText"] | escape }}'>
+                  <span class='glyphicon fa-solid fa-magnifying-glass'></span>
+                </a>
+                <div class='dropdown-menu dropdown-search dropdown-menu-end'>
+                  {% include 'Search', search_id: 'q' %}
+                </div>
               </li>
             {% endif %}
           </ul>

@@ -1,0 +1,108 @@
+<style>
+@media print {
+  .dq-no-print { display: none !important; }
+  .dq-card { box-shadow: none !important; border-color: #bbb !important; page-break-inside: avoid; }
+  body { background: #fff; }
+  #dq-step-upload { display: none !important; }
+  #dq-step-preview { display: block !important; }
+}
+</style>
+
+<div class="dq-wrapper">
+
+  <header class="dq-brand dq-no-print">
+    <img src="/smartsoft-logo.png" alt="Smartsoft - 29 years of trusted IT solutions"
+         class="dq-brand-logo" onerror="this.style.display='none'" />
+  </header>
+
+  <header class="dq-header dq-no-print">
+    <h1>Build Dell Quote</h1>
+    <p class="dq-sub">Upload a Dell quotation email (<code>.eml</code>) and we'll rebuild it on the Smartsoft template — ready to download as PDF or Word.</p>
+    <ol class="dq-steps">
+      <li class="dq-step active" data-step="1"><span>1</span> Upload .eml</li>
+      <li class="dq-step"        data-step="2"><span>2</span> Review &amp; Download</li>
+    </ol>
+  </header>
+
+  <!-- Step 1: upload -->
+  <section id="dq-step-upload" class="dq-card dq-no-print">
+    <h2>Upload Dell Quote</h2>
+    <p style="color:#555;font-size:13px;margin:0 0 14px;">
+      Save the Dell quotation email from Outlook as a <code>.eml</code> file (drag the email to your desktop), then upload it here.
+      Everything is parsed locally in your browser — no file is uploaded to any server.
+    </p>
+
+    <div id="dq-drop-zone" class="dq-drop-zone">
+      <div class="dq-drop-inner">
+        <div class="dq-drop-icon">&#x1F4E7;</div>
+        <div><strong>Drop your <code>.eml</code> file here</strong></div>
+        <div style="margin:6px 0 12px;color:#666;font-size:12.5px;">or</div>
+        <label for="dq-file" class="dq-btn dq-btn-primary" style="cursor:pointer;">Choose file</label>
+        <input type="file" id="dq-file" accept=".eml,message/rfc822" style="display:none;" />
+        <div id="dq-file-name" style="margin-top:10px;font-size:12.5px;color:#0b5cab;font-weight:600;"></div>
+      </div>
+    </div>
+
+    <div id="dq-parse-error" class="dq-error dq-hidden"></div>
+
+    <div class="dq-actions" style="margin-top:14px;">
+      <button type="button" class="dq-btn dq-btn-primary" id="dq-parse-btn" disabled>Parse Quote &rarr;</button>
+    </div>
+  </section>
+
+  <!-- Step 2: preview + download -->
+  <section id="dq-step-preview" class="dq-card dq-hidden">
+
+    <div class="dq-toolbar dq-no-print">
+      <button type="button" class="dq-btn" id="dq-back-btn">&larr; Upload a different file</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="button" class="dq-btn" id="dq-download-word">Download Word</button>
+        <button type="button" class="dq-btn dq-btn-primary" id="dq-download-pdf">Download PDF</button>
+      </div>
+    </div>
+
+    <!-- Margin % control (screen only — applied to all line items) -->
+    <div class="dq-margin-bar dq-no-print">
+      <label for="dq-margin">Margin %</label>
+      <input type="number" id="dq-margin" min="0" max="100" step="0.5" value="0" />
+      <span class="dq-margin-hint">Applied to every line item. Subtotal &amp; GST are recomputed using the marked-up unit price.</span>
+    </div>
+
+    <!-- Discount control (screen only — applied to subtotal) -->
+    <div class="dq-margin-bar dq-discount-bar dq-no-print">
+      <label for="dq-discount-mode">Discount</label>
+      <select id="dq-discount-mode">
+        <option value="pct">% (percent)</option>
+        <option value="amt">₹ (value)</option>
+      </select>
+      <input type="number" id="dq-discount" min="0" step="0.5" value="0" />
+      <span class="dq-margin-hint">Applied to the Subtotal. GST is computed on the discounted amount.</span>
+    </div>
+
+    <!-- Editable customer override (screen only) -->
+    <details class="dq-customer-edit dq-no-print">
+      <summary>Override customer / quote details (optional)</summary>
+      <form id="dq-customer-form" class="dq-grid">
+        <label>Customer / Company<input type="text" name="company" /></label>
+        <label>Contact Person<input type="text" name="contact" /></label>
+        <label>Email<input type="email" name="email" /></label>
+        <label>Phone<input type="tel" name="phone" /></label>
+        <label>Quote Date<input type="date" name="quoteDate" /></label>
+        <label>Valid Until<input type="date" name="validUntil" /></label>
+        <label class="dq-span-2">Address<textarea name="address" rows="2"></textarea></label>
+        <div class="dq-span-2" style="text-align:right;">
+          <button type="button" class="dq-btn" id="dq-apply-overrides">Apply &amp; refresh preview</button>
+        </div>
+      </form>
+    </details>
+
+    <!-- This entire block is what's exported -->
+    <div id="dq-document" class="dq-document">
+      <!-- filled by JS -->
+    </div>
+
+  </section>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>

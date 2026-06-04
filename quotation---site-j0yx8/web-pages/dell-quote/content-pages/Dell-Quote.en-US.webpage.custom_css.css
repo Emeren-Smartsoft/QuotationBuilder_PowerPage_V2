@@ -1,0 +1,98 @@
+/* Dell Quote builder — prefix dq- */
+.dq-wrapper{max-width:1180px;margin:0 auto;padding:18px;font:14px/1.45 "Segoe UI",system-ui,sans-serif;color:#1a2533}
+.dq-brand{margin-bottom:8px}
+.dq-brand-logo{max-height:54px}
+.dq-header h1{margin:0 0 4px;font-size:22px}
+.dq-sub{margin:0 0 12px;color:#555}
+.dq-steps{list-style:none;padding:0;display:flex;gap:6px;margin:0 0 16px;flex-wrap:wrap}
+.dq-step{background:#f1f3f5;color:#4b5560;padding:6px 12px;border-radius:18px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px}
+.dq-step span{background:#cfd4da;color:#fff;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+.dq-step.active{background:#0b5cab;color:#fff}
+.dq-step.active span{background:#fff;color:#0b5cab}
+.dq-card{background:#fff;border:1px solid #e0e4e8;border-radius:8px;padding:18px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.dq-card h2{margin:0 0 12px;font-size:17px}
+.dq-hidden{display:none !important}
+
+.dq-btn{font:600 13px Segoe UI,system-ui,sans-serif;padding:8px 16px;border-radius:5px;border:1px solid #0b5cab;background:#fff;color:#0b5cab;cursor:pointer}
+.dq-btn:hover:not(:disabled){background:#eaf2fb}
+.dq-btn:disabled{opacity:.5;cursor:not-allowed}
+.dq-btn-primary{background:#0b5cab;color:#fff}
+.dq-btn-primary:hover:not(:disabled){background:#094a89}
+
+.dq-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.dq-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+
+.dq-drop-zone{border:2px dashed #b8c5d6;border-radius:10px;padding:36px 18px;text-align:center;background:#f7fafe;transition:.15s}
+.dq-drop-zone.is-drag{background:#e6f0fa;border-color:#0b5cab}
+.dq-drop-inner{display:flex;flex-direction:column;align-items:center;gap:6px}
+.dq-drop-icon{font-size:38px;line-height:1}
+
+.dq-error{margin-top:12px;padding:10px 12px;border-radius:6px;background:#fbeaea;border:1px solid #e6b4b4;color:#9c2a2a;font-size:13px}
+
+.dq-margin-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 14px;background:#fff7e6;border:1px solid #f0d39c;border-radius:6px;font-size:13px;flex-wrap:wrap}
+.dq-margin-bar label{font-weight:700;color:#8a5a00;margin:0}
+.dq-margin-bar input,.dq-margin-bar select{width:auto;min-width:90px;font:600 14px Segoe UI,system-ui,sans-serif;padding:6px 8px;border:1px solid #d4a850;border-radius:5px;text-align:right;background:#fff}
+.dq-margin-bar select{text-align:left}
+.dq-margin-hint{color:#7a6a3d;font-size:12px}
+.dq-discount-bar{background:#eaf6ee;border-color:#9ad0ad}
+.dq-discount-bar label{color:#1e6b3a}
+.dq-discount-bar input,.dq-discount-bar select{border-color:#7cba93}
+.dq-discount-bar .dq-margin-hint{color:#3a6b4d}
+.dq-customer-edit{margin-bottom:14px;border:1px solid #d6dee6;border-radius:6px;background:#f7fafe;padding:8px 12px;font-size:13px}
+.dq-customer-edit summary{cursor:pointer;font-weight:600;color:#0b5cab;padding:4px 0}
+.dq-customer-edit[open]{padding-bottom:12px}
+.dq-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-top:10px}
+.dq-grid label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:#3a4452;font-weight:600}
+.dq-grid input,.dq-grid textarea{font:13px Segoe UI,system-ui,sans-serif;padding:6px 8px;border:1px solid #cfd4da;border-radius:5px}
+.dq-span-2{grid-column:span 2}
+
+/* ===== Smartsoft branded document (what gets exported) ===== */
+.dq-document{font:13px/1.45 "Segoe UI",Arial,sans-serif;color:#1a2533;background:#fff;padding:24px 26px;border:1px solid #d6dee6;border-radius:8px}
+.dq-doc-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0b5cab;padding-bottom:12px;margin-bottom:18px;gap:18px;flex-wrap:wrap}
+.dq-doc-head .dq-doc-brand{display:flex;flex-direction:column;gap:2px}
+.dq-doc-head .dq-doc-brand img{max-height:54px;margin-bottom:6px}
+.dq-doc-head .dq-doc-brand small{color:#666;font-size:11.5px}
+.dq-doc-head .dq-doc-title{text-align:right}
+.dq-doc-head .dq-doc-title h1{margin:0 0 4px;font-size:22px;color:#0b5cab;letter-spacing:.5px}
+.dq-doc-head .dq-doc-title div{font-size:12px;color:#3a4452}
+
+.dq-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;background:#f7fafe;border:1px solid #d6dee6;border-radius:6px;padding:12px 14px;margin-bottom:16px;font-size:12.5px}
+.dq-meta-grid .dq-meta-block h4{margin:0 0 6px;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;color:#0b5cab}
+.dq-meta-grid .dq-meta-block div{color:#1a2533;line-height:1.4}
+.dq-meta-grid .dq-meta-block .dq-muted{color:#666;font-size:11.5px;display:inline-block;min-width:96px}
+
+.dq-items-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:14px}
+.dq-items-table th,.dq-items-table td{border:1px solid #d6dee6;padding:7px 9px;vertical-align:top}
+.dq-items-table thead th{background:#0b5cab;color:#fff;text-align:left;font-weight:600;font-size:12px}
+.dq-items-table td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dq-items-table tfoot td,.dq-items-table .dq-tot td{font-weight:700;background:#f3f7fc}
+.dq-items-table tfoot .dq-tot-label,.dq-items-table .dq-tot .dq-tot-label{text-align:right}
+.dq-items-table .dq-line-meta{color:#666;font-size:11.5px;margin-top:2px}
+.dq-items-table .dq-line-dtp{color:#888;font-size:11px;margin-top:2px;font-style:italic}
+
+.dq-comp-section{margin-top:22px;page-break-inside:auto}
+.dq-comp-section h3{margin:0 0 8px;font-size:13.5px;color:#0b5cab;padding:6px 10px;background:#eaf2fb;border-left:3px solid #0b5cab;page-break-after:avoid}
+.dq-comp-table{width:100%;border-collapse:collapse;font-size:11.5px;page-break-inside:auto}
+.dq-comp-table th,.dq-comp-table td{border:1px solid #e3e8ee;padding:5px 8px;text-align:left;vertical-align:top}
+.dq-comp-table th{background:#0b5cab;color:#fff;font-weight:600;font-size:11px}
+.dq-comp-table td.num{text-align:right;white-space:nowrap}
+.dq-comp-table tr{page-break-inside:avoid}
+.dq-comp-table .dq-comp-group td{background:#f3f7fc;font-weight:700;color:#0b5cab;text-transform:uppercase;font-size:10.5px;letter-spacing:.3px}
+
+/* Export-only branded header (hidden on screen; un-hidden in the export clone). */
+.dq-print-only{display:none}
+.dq-export-head{margin:0 0 16px;text-align:center;border-bottom:3px solid #0b5cab;padding:0 0 10px}
+.dq-export-brand{margin:0 0 4px}
+.dq-export-brand img{height:60px;width:auto;display:inline-block;vertical-align:middle}
+.dq-export-title{margin:0;color:#0b5cab;font-size:26px;letter-spacing:2px;text-align:center;font-weight:700;line-height:1.1}
+
+.dq-foot{margin-top:18px;padding-top:10px;border-top:1px solid #d6dee6;font-size:11.5px;color:#555;line-height:1.5}
+.dq-foot strong{color:#1a2533}
+
+@media (max-width:720px){
+  .dq-grid{grid-template-columns:1fr}
+  .dq-span-2{grid-column:auto}
+  .dq-meta-grid{grid-template-columns:1fr}
+  .dq-doc-head{flex-direction:column}
+  .dq-doc-head .dq-doc-title{text-align:left}
+}
