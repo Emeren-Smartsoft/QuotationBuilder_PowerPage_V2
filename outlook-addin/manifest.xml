@@ -6,11 +6,10 @@
     - Start a Quotation  -> opens quotation.html in the task pane (side panel)
     - Build Dell Quote   -> opens dell-quote.html in the task pane (side panel)
 
-  BEFORE PUBLISHING, replace every placeholder marked with __...__ :
-    __ADDIN_GUID__            unique add-in id (generate a GUID once, keep it stable)
-    __HOST_ORIGIN__           https origin where dist/ is hosted
-                              (e.g. https://quote-addin.azurestaticapps.net)
-    __ENTRA_APP_CLIENT_ID__   Entra app registration (Application/client) ID for SSO
+  Deployment values (already filled in below):
+    Id (add-in)            fea68db0-6c8f-4e6c-bd12-795ebda34ff4
+    Host origin            https://gray-desert-0d038cd0f.7.azurestaticapps.net
+    Entra client ID (SSO)  b5231f68-32ac-4251-902d-6d8e43fb56f2
 -->
 <OfficeApp
   xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
@@ -25,12 +24,12 @@
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Quotation Builder" />
   <Description DefaultValue="Create Smartsoft quotations and rebuild Dell quotes without leaving Outlook." />
-  <IconUrl DefaultValue="__HOST_ORIGIN__/assets/icon-64.png" />
-  <HighResolutionIconUrl DefaultValue="__HOST_ORIGIN__/assets/icon-128.png" />
-  <SupportUrl DefaultValue="__HOST_ORIGIN__/" />
+  <IconUrl DefaultValue="https://gray-desert-0d038cd0f.7.azurestaticapps.net/assets/icon-64.png" />
+  <HighResolutionIconUrl DefaultValue="https://gray-desert-0d038cd0f.7.azurestaticapps.net/assets/icon-128.png" />
+  <SupportUrl DefaultValue="https://gray-desert-0d038cd0f.7.azurestaticapps.net/" />
 
   <AppDomains>
-    <AppDomain>__HOST_ORIGIN__</AppDomain>
+    <AppDomain>https://gray-desert-0d038cd0f.7.azurestaticapps.net</AppDomain>
   </AppDomains>
 
   <Hosts>
@@ -47,7 +46,7 @@
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
-        <SourceLocation DefaultValue="__HOST_ORIGIN__/quotation.html" />
+        <SourceLocation DefaultValue="https://gray-desert-0d038cd0f.7.azurestaticapps.net/quotation.html" />
         <RequestedHeight>450</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -186,14 +185,14 @@
 
     <Resources>
       <bt:Images>
-        <bt:Image id="Icon.16" DefaultValue="__HOST_ORIGIN__/assets/icon-16.png" />
-        <bt:Image id="Icon.32" DefaultValue="__HOST_ORIGIN__/assets/icon-32.png" />
-        <bt:Image id="Icon.80" DefaultValue="__HOST_ORIGIN__/assets/icon-80.png" />
+        <bt:Image id="Icon.16" DefaultValue="https://gray-desert-0d038cd0f.7.azurestaticapps.net/assets/icon-16.png" />
+        <bt:Image id="Icon.32" DefaultValue="https://gray-desert-0d038cd0f.7.azurestaticapps.net/assets/icon-32.png" />
+        <bt:Image id="Icon.80" DefaultValue="https://gray-desert-0d038cd0f.7.azurestaticapps.net/assets/icon-80.png" />
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="Commands.Url" DefaultValue="__HOST_ORIGIN__/commands.html" />
-        <bt:Url id="Quotation.Url" DefaultValue="__HOST_ORIGIN__/quotation.html" />
-        <bt:Url id="DellQuote.Url" DefaultValue="__HOST_ORIGIN__/dell-quote.html" />
+        <bt:Url id="Commands.Url" DefaultValue="https://gray-desert-0d038cd0f.7.azurestaticapps.net/commands.html" />
+        <bt:Url id="Quotation.Url" DefaultValue="https://gray-desert-0d038cd0f.7.azurestaticapps.net/quotation.html" />
+        <bt:Url id="DellQuote.Url" DefaultValue="https://gray-desert-0d038cd0f.7.azurestaticapps.net/dell-quote.html" />
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="Group.Label" DefaultValue="Quotation Builder" />
@@ -210,8 +209,8 @@
 
     <!-- Office SSO: lets the add-in use the signed-in Outlook/Entra identity -->
     <WebApplicationInfo>
-      <Id>__ENTRA_APP_CLIENT_ID__</Id>
-      <Resource>api://__HOST_ORIGIN_HOST__/__ENTRA_APP_CLIENT_ID__</Resource>
+      <Id>b5231f68-32ac-4251-902d-6d8e43fb56f2</Id>
+      <Resource>api://gray-desert-0d038cd0f.7.azurestaticapps.net/b5231f68-32ac-4251-902d-6d8e43fb56f2</Resource>
       <Scopes>
         <Scope>openid</Scope>
         <Scope>profile</Scope>
