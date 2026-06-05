@@ -1,0 +1,205 @@
+# Quotation Builder — Outlook Add-in
+
+Hosts the existing **Quotation Builder** and **Dell Quote builder** as an
+Outlook **task-pane add-in**. A command-bar button shows a **"New" dropdown**
+(like Microsoft Business Central) with:
+
+- **Start a Quotation** → opens the Quotation builder in the side panel
+- **Build Dell Quote** → opens the Dell Quote builder in the side panel
+
+Everything runs **inside Outlook** — no navigation away from the mailbox.
+
+## How it reuses the existing code
+
+There is **no rewrite**. The builder HTML/CSS/JS lives in the Power Pages site
+under [quotation---site-j0yx8/web-pages/](../quotation---site-j0yx8/web-pages/).
+[build.js](build.js) reads those source files and assembles two standalone
+pages into `dist/`:
+
+| Output                | Built from (Power Pages source)                          |
+| --------------------- | -------------------------------------------------------- |
+| `dist/quotation.html` | `web-pages/quotation/content-pages/Quotation.en-US.*`    |
+| `dist/dell-quote.html`| `web-pages/dell-quote/content-pages/Dell-Quote.en-US.*`  |
+
+The Power Pages site auto-loads `custom_css.css` / `custom_javascript.js` by
+naming convention; outside Power Pages the build wires them in explicitly and
+adds an `Office.js` + SSO bootstrap in `<head>`. The inline `#productData`
+(flow URLs) and `#sq-data` blocks travel with the page unchanged, so the five
+Power Automate flows keep working.
+
+## Project layout
+
+```
+outlook-addin/
+  manifest.xml                 add-in manifest (the "New" menu + SSO)
+  build.js                     assembles dist/ from Power Pages source
+  package.json
+  src/static/                  copied verbatim into dist/
+    office-sso.js              Office SSO bootstrap (signed-in identity)
+    commands.html              FunctionFile host
+    staticwebapp.config.json   CSP frame-ancestors so Outlook can frame us
+    assets/                    icons (add real PNGs — see assets/README.md)
+  dist/                        generated — do not edit, do not commit
+```
+
+## Prerequisites
+
+- Node.js 18+ (for `build.js` and local serving)
+- An Azure subscription (Static Web Apps) **or** any HTTPS static host
+- Microsoft 365 admin access (for org-wide deployment)
+- Entra (Azure AD) app registration (for Office SSO)
+
+## 1. Build locally
+
+```powershell
+cd outlook-addin
+npm install
+npm run build        # produces dist/
+```
+
+## 2. Run locally (sideload) for testing
+
+```powershell
+# one-time: trusted localhost dev cert
+npx office-addin-dev-certs install
+
+npm run serve        # serves dist/ at https://localhost:3000
+```
+
+For local testing, copy `manifest.xml`, replace `__HOST_ORIGIN__` with
+`https://localhost:3000`, then sideload it:
+
+- **Outlook on the web:** Settings → *Manage add-ins* / *Custom add-ins* →
+  *Add from file* → pick the manifest.
+- **Outlook (new/desktop):** *Get Add-ins* → *My add-ins* → *Custom add-ins*.
+
+Open a message → the **Quotation Builder** group appears with the **New ▾**
+dropdown.
+
+## 3. Host on Azure Static Web Apps (recommended)
+
+> The add-in's manifest `Id` is already set to
+> `fea68db0-6c8f-4e6c-bd12-795ebda34ff4` — keep it stable across releases.
+
+### 3a. Create the Static Web App
+
+1. Azure portal → **Create a resource** → **Static Web App** → **Create**.
+2. **Basics**:
+   - **Subscription**: your subscription.
+   - **Resource Group**: existing (e.g. `copilotstudio`) or **Create new**
+     (e.g. `rg-quote-addin`).
+   - **Name**: e.g. `SmartQuote` → URL becomes
+     `https://smartquote-<random>.azurestaticapps.net`.
+   - **Plan type**: `Free` is sufficient (`Standard` only if you later need
+     custom auth / SLA / larger quotas).
+   - **Source**: **GitHub** → **Sign in with GitHub** → authorize Azure.
+   - **Organization**: `Emeren-Smartsoft`
+   - **Repository**: `QuotationBuilder_PowerPage_V2`
+   - **Branch**: `main`
+
+### 3b. Build Details (must match exactly)
+
+| Field             | Value           |
+| ----------------- | --------------- |
+| **Build Presets** | `Custom`        |
+| **App location**  | `outlook-addin` |
+| **Api location**  | *(leave blank)* |
+| **Output location** | `dist`        |
+
+This makes Azure's Oryx build run `npm install` then `npm run build`
+(= `node build.js`) inside `outlook-addin/`, which reads the Power Pages source
+one level up and emits `outlook-addin/dist`.
+
+### 3c. Create and let CI run
+
+3. **Review + create** → **Create**.
+4. Azure automatically (a) adds a deployment-token secret to the repo and
+   (b) commits a workflow `.github/workflows/azure-static-web-apps-<name>.yml`,
+   which triggers a GitHub Actions run.
+5. Repo → **Actions** tab → wait for the run to go green.
+6. Locally run `git pull` so the Azure-committed workflow is in your working copy.
+
+### 3d. Verify the host
+
+7. Azure portal → your Static Web App → **Overview** → copy the **URL**.
+8. Open both in a browser — they should render:
+   - `https://<your-host>/quotation.html`
+   - `https://<your-host>/dell-quote.html`
+
+Keep `<your-host>` (e.g. `smartquote-abc123.azurestaticapps.net`) — you'll paste
+it into the manifest in step 5.
+
+`staticwebapp.config.json` sets a `frame-ancestors` CSP that allows Outlook to
+host the pages in its task-pane iframe (this is the embedding the Power Pages
+site blocked with `X-Frame-Options: SAMEORIGIN`).
+
+## 4. Configure Office SSO (Entra app registration)
+
+1. **entra.microsoft.com** → **App registrations** → **New registration**.
+   - Name: `Quotation Builder Add-in`
+   - Supported account types: **Single tenant** (your org only) → **Register**.
+2. Copy the **Application (client) ID** — this is `__ENTRA_APP_CLIENT_ID__`.
+3. **Expose an API**:
+   - *Application ID URI* → **Set/Add** → `api://<your-host>/<client-id>`
+     (host with no `https://`) → **Save**.
+   - **Add a scope** → name `access_as_user`, who can consent **Admins and
+     users**, fill display/description → **Add scope**.
+   - **Add a client application** — add each Office host ID and tick the
+     `access_as_user` scope:
+     - `d3590ed6-52b3-4102-aeff-aad2292ab01c` (Microsoft Office)
+     - `ea5a67f6-b6f3-4338-b240-c655ddc3cc8e` (Microsoft Office, alt)
+     - `bc59ab01-8403-45c6-8796-ac3ef710b3e3` (Outlook on the web)
+     - `27922004-5251-4030-b22d-91ecd9a37ea4` (Outlook mobile)
+4. **API permissions** → **Add a permission** → **Microsoft Graph** →
+   **Delegated** → `openid`, `profile`, `email`, `User.Read` →
+   **Grant admin consent for <tenant>**.
+
+## 5. Finalize the manifest and deploy org-wide
+
+Replace the remaining placeholders in [manifest.xml](manifest.xml)
+(the `Id` GUID is already filled in):
+
+| Placeholder               | Replace with                                |
+| ------------------------- | ------------------------------------------- |
+| `__HOST_ORIGIN__`         | `https://<your-host>` (with `https://`, all occurrences) |
+| `__HOST_ORIGIN_HOST__`    | `<your-host>` (no scheme)                   |
+| `__ENTRA_APP_CLIENT_ID__` | the client ID from step 4.2                 |
+
+Validate the manifest:
+
+```powershell
+cd outlook-addin
+npm install
+npm run validate     # office-addin-manifest validate manifest.xml
+```
+
+### 5a. Sideload-test first
+
+- **Outlook on the web:** Settings → **Manage add-ins** (or *Get add-ins → My
+  add-ins → Custom add-ins*) → **Add from file** → pick `manifest.xml`.
+- Open any email → the **Quotation Builder** group shows the **New ▾** dropdown
+  → click **Start a Quotation** / **Build Dell Quote** → confirm each opens in
+  the side panel.
+- Walk a full quote (categories/products load, build, totals, save/email) and a
+  Dell quote (upload `.eml`, preview, export).
+
+### 5b. Deploy to the whole organization
+
+- **admin.microsoft.com** → **Settings → Integrated apps** →
+  **Upload custom apps**.
+- **App type: Office Add-in** → **Upload manifest file** (`manifest.xml`).
+- Assignment → **Entire organization** (or a specific group) → **Next** →
+  **Finish deployment**. Propagation can take up to ~24h.
+
+## Notes & follow-ups
+
+- **Flow security:** the five Power Automate flows are still anonymous
+  `sig=`-token URLs (same as the Power Pages site today). Locking the add-in to
+  your org does **not** protect the flow endpoints — validating the SSO token
+  at the flow is a separate hardening task.
+- **Narrow pane:** the shell CSS stacks form grids and lets the wide quotation
+  table scroll horizontally in the ~320px pane. A future enhancement can open
+  Step 2 in an `Office.dialog` for full-width editing.
+- **Email step:** today emailing uses the existing save/email flow. A future
+  enhancement can attach the generated PDF to a live Outlook draft via
+  `Office.js` (`addFileAttachmentFromBase64Async` + `displayNewMessageForm`).

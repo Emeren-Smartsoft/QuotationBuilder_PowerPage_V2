@@ -1,0 +1,16 @@
+{
+  "name": "quotation-builder-outlook-addin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Outlook task-pane add-in that hosts the Smartsoft Quotation Builder and Dell Quote builder (lifted from the Power Pages site).",
+  "scripts": {
+    "build": "node build.js",
+    "start": "node build.js && http-server dist -p 3000 -S -C dev-certs/localhost.crt -K dev-certs/localhost.key",
+    "serve": "http-server dist -p 3000 -S -C dev-certs/localhost.crt -K dev-certs/localhost.key",
+    "validate": "office-addin-manifest validate manifest.xml"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "office-addin-manifest": "^1.13.0"
+  }
+}

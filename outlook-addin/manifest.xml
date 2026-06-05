@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Quotation Builder — Outlook task-pane add-in (classic XML manifest).
+
+  Adds a command-bar button with a "New" dropdown menu offering:
+    - Start a Quotation  -> opens quotation.html in the task pane (side panel)
+    - Build Dell Quote   -> opens dell-quote.html in the task pane (side panel)
+
+  BEFORE PUBLISHING, replace every placeholder marked with __...__ :
+    __ADDIN_GUID__            unique add-in id (generate a GUID once, keep it stable)
+    __HOST_ORIGIN__           https origin where dist/ is hosted
+                              (e.g. https://quote-addin.azurestaticapps.net)
+    __ENTRA_APP_CLIENT_ID__   Entra app registration (Application/client) ID for SSO
+-->
+<OfficeApp
+  xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0"
+  xsi:type="MailApp">
+
+  <Id>fea68db0-6c8f-4e6c-bd12-795ebda34ff4</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Smartsoft</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="Quotation Builder" />
+  <Description DefaultValue="Create Smartsoft quotations and rebuild Dell quotes without leaving Outlook." />
+  <IconUrl DefaultValue="__HOST_ORIGIN__/assets/icon-64.png" />
+  <HighResolutionIconUrl DefaultValue="__HOST_ORIGIN__/assets/icon-128.png" />
+  <SupportUrl DefaultValue="__HOST_ORIGIN__/" />
+
+  <AppDomains>
+    <AppDomain>__HOST_ORIGIN__</AppDomain>
+  </AppDomains>
+
+  <Hosts>
+    <Host Name="Mailbox" />
+  </Hosts>
+
+  <Requirements>
+    <Sets>
+      <Set Name="Mailbox" MinVersion="1.3" />
+    </Sets>
+  </Requirements>
+
+  <!-- Fallback (non VersionOverrides) entry point -->
+  <FormSettings>
+    <Form xsi:type="ItemRead">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="__HOST_ORIGIN__/quotation.html" />
+        <RequestedHeight>450</RequestedHeight>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+
+  <Permissions>ReadWriteMailbox</Permissions>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Requirements>
+      <bt:Sets DefaultMinVersion="1.3">
+        <bt:Set Name="Mailbox" />
+      </bt:Sets>
+    </Requirements>
+
+    <Hosts>
+      <Host xsi:type="MailHost">
+        <DesktopFormFactor>
+
+          <!-- FunctionFile hosts any UI-less command actions -->
+          <FunctionFile resid="Commands.Url" />
+
+          <!-- Button + dropdown shown when reading a message -->
+          <ExtensionPoint xsi:type="MessageReadCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="qbGroup">
+                <Label resid="Group.Label" />
+
+                <!-- Menu control = the "New" dropdown, like Business Central -->
+                <Control xsi:type="Menu" id="qbNewMenu">
+                  <Label resid="NewMenu.Label" />
+                  <Supertip>
+                    <Title resid="NewMenu.Label" />
+                    <Description resid="NewMenu.Tooltip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16" />
+                    <bt:Image size="32" resid="Icon.32" />
+                    <bt:Image size="80" resid="Icon.80" />
+                  </Icon>
+                  <Items>
+
+                    <Item id="qbStartQuotation">
+                      <Label resid="StartQuotation.Label" />
+                      <Supertip>
+                        <Title resid="StartQuotation.Label" />
+                        <Description resid="StartQuotation.Tooltip" />
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="Icon.16" />
+                        <bt:Image size="32" resid="Icon.32" />
+                        <bt:Image size="80" resid="Icon.80" />
+                      </Icon>
+                      <Action xsi:type="ShowTaskpane">
+                        <SourceLocation resid="Quotation.Url" />
+                      </Action>
+                    </Item>
+
+                    <Item id="qbBuildDellQuote">
+                      <Label resid="DellQuote.Label" />
+                      <Supertip>
+                        <Title resid="DellQuote.Label" />
+                        <Description resid="DellQuote.Tooltip" />
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="Icon.16" />
+                        <bt:Image size="32" resid="Icon.32" />
+                        <bt:Image size="80" resid="Icon.80" />
+                      </Icon>
+                      <Action xsi:type="ShowTaskpane">
+                        <SourceLocation resid="DellQuote.Url" />
+                      </Action>
+                    </Item>
+
+                  </Items>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+
+          <!-- Same dropdown also available while composing a message -->
+          <ExtensionPoint xsi:type="MessageComposeCommandSurface">
+            <OfficeTab id="TabComposeDefault">
+              <Group id="qbGroupCompose">
+                <Label resid="Group.Label" />
+                <Control xsi:type="Menu" id="qbNewMenuCompose">
+                  <Label resid="NewMenu.Label" />
+                  <Supertip>
+                    <Title resid="NewMenu.Label" />
+                    <Description resid="NewMenu.Tooltip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16" />
+                    <bt:Image size="32" resid="Icon.32" />
+                    <bt:Image size="80" resid="Icon.80" />
+                  </Icon>
+                  <Items>
+                    <Item id="qbStartQuotationCompose">
+                      <Label resid="StartQuotation.Label" />
+                      <Supertip>
+                        <Title resid="StartQuotation.Label" />
+                        <Description resid="StartQuotation.Tooltip" />
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="Icon.16" />
+                        <bt:Image size="32" resid="Icon.32" />
+                        <bt:Image size="80" resid="Icon.80" />
+                      </Icon>
+                      <Action xsi:type="ShowTaskpane">
+                        <SourceLocation resid="Quotation.Url" />
+                      </Action>
+                    </Item>
+                    <Item id="qbBuildDellQuoteCompose">
+                      <Label resid="DellQuote.Label" />
+                      <Supertip>
+                        <Title resid="DellQuote.Label" />
+                        <Description resid="DellQuote.Tooltip" />
+                      </Supertip>
+                      <Icon>
+                        <bt:Image size="16" resid="Icon.16" />
+                        <bt:Image size="32" resid="Icon.32" />
+                        <bt:Image size="80" resid="Icon.80" />
+                      </Icon>
+                      <Action xsi:type="ShowTaskpane">
+                        <SourceLocation resid="DellQuote.Url" />
+                      </Action>
+                    </Item>
+                  </Items>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon.16" DefaultValue="__HOST_ORIGIN__/assets/icon-16.png" />
+        <bt:Image id="Icon.32" DefaultValue="__HOST_ORIGIN__/assets/icon-32.png" />
+        <bt:Image id="Icon.80" DefaultValue="__HOST_ORIGIN__/assets/icon-80.png" />
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="Commands.Url" DefaultValue="__HOST_ORIGIN__/commands.html" />
+        <bt:Url id="Quotation.Url" DefaultValue="__HOST_ORIGIN__/quotation.html" />
+        <bt:Url id="DellQuote.Url" DefaultValue="__HOST_ORIGIN__/dell-quote.html" />
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="Group.Label" DefaultValue="Quotation Builder" />
+        <bt:String id="NewMenu.Label" DefaultValue="New" />
+        <bt:String id="StartQuotation.Label" DefaultValue="Start a Quotation" />
+        <bt:String id="DellQuote.Label" DefaultValue="Build Dell Quote" />
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="NewMenu.Tooltip" DefaultValue="Create a new quotation without leaving Outlook." />
+        <bt:String id="StartQuotation.Tooltip" DefaultValue="Open the Smartsoft quotation builder in the side panel." />
+        <bt:String id="DellQuote.Tooltip" DefaultValue="Rebuild a Dell quotation email on the Smartsoft template." />
+      </bt:LongStrings>
+    </Resources>
+
+    <!-- Office SSO: lets the add-in use the signed-in Outlook/Entra identity -->
+    <WebApplicationInfo>
+      <Id>__ENTRA_APP_CLIENT_ID__</Id>
+      <Resource>api://__HOST_ORIGIN_HOST__/__ENTRA_APP_CLIENT_ID__</Resource>
+      <Scopes>
+        <Scope>openid</Scope>
+        <Scope>profile</Scope>
+        <Scope>email</Scope>
+        <Scope>User.Read</Scope>
+      </Scopes>
+    </WebApplicationInfo>
+
+  </VersionOverrides>
+</OfficeApp>
