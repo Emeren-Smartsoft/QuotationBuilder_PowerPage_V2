@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/staticwebapp.config.json",
   "globalHeaders": {
-    "Content-Security-Policy": "frame-ancestors 'self' https://outlook.office.com https://outlook.office365.com https://outlook.live.com https://*.office.com https://*.office365.com https://*.microsoft.com https://*.cdn.office.net;",
+    "Content-Security-Policy": "frame-ancestors 'self' https://outlook.office.com https://outlook.office365.com https://outlook.live.com https://*.office.com https://*.office365.com https://*.microsoft.com https://*.cdn.office.net https://outlook.cloud.microsoft https://*.cloud.microsoft;",
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "strict-origin-when-cross-origin"
   },
