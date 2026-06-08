@@ -62,18 +62,49 @@ function copyDir(src, dest) {
   });
 }
 
+// SHELL_CSS is injected ONLY into the add-in's dist/ pages (not the Power Pages
+// site, which uses the raw source files). It auto-fits the wide builder layout
+// into Outlook's narrow ~300-360px task pane so nothing has to be dragged wider.
 var SHELL_CSS = [
   "/* Add-in shell: makes the lifted builders usable in a narrow Outlook task pane */",
   "html,body{margin:0;padding:0;}",
-  "body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:#f3f4f6;-webkit-text-size-adjust:100%;}",
+  "*{box-sizing:border-box;}",
+  "body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:#f3f4f6;-webkit-text-size-adjust:100%;overflow-x:hidden;}",
+  "img{max-width:100%;height:auto;}",
   ".addin-banner{display:none;font-size:12px;padding:6px 10px;background:#eef4ff;color:#0b5cab;border-bottom:1px solid #cfe0f7;}",
   ".addin-banner.show{display:block;}",
-  "/* Let wide tables scroll horizontally instead of overflowing the ~320px pane */",
-  ".qt-wrapper,.dq-wrapper{max-width:100%;}",
-  ".qt-table-scroll,.qt-shared-area,#qt-shared-area{overflow-x:auto;}",
-  "@media (max-width:520px){",
-  "  .qt-grid,.dq-grid{grid-template-columns:1fr !important;}",
-  "  .qt-table,.dq-document table{font-size:11px;}",
+  "",
+  "/* The builder is a full-bleed pane here, not a centred 1180px A4 sheet. */",
+  ".qt-wrapper,.dq-wrapper{max-width:100% !important;margin:0 !important;padding:8px 10px !important;}",
+  "",
+  "/* The add-in pane is ALWAYS narrow, so stack every 2-column layout into one",
+  "   column unconditionally. This prevents the cramped columns that make long",
+  "   values (e.g. the quote number) wrap one character per line. */",
+  ".qt-grid,.dq-grid,.qt-cs-two-col,.qt-builder-row,.qt-ws-selectors{",
+  "  display:grid !important;grid-template-columns:1fr !important;gap:10px 0 !important;}",
+  ".qt-span-2{grid-column:auto !important;}",
+  "",
+  "/* QUOTATION header: left-align the meta block (To / Quotation No / Date /",
+  "   Valid Until) once it is stacked, and drop the fixed label width so values",
+  "   keep their own line instead of being squeezed. */",
+  ".qt-cs-right{text-align:left !important;}",
+  ".qt-cs-right .qt-cs-row{justify-content:flex-start !important;}",
+  ".qt-cs-l{min-width:auto !important;}",
+  ".qt-cs-v,.qt-cs-l{word-break:break-word;overflow-wrap:anywhere;}",
+  "",
+  "/* Mode switch (Software / Hardware / Server) wraps to full-width buttons",
+  "   instead of three unreadable slivers. */",
+  ".qt-mode-bar{flex-wrap:wrap !important;max-width:100% !important;}",
+  ".qt-mode-btn{flex:1 1 100% !important;}",
+  "",
+  "/* Wide data tables scroll horizontally inside their wrapper rather than",
+  "   pushing the whole pane sideways. */",
+  ".qt-table-wrap,.qt-table-scroll,.qt-shared-area,#qt-shared-area,.dq-table-wrap{",
+  "  overflow-x:auto !important;-webkit-overflow-scrolling:touch;max-width:100%;}",
+  "",
+  "@media (max-width:600px){",
+  "  .qt-card,.qt-customer-summary{padding:12px !important;}",
+  "  .qt-table,.dq-document table{font-size:11px !important;}",
   "}"
 ].join("\n");
 
