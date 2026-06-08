@@ -38,6 +38,10 @@
 .dq-discount-bar label{color:#1e6b3a}
 .dq-discount-bar input,.dq-discount-bar select{border-color:#7cba93}
 .dq-discount-bar .dq-margin-hint{color:#3a6b4d}
+.dq-proposal-bar{background:#eef3fb;border-color:#a8bdde}
+.dq-proposal-bar label{color:#1a3a6b}
+.dq-proposal-bar input,.dq-proposal-bar select{border-color:#7c9ad0}
+.dq-proposal-bar .dq-margin-hint{color:#3a4f6b}
 .dq-customer-edit{margin-bottom:14px;border:1px solid #d6dee6;border-radius:6px;background:#f7fafe;padding:8px 12px;font-size:13px}
 .dq-customer-edit summary{cursor:pointer;font-weight:600;color:#0b5cab;padding:4px 0}
 .dq-customer-edit[open]{padding-bottom:12px}

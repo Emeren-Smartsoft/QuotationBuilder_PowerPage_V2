@@ -57,6 +57,7 @@
       <button type="button" class="dq-btn" id="dq-back-btn">&larr; Upload a different file</button>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button type="button" class="dq-btn" id="dq-download-word">Download Word</button>
+        <button type="button" class="dq-btn" id="dq-email-pdf">Email via Outlook</button>
         <button type="button" class="dq-btn dq-btn-primary" id="dq-download-pdf">Download PDF</button>
       </div>
     </div>
@@ -77,6 +78,15 @@
       </select>
       <input type="number" id="dq-discount" min="0" step="0.5" value="0" />
       <span class="dq-margin-hint">Applied to the Subtotal. GST is computed on the discounted amount.</span>
+    </div>
+
+    <!-- Proposal Template selector (screen only — prepended to PDF / Word) -->
+    <div class="dq-margin-bar dq-proposal-bar dq-no-print">
+      <label for="dq-proposal-template">Proposal Template</label>
+      <select id="dq-proposal-template" style="min-width:220px;">
+        <option value="">-- None (quotation only) --</option>
+      </select>
+      <span class="dq-margin-hint">Merges the quotation inside the selected proposal template when you download PDF or Word.</span>
     </div>
 
     <!-- Editable customer override (screen only) -->
@@ -105,4 +115,14 @@
 
 </div>
 
+<script id="productData" type="application/json">
+{
+  "flowUrls": {
+    "getProposalTemplates": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a0083e6903a54891a2c3e8eacc29fbe5/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=kAHAcH6fsJ7tKIBnM68daRl4N5kVDBkp8ANy_Z9JnPA",
+    "saveQuotation": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/26dbc82788ac43f291929ead45a5462f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=pV4yD3RFHl-GAXS_S4CbMm0CyIBvx1PVf7ScvsmIX4g"
+  }
+}
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>

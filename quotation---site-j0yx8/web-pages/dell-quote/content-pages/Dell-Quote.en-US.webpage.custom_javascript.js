@@ -6,8 +6,21 @@
  */
 (function () {
   "use strict";
-  var BUILD = "dq-build-7";
+  var BUILD = "dq-build-15";
   console.log("[DQ] script loaded build=" + BUILD);
+
+  /* ----- Config (Power Automate flow URLs) ----- */
+  var CONFIG = { flowUrls: {} };
+  try {
+    var pd = document.getElementById("productData");
+    if (pd && pd.textContent) {
+      var parsed = JSON.parse(pd.textContent);
+      if (parsed && typeof parsed === "object") {
+        CONFIG = parsed;
+        CONFIG.flowUrls = CONFIG.flowUrls || {};
+      }
+    }
+  } catch (e) { console.warn("[DQ] productData parse failed", e); }
 
   /* ----------------------------- helpers ----------------------------- */
   function $(id) { return document.getElementById(id); }
@@ -310,6 +323,156 @@
   /* ----------------------------- rendering --------------------------- */
   var STATE = { quote: null, overrides: {}, margin: 0, discount: { mode: "pct", value: 0 } };
 
+  /* ------------------ proposal template (cover letter) ------------------ */
+  var proposalTemplatesLoaded = false;
+  function loadProposalTemplates() {
+    var sel = $("dq-proposal-template");
+    if (!sel) { console.warn("[DQ] #dq-proposal-template not in DOM"); return; }
+    if (proposalTemplatesLoaded) return;
+    var url = CONFIG.flowUrls && CONFIG.flowUrls.getProposalTemplates;
+    console.log("[DQ] loadProposalTemplates url=", url ? url.slice(0, 80) + "..." : "(missing)");
+    if (!url || url.indexOf("PASTE_") === 0) {
+      sel.innerHTML = '<option value="">-- None (quotation only) --</option>';
+      return;
+    }
+    proposalTemplatesLoaded = true;
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ templateName: "" })
+    })
+      .then(function (r) {
+        console.log("[DQ] proposal templates HTTP", r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        var list = (data && data.templates) || [];
+        console.log("[DQ] proposal templates count", list.length, list);
+        sel.innerHTML = '<option value="">-- None (quotation only) --</option>';
+        list.forEach(function (t) {
+          var o = document.createElement("option");
+          o.value = t.name;
+          o.textContent = t.displayName || t.name;
+          sel.appendChild(o);
+        });
+      })
+      .catch(function (err) {
+        console.error("[DQ] Failed to load proposal templates", err);
+        proposalTemplatesLoaded = false;
+      });
+  }
+
+  function fetchProposalTemplateHtml(templateName) {
+    return new Promise(function (resolve) {
+      if (!templateName) { resolve(""); return; }
+      var url = CONFIG.flowUrls.getProposalTemplates;
+      if (!url || url.indexOf("PASTE_") === 0) { resolve(""); return; }
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ templateName: templateName })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) { resolve(data.html || ""); })
+        .catch(function (err) {
+          console.error("[DQ] Failed to fetch proposal template", err);
+          resolve("");
+        });
+    });
+  }
+
+  function fillProposalTemplate(html, ctx) {
+    if (!html) return "";
+    return html
+      .replace(/\{\{COMPANY\}\}/g,     esc(ctx.company || ""))
+      .replace(/\{\{CONTACT\}\}/g,     esc(ctx.contact || ""))
+      .replace(/\{\{ADDRESS\}\}/g,     esc(ctx.address || ""))
+      .replace(/\{\{EMAIL\}\}/g,       esc(ctx.email   || ""))
+      .replace(/\{\{PHONE\}\}/g,       esc(ctx.phone   || ""))
+      .replace(/\{\{DATE\}\}/g,        esc(ctx.date    || ""))
+      .replace(/\{\{QUOTE_ID\}\}/g,    esc(ctx.quoteId || ""))
+      .replace(/\{\{VALID_UNTIL\}\}/g, esc(ctx.validUntil || ""));
+  }
+
+  // The proposal-template HTML returned by the flow is a FULL standalone HTML
+  // document (<html>/<head>/<body>/<style>/.toolbar). Stuffing it raw into the
+  // export clone causes:
+  //   - the .toolbar (Back / Print buttons) to render at the top
+  //   - body { background:... } rules to leak globally
+  //   - external CSS / fonts (Inter, FontAwesome) to fail to load
+  //   - 3-column layouts to break when squeezed into our 794px holder
+  // Parse the doc, drop chrome, hoist <style> tags, and return a clean body
+  // fragment that the caller wraps in a scoped container.
+  function processProposalTemplateHtml(raw) {
+    if (!raw) return "";
+    var doc;
+    try { doc = new DOMParser().parseFromString(raw, "text/html"); }
+    catch (e) { return raw; }
+
+    // Remove on-screen chrome that should never be in the PDF/Word output.
+    var killSel = ".toolbar, .no-print, header.toolbar, nav.toolbar, .toolbar-actions, .print-only-toolbar";
+    var kill = doc.querySelectorAll(killSel);
+    for (var i = 0; i < kill.length; i++) kill[i].parentNode.removeChild(kill[i]);
+
+    // Hoist <style> blocks. Rewrite top-level body/html rules to apply to our
+    // wrapper instead so they don't leak onto the host page.
+    var styles = doc.querySelectorAll("head style, body style");
+    var styleHtml = "";
+    for (var s = 0; s < styles.length; s++) {
+      var css = styles[s].textContent || "";
+      css = css.replace(/(^|\})\s*body\s*\{/g,        "$1 .dq-cover-letter{");
+      css = css.replace(/(^|\})\s*html\s*\{/g,        "$1 .dq-cover-letter{");
+      css = css.replace(/(^|\})\s*\*\s*\{/g,          "$1 .dq-cover-letter *{");
+      styleHtml += "<style>" + css + "</style>";
+    }
+
+    // Override block — appended LAST so it wins over the template's own rules.
+    // Templates wrap content in `.page { max-width:1000px; margin:18px auto;
+    // box-shadow:... }`. The `margin:auto` centering + an oversized child make
+    // html2canvas capture a canvas wider than our holder, which renders the
+    // whole document at ~63% width anchored to the left (clipping the cover on
+    // the left edge). Forcing the page to fill 100% width with no centering and
+    // clipping horizontal overflow keeps the capture exactly holder-wide.
+    styleHtml +=
+      "<style>" +
+      ".dq-cover-letter{width:100%!important;max-width:100%!important;margin:0!important;overflow-x:hidden!important;background:#fff!important}" +
+      ".dq-cover-letter .page{width:100%!important;max-width:100%!important;margin:0!important;box-shadow:none!important;border-radius:0!important}" +
+      ".dq-cover-letter img{max-width:100%!important;height:auto}" +
+      ".dq-cover-letter table{max-width:100%!important}" +
+      "</style>";
+
+    var bodyHtml = (doc.body && doc.body.innerHTML) || raw;
+    return styleHtml + bodyHtml;
+  }
+
+  // Build the placeholder context from the current quote + customer overrides.
+  function proposalTemplateContext() {
+    var q = STATE.quote || {};
+    var c = (typeof effectiveCustomer === "function") ? effectiveCustomer() : {};
+    return {
+      company:    c.company || "",
+      contact:    c.contact || "",
+      address:    c.address || "",
+      email:      c.email   || "",
+      phone:      c.phone   || "",
+      date:       c.quoteDate || todayISO(),
+      quoteId:    q.number || "",
+      validUntil: c.validUntil || plusDaysISO(15)
+    };
+  }
+
+  // Prepend a filled cover-letter block to an export clone (with a page break).
+  function prependProposalTemplate(clone, html) {
+    if (!html) return;
+    var wrap = document.createElement("div");
+    wrap.className = "dq-cover-letter";
+    // page-break-after on the wrapper + page-break-before on the next sibling
+    // ensures the quotation always starts on its own page.
+    wrap.setAttribute("style", "page-break-after:always;break-after:page;");
+    wrap.innerHTML = processProposalTemplateHtml(html);
+    clone.insertBefore(wrap, clone.firstChild);
+  }
+
   function effectiveCustomer() {
     var q = STATE.quote || {};
     var o = STATE.overrides || {};
@@ -488,6 +651,9 @@
     if (active) active.classList.add("active");
     $("dq-step-upload").classList.toggle("dq-hidden", n !== 1);
     $("dq-step-preview").classList.toggle("dq-hidden", n !== 2);
+    if (n === 2) {
+      try { loadProposalTemplates(); } catch (err) { console.error("[DQ] loadProposalTemplates error", err); }
+    }
     window.scrollTo(0, 0);
   }
 
@@ -616,38 +782,303 @@
     });
   }
 
+  /* --------------------------------------------------------------------------
+     PDF pipeline (shared by Download PDF + Email PDF).
+
+     The cover letter (a full standalone proposal-template document designed for
+     ~1000px pages) and the quotation (designed for ~794px / A4 width) are
+     rendered as TWO SEPARATE html2pdf passes — each at its own native width —
+     and then merged with pdf-lib. Rendering both in one html2canvas pass forced
+     a single shared width, which made the whole document render at ~63% width
+     anchored to the left (cover clipped on the left, blank strip on the right).
+     Separate passes + explicit scrollX/scrollY:0 eliminate that offset.
+     This mirrors the proven Quotation-page pipeline.
+     -------------------------------------------------------------------------- */
+
+  function loadPdfLib() {
+    return new Promise(function (resolve, reject) {
+      if (window.PDFLib) { resolve(); return; }
+      var s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js";
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error("pdf-lib failed to load")); };
+      document.head.appendChild(s);
+    });
+  }
+
+  // Render a detached element to a PDF Blob inside an ISOLATED IFRAME.
+  //
+  // Rendering off-screen in the host page made html2canvas mis-measure the
+  // layout (content came out ~half width / clipped left) because the host
+  // page's stylesheets (bootstrap, Power Pages theme) and responsive rules
+  // interfere. An iframe gives the element a CLEAN document at origin (0,0).
+  // IMPORTANT: do NOT copy the host stylesheets in — that re-introduces the
+  // same interference (a dark band + shifted content). Inject ONLY the CSS the
+  // element actually needs (passed via `extraCss`); the cover letter already
+  // inlines its own <style> blocks so it needs none.
+  function renderElToPdfBlob(el, width, opt, extraCss) {
+    return new Promise(function (resolve, reject) {
+      var iframe = document.createElement("iframe");
+      iframe.setAttribute("aria-hidden", "true");
+      iframe.style.position = "fixed";
+      iframe.style.left = "-10000px";
+      iframe.style.top = "0";
+      iframe.style.width = width + "px";
+      iframe.style.height = "1200px";
+      iframe.style.border = "0";
+      iframe.style.background = "#fff";
+      document.body.appendChild(iframe);
+
+      var idoc = iframe.contentWindow.document;
+      idoc.open();
+      idoc.write(
+        '<!doctype html><html><head><meta charset="utf-8">' +
+        '<style>*{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;}' +
+        '#dq-pdf-root{width:' + width + 'px;margin:0;background:#fff;}</style>' +
+        (extraCss ? '<style>' + extraCss + '</style>' : '') +
+        '</head><body><div id="dq-pdf-root"></div></body></html>'
+      );
+      idoc.close();
+
+      function cleanup() { if (iframe.parentNode) iframe.parentNode.removeChild(iframe); }
+
+      function go() {
+        try {
+          var root = idoc.getElementById("dq-pdf-root");
+          root.appendChild(idoc.importNode(el, true));
+          window.html2pdf().set(opt).from(root).outputPdf("blob").then(
+            function (blob) { cleanup(); resolve(blob); },
+            function (err) { cleanup(); reject(err); }
+          );
+        } catch (e) { cleanup(); reject(e); }
+      }
+      // Give the iframe document a tick to apply styles / load fonts + images.
+      setTimeout(go, 350);
+    });
+  }
+
+  // Collect the page's OWN Dell-Quote stylesheet rules (the ones that style
+  // `.dq-*`), excluding bootstrap / theme sheets. Injected into the render
+  // iframe so the quotation keeps its styling without dragging in the host CSS
+  // that breaks the capture.
+  function collectDqCss() {
+    var out = "";
+    var sheets = document.styleSheets;
+    for (var i = 0; i < sheets.length; i++) {
+      var rules;
+      try { rules = sheets[i].cssRules; } catch (e) { continue; }
+      if (!rules) continue;
+      var text = "";
+      var hasDq = false;
+      for (var j = 0; j < rules.length; j++) {
+        var t = rules[j].cssText || "";
+        text += t + "\n";
+        if (t.indexOf(".dq-") !== -1) hasDq = true;
+      }
+      if (hasDq) out += text;
+    }
+    return out;
+  }
+
+  // Merge an array of PDF Blobs into a single PDF Blob (pdf-lib).
+  function mergePdfBlobs(blobs) {
+    if (blobs.length === 1) return Promise.resolve(blobs[0]);
+    return loadPdfLib().then(function () {
+      return PDFLib.PDFDocument.create().then(function (merged) {
+        function addOne(i) {
+          if (i >= blobs.length) {
+            return merged.save().then(function (bytes) {
+              return new Blob([bytes], { type: "application/pdf" });
+            });
+          }
+          return blobs[i].arrayBuffer()
+            .then(function (buf) { return PDFLib.PDFDocument.load(new Uint8Array(buf)); })
+            .then(function (src) { return merged.copyPages(src, src.getPageIndices()); })
+            .then(function (pages) {
+              pages.forEach(function (p) { merged.addPage(p); });
+              return addOne(i + 1);
+            });
+        }
+        return addOne(0);
+      });
+    });
+  }
+
+  // Build the cover-letter element (scoped, sanitized proposal-template HTML).
+  function buildCoverLetterEl(tplHtml) {
+    var wrap = document.createElement("div");
+    wrap.className = "dq-cover-letter";
+    wrap.innerHTML = processProposalTemplateHtml(tplHtml);
+    return wrap;
+  }
+
+  // Fetch + fill the selected template (if any), then produce the final merged
+  // PDF Blob. onStatus(msg) is called with progress strings for button text.
+  function buildQuotationPdfBlob(templateName, onStatus) {
+    return fetchProposalTemplateHtml(templateName).then(function (tplHtmlRaw) {
+      var tplHtml = fillProposalTemplate(tplHtmlRaw, proposalTemplateContext());
+      var dqCss = collectDqCss();
+
+      var quotationEl = buildExportClone();
+      var qtOpt = {
+        margin:   [12, 10, 14, 10],
+        image:    { type: "jpeg", quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true, allowTaint: true, logging: false, backgroundColor: "#ffffff", scrollX: 0, scrollY: 0 },
+        jsPDF:    { unit: "mm", format: "a4", orientation: "portrait", compress: true },
+        pagebreak:{ mode: ["css", "legacy"], avoid: ["tr", "thead", "tfoot", ".dq-comp-section > h3"] }
+      };
+
+      if (!tplHtml) {
+        if (onStatus) onStatus("Rendering PDF...");
+        return renderElToPdfBlob(quotationEl, 794, qtOpt, dqCss);
+      }
+
+      var coverEl = buildCoverLetterEl(tplHtml);
+      var coverOpt = {
+        margin:   [0, 0, 0, 0],
+        image:    { type: "jpeg", quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true, allowTaint: true, logging: false, backgroundColor: "#ffffff", scrollX: 0, scrollY: 0 },
+        jsPDF:    { unit: "mm", format: "a4", orientation: "portrait", compress: true },
+        pagebreak:{ mode: ["css", "legacy"], avoid: ["tr", "thead", "tfoot", "img"] }
+      };
+
+      if (onStatus) onStatus("Rendering cover (1/2)...");
+      // Cover letter is self-contained (its own <style> blocks are inlined) — no extra CSS.
+      return renderElToPdfBlob(coverEl, 1000, coverOpt, "").then(function (coverBlob) {
+        if (onStatus) onStatus("Rendering quote (2/2)...");
+        return renderElToPdfBlob(quotationEl, 794, qtOpt, dqCss).then(function (qtBlob) {
+          if (onStatus) onStatus("Merging...");
+          return mergePdfBlobs([coverBlob, qtBlob]);
+        });
+      });
+    });
+  }
+
   function downloadPdf() {
     if (!window.html2pdf) { alert("PDF library not loaded yet. Please retry in a moment."); return; }
-    var clone = buildExportClone();
-    // html2pdf needs the element in the DOM to measure layout. Park it off-screen.
-    var holder = document.createElement("div");
-    holder.style.position = "fixed";
-    holder.style.left = "-10000px";
-    holder.style.top = "0";
-    holder.style.width = "794px";        // ~A4 width at 96dpi
-    holder.style.background = "#fff";
-    holder.appendChild(clone);
-    document.body.appendChild(holder);
+    var sel = $("dq-proposal-template");
+    var templateName = sel ? sel.value : "";
+    var btn = $("dq-download-pdf");
+    var oldTxt = btn ? btn.textContent : "";
+    if (btn) { btn.disabled = true; btn.textContent = "Preparing..."; }
 
-    var opt = {
-      margin:   [12, 10, 14, 10],
-      filename: fileBaseName() + ".pdf",
-      image:    { type: "jpeg", quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
-      jsPDF:    { unit: "mm", format: "a4", orientation: "portrait", compress: true },
-      pagebreak:{
-        mode: ["css", "legacy", "avoid-all"],
-        avoid: ["tr", ".dq-comp-section > h3", ".dq-export-head"]
+    function restore() { if (btn) { btn.disabled = false; btn.textContent = oldTxt; } }
+
+    buildQuotationPdfBlob(templateName, function (s) { if (btn) btn.textContent = s; })
+      .then(function (blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = fileBaseName() + ".pdf";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+        restore();
+      })
+      .catch(function (err) {
+        console.error("[DQ] downloadPdf failed", err);
+        alert("Failed to generate PDF: " + (err && err.message ? err.message : "unknown error"));
+        restore();
+      });
+  }
+
+  /* ------------------ Email PDF via Outlook (Power Automate) ------------------
+     Generates the same PDF as Download PDF, then POSTs it (base64-encoded)
+     plus recipient/subject/body to the shared QuoteSite-SaveQuotation flow,
+     which saves to SharePoint AND sends it as an Office 365 Outlook email
+     when `recipientEmail` is supplied. */
+  function emailPdf() {
+    if (!window.html2pdf) { alert("PDF library not loaded yet. Please retry in a moment."); return; }
+    var saveUrl = CONFIG.flowUrls && CONFIG.flowUrls.saveQuotation;
+    if (!saveUrl || saveUrl.indexOf("PASTE_") === 0) {
+      alert("Save flow URL is not configured for the Dell Quote page. Email cannot be sent.");
+      return;
+    }
+    if (!STATE.quote) { alert("Please upload and parse a Dell quotation first."); return; }
+
+    var c = effectiveCustomer();
+    var toEmail = window.prompt("Send Dell quotation to (email):", c.email || "");
+    if (toEmail === null) return;
+    toEmail = (toEmail || "").trim();
+    if (!toEmail || toEmail.indexOf("@") === -1) { alert("A valid recipient email is required."); return; }
+    var ccEmail = window.prompt("CC (optional, comma-separated):", "");
+    if (ccEmail === null) return;
+    ccEmail = (ccEmail || "").trim();
+
+    var sel = $("dq-proposal-template");
+    var templateName = sel ? sel.value : "";
+    var btn = $("dq-email-pdf");
+    var oldTxt = btn ? btn.textContent : "";
+    if (btn) { btn.disabled = true; btn.textContent = "Preparing..."; }
+
+    var fileName = fileBaseName() + ".pdf";
+    var subject  = "Dell Quotation - " + fileBaseName() + " - Smartsoft";
+    var bodyHtml =
+      "<p>Dear " + esc(c.contact || "Sir/Madam") + ",</p>" +
+      "<p>Please find attached our Dell quotation for your kind consideration.</p>" +
+      "<p>Should you need any clarifications, feel free to reach out.</p>" +
+      "<p>Warm regards,<br/>Smartsoft Team<br/>29 years of trusted IT solutions<br/>sales@smartsoft.co.in</p>";
+
+    function done(ok, err) {
+      if (btn) { btn.disabled = false; btn.textContent = oldTxt; }
+      if (ok) {
+        alert("Quotation emailed to " + toEmail + "." + (ccEmail ? "\nCC: " + ccEmail : ""));
+      } else {
+        console.error("[DQ] emailPdf failed", err);
+        alert("Failed to send email: " + (err && err.message ? err.message : "unknown error"));
       }
-    };
-    window.html2pdf().set(opt).from(clone).save()
-      .then(function () { document.body.removeChild(holder); })
-      .catch(function () { document.body.removeChild(holder); });
+    }
+
+    function blobToBase64(blob) {
+      return blob.arrayBuffer().then(function (buf) {
+        var bytes = new Uint8Array(buf);
+        var chunk = 0x8000;
+        var parts = [];
+        for (var i = 0; i < bytes.length; i += chunk) {
+          parts.push(String.fromCharCode.apply(null, bytes.subarray(i, i + chunk)));
+        }
+        return btoa(parts.join(""));
+      });
+    }
+
+    buildQuotationPdfBlob(templateName, function (s) { if (btn) btn.textContent = s; })
+      .then(function (pdfBlob) {
+        if (btn) btn.textContent = "Uploading...";
+        return blobToBase64(pdfBlob);
+      })
+      .then(function (b64) {
+        if (btn) btn.textContent = "Sending...";
+        return fetch(saveUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fileName: fileName,
+            fileContent: b64,
+            recipientEmail: toEmail,
+            recipientName: c.contact || "",
+            ccEmail: ccEmail,
+            emailSubject: subject,
+            emailBody: bodyHtml
+          })
+        });
+      })
+      .then(function (r) {
+        if (r.status >= 200 && r.status < 300) done(true);
+        else r.text().then(function (t) { done(false, new Error("HTTP " + r.status + ": " + t)); });
+      })
+      .catch(function (err) { done(false, err); });
   }
 
   function downloadWord() {
-    return (function () {
+    var sel = $("dq-proposal-template");
+    var templateName = sel ? sel.value : "";
+    var btn = $("dq-download-word");
+    if (btn && templateName) { btn.disabled = true; var oldTxt = btn.textContent; btn.textContent = "Preparing..."; }
+    fetchProposalTemplateHtml(templateName).then(function (tplHtmlRaw) {
       var clone = buildExportClone();
+      var tplHtml = fillProposalTemplate(tplHtmlRaw, proposalTemplateContext());
+      prependProposalTemplate(clone, tplHtml);
 
       // Word export: drop the logo entirely (relative URLs don't resolve when
       // a .doc is opened locally and inlined images bloat the file).
@@ -716,7 +1147,8 @@
         URL.revokeObjectURL(a.href);
         a.parentNode.removeChild(a);
       }, 100);
-    })();
+      if (btn && templateName) { btn.disabled = false; btn.textContent = oldTxt; }
+    });
   }
 
   /* ------------------------------- wire ------------------------------ */
@@ -750,10 +1182,17 @@
     $("dq-apply-overrides").addEventListener("click", applyOverrides);
     $("dq-download-pdf").addEventListener("click", downloadPdf);
     $("dq-download-word").addEventListener("click", downloadWord);
+    var emailBtn = $("dq-email-pdf");
+    if (emailBtn) emailBtn.addEventListener("click", emailPdf);
 
     var marginInput = $("dq-margin");
     if (marginInput) {
       marginInput.addEventListener("input", function () {
+        var v = parseFloat(marginInput.value);
+        STATE.margin = isFinite(v) && v >= 0 ? v : 0;
+        if (STATE.quote) renderDocument();
+      });
+    }
 
     var discountInput = $("dq-discount");
     var discountMode  = $("dq-discount-mode");
@@ -761,7 +1200,6 @@
       var v = parseFloat(discountInput.value);
       STATE.discount.value = isFinite(v) && v >= 0 ? v : 0;
       STATE.discount.mode  = discountMode.value === "amt" ? "amt" : "pct";
-      // Adjust input step/placeholder to the chosen mode for nicer UX.
       if (STATE.discount.mode === "pct") {
         discountInput.step = "0.5";
         discountInput.max = "100";
@@ -773,11 +1211,10 @@
     }
     if (discountInput) discountInput.addEventListener("input",  applyDiscount);
     if (discountMode)  discountMode.addEventListener("change", applyDiscount);
-        var v = parseFloat(marginInput.value);
-        STATE.margin = isFinite(v) && v >= 0 ? v : 0;
-        if (STATE.quote) renderDocument();
-      });
-    }
+
+    // Eagerly fetch proposal templates so the dropdown is ready when the user
+    // lands on step 2 (also retried on showStep(2) in case it fails first time).
+    try { loadProposalTemplates(); } catch (err) { console.error("[DQ] loadProposalTemplates error", err); }
   }
 
   if (document.readyState === "loading") {
