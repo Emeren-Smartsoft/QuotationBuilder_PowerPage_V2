@@ -7,7 +7,7 @@ body > div:first-child[style*="background-color"] { display:none !important; }
 
 .qt-brand { display:flex; align-items:center; padding:8px 0 16px; border-bottom:3px solid #1a2533; margin-bottom:18px; }
 .qt-brand-logo { height:80px; width:auto; max-width:100%; }
-.qt-header h1 { margin: 0 0 4px; font-size: 28px; }
+.qt-header h1 { margin: 0 0 4px; font-size: 28px; font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif; letter-spacing: -0.01em; }
 .qt-sub { color:#666; margin: 0 0 16px; }
 
 .qt-steps { list-style:none; padding:0; display:flex; gap:8px; margin: 12px 0 20px; }
@@ -208,109 +208,161 @@ body > div:first-child[style*="background-color"] { display:none !important; }
    primitives to override the portal theme's default block rules.
    ============================================================ */
 
+/* ── Step 1: Filters ── */
 #qt-builder-server .sq-filter-row {
   display: flex !important; flex-wrap: wrap; gap: 10px;
-  align-items: flex-end; margin: 0 0 12px;
+  align-items: flex-end; margin: 0 0 14px;
+  background: #f3f6f9; border: 1px solid #e3e8ee; border-radius: 8px;
+  padding: 12px 14px;
 }
 #qt-builder-server .sq-filter-row label {
   display: flex !important; flex-direction: column; gap: 4px;
-  font-size: 12px; font-weight: 600; color: #3a4452;
-  min-width: 160px; margin: 0;
+  font-size: 11.5px; font-weight: 600; color: #4a5568;
+  text-transform: uppercase; letter-spacing: .3px;
+  min-width: 150px; margin: 0;
 }
 #qt-builder-server .sq-filter-row select,
 #qt-builder-server .sq-filter-row input {
   font: 13px "Segoe UI", system-ui, sans-serif;
   padding: 6px 9px; border: 1px solid #cfd4da; border-radius: 5px;
-  background: #fff; height: 32px; box-sizing: border-box;
+  background: #fff; height: 34px; box-sizing: border-box; color: #1a2533;
+}
+#qt-builder-server .sq-filter-row select:focus,
+#qt-builder-server .sq-filter-row input:focus {
+  outline: none; border-color: #0b5cab; box-shadow: 0 0 0 2px rgba(11,92,171,.12);
 }
 
-#qt-builder-server .sq-base-list,
-#qt-builder-server .sq-options-list {
-  max-height: 360px; overflow: auto;
-  border: 1px solid #e0e4e8; border-radius: 6px; background: #fff;
+/* ── Step 2: Base server list ── */
+#qt-builder-server .sq-base-list {
+  max-height: 340px; overflow: auto;
+  border: 1px solid #dde3ea; border-radius: 8px; background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
 }
-
-/* --- Base picker rows --- */
 #qt-builder-server .sq-base-row {
   display: grid !important;
-  grid-template-columns: 220px 1fr 150px;
-  gap: 14px; align-items: center;
-  padding: 10px 14px; border-bottom: 1px solid #eef1f4;
-  cursor: pointer; font-size: 12.5px; line-height: 1.35;
+  grid-template-columns: 190px 1fr 150px;
+  gap: 12px; align-items: center;
+  padding: 11px 16px; border-bottom: 1px solid #f0f3f6;
+  cursor: pointer; font-size: 12.5px; line-height: 1.4;
+  transition: background .12s;
 }
 #qt-builder-server .sq-base-row:last-child { border-bottom: 0; }
-#qt-builder-server .sq-base-row:hover { background: #f1f6fb; }
+#qt-builder-server .sq-base-row:hover { background: #f0f6ff; }
 #qt-builder-server .sq-base-row.selected {
-  background: #e3eef9; border-left: 4px solid #0b5cab; padding-left: 10px;
+  background: #e8f0fb; border-left: 3px solid #0b5cab; padding-left: 13px;
 }
 #qt-builder-server .sq-base-row > div { min-width: 0; }
-#qt-builder-server .sq-bp-fam { font-weight: 600; color: #0b5cab; }
-#qt-builder-server .sq-bp-price { text-align: right; font-weight: 700; color: #1a2533; }
-#qt-builder-server .sq-empty { padding: 18px; color: #777; text-align: center; }
+#qt-builder-server .sq-bp-fam {
+  font-size: 13px; font-weight: 700; color: #0b5cab;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#qt-builder-server .sq-bp-fam + div {
+  font-size: 11.5px; color: #6b7685; margin-top: 2px;
+  font-family: Consolas, "Courier New", monospace;
+}
+#qt-builder-server .sq-bp-price {
+  text-align: right; font-size: 13.5px; font-weight: 700; color: #1a2533;
+  white-space: nowrap;
+}
+#qt-builder-server .sq-empty {
+  padding: 24px 18px; color: #888; text-align: center; font-size: 13px;
+}
 
-/* --- Base configuration detail card --- */
+/* ── Step 3: Base configuration detail card ── */
 #qt-builder-server .sq-base-detail {
-  background: #f7f9fb; border: 1px solid #d6dee6; border-radius: 6px;
-  padding: 14px 16px; margin: 14px 0; font-size: 12.5px;
+  background: #fff; border: 1px solid #dde3ea; border-radius: 8px;
+  padding: 16px 20px; margin: 14px 0 0; font-size: 12.5px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
 }
 #qt-builder-server .sq-base-detail h3 {
-  margin: 0 0 10px; font-size: 14px; color: #0b5cab;
+  margin: 0 0 12px; font-size: 13.5px; font-weight: 700;
+  color: #0b5cab; text-transform: uppercase; letter-spacing: .4px;
+  padding-bottom: 8px; border-bottom: 1px solid #e8edf2;
 }
 #qt-builder-server .sq-base-detail dl {
   display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 8px 18px; margin: 0;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0 20px; margin: 0;
 }
 #qt-builder-server .sq-base-detail dt {
-  font-weight: 600; color: #555; font-size: 11px;
-  text-transform: uppercase; letter-spacing: .3px; margin: 0 0 2px;
+  font-weight: 600; color: #6b7685; font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: .4px; margin: 8px 0 2px;
 }
-#qt-builder-server .sq-base-detail dd { margin: 0 0 6px; color: #1a2533; }
+#qt-builder-server .sq-base-detail dd {
+  margin: 0; color: #1a2533; font-size: 13px; line-height: 1.4;
+}
+/* BASE PRICE stands out */
+#qt-builder-server .sq-base-detail dt:last-of-type { color: #0b5cab; }
+#qt-builder-server .sq-base-detail dd:last-of-type {
+  font-size: 15px; font-weight: 700; color: #1a2533;
+}
 
-/* --- Options toolbar + rows --- */
+/* ── Step 4: Compatible options section header ── */
+#qt-builder-server .sq-section-h {
+  margin: 20px 0 8px !important; font-size: 13.5px !important;
+  font-weight: 700; color: #1a2533; text-transform: uppercase;
+  letter-spacing: .4px; border-top: 1px solid #e8edf2; padding-top: 14px;
+}
+
+/* ── Step 5: Options toolbar ── */
+#qt-builder-server .sq-section-tools {
+  background: #f3f6f9; border: 1px solid #e3e8ee; border-radius: 8px;
+  padding: 10px 14px; margin-bottom: 10px;
+}
 #qt-builder-server .sq-options-toolbar {
-  display: flex !important; flex-wrap: wrap; gap: 10px;
-  align-items: center; margin: 10px 0;
+  display: flex !important; flex-wrap: wrap; gap: 10px; align-items: center;
 }
 #qt-builder-server .sq-options-toolbar select,
 #qt-builder-server .sq-options-toolbar input[type=search] {
   font: 13px "Segoe UI", system-ui, sans-serif;
   padding: 6px 9px; border: 1px solid #cfd4da; border-radius: 5px;
-  flex: 1 1 200px; min-width: 180px; height: 32px; box-sizing: border-box;
+  flex: 1 1 200px; min-width: 180px; height: 34px; box-sizing: border-box;
+}
+#qt-builder-server .sq-options-toolbar select:focus,
+#qt-builder-server .sq-options-toolbar input[type=search]:focus {
+  outline: none; border-color: #0b5cab; box-shadow: 0 0 0 2px rgba(11,92,171,.12);
 }
 #qt-builder-server .sq-options-toolbar label {
   display: inline-flex !important; align-items: center; gap: 6px;
-  font-size: 12px; font-weight: 600; color: #3a4452;
+  font-size: 12px; font-weight: 600; color: #4a5568;
   white-space: nowrap; margin: 0; flex: 0 0 auto;
 }
 #qt-builder-server .sq-options-toolbar label input[type=checkbox] {
   margin: 0; width: auto; height: auto;
 }
 
+/* ── Step 6: Options list rows ── */
+#qt-builder-server .sq-options-list {
+  max-height: 380px; overflow: auto;
+  border: 1px solid #dde3ea; border-radius: 8px; background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
 #qt-builder-server .sq-opt-row {
   display: grid !important;
-  grid-template-columns: 32px 130px 1fr 130px;
+  grid-template-columns: 34px 100px 1fr 140px;
   gap: 10px; align-items: center;
-  padding: 8px 12px; border-bottom: 1px solid #eef1f4;
-  font-size: 12.5px; line-height: 1.35;
+  padding: 9px 14px; border-bottom: 1px solid #f0f3f6;
+  font-size: 12.5px; line-height: 1.4; transition: background .1s;
 }
 #qt-builder-server .sq-opt-row:last-child { border-bottom: 0; }
-#qt-builder-server .sq-opt-row:hover { background: #f7faff; }
+#qt-builder-server .sq-opt-row:hover { background: #f5f8ff; }
 #qt-builder-server .sq-opt-row > div { min-width: 0; }
 #qt-builder-server .sq-opt-row input[type=checkbox] {
-  margin: 0; width: 16px; height: 16px;
+  margin: 0; width: 16px; height: 16px; cursor: pointer;
 }
 #qt-builder-server .sq-opt-type {
-  font-size: 11px; color: #0b5cab; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .3px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .3px;
+  text-transform: uppercase; padding: 2px 6px; border-radius: 3px;
+  background: #e8f0fb; color: #0b5cab; text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 #qt-builder-server .sq-opt-pn {
   font-family: Consolas, "Courier New", monospace;
-  font-size: 11.5px; color: #6a737d; margin-top: 2px;
+  font-size: 11px; color: #8a95a3; margin-top: 3px;
 }
 #qt-builder-server .sq-opt-price {
-  text-align: right; font-weight: 600; color: #1a2533;
-  white-space: nowrap;
+  text-align: right; font-size: 13px; font-weight: 700;
+  color: #1a2533; white-space: nowrap;
 }
 
 /* Hide the now-unused legacy server-only table + toolbar */

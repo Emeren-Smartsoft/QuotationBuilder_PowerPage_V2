@@ -1,6 +1,6 @@
-﻿(function () {
+(function () {
   "use strict";
-  console.log("[QT] script loaded build=2026-06-smartsoft-india");
+  console.log("[QT] script loaded build=2026-06-smartsoft-india-r3");
 
   var GST_RATE = 0.18;
   function fmt(n) { return "\u20B9 " + Number(n || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
@@ -47,6 +47,193 @@
   var customer = {};
   var cart = [];
   var discount = { mode: "none", value: 0 };
+
+  /* --- Email via Outlook --- wired EARLY so a later parse/runtime error
+     elsewhere in the IIFE can never silently leave this button dead.
+     The actual send is delegated to the Save flow (Power Automate sends the
+     PDF as an attachment via Office 365 Outlook when recipientEmail is set). */
+  if (emailBtn) {
+    console.log("[QT] wiring email button");
+    emailBtn.addEventListener("click", function () {
+      console.log("[QT] email button clicked, cart.length=", cart.length);
+      if (!cart || cart.length === 0) { alert("Please add at least one product before emailing."); return; }
+      var saveUrl = CONFIG.flowUrls && CONFIG.flowUrls.saveQuotation;
+      if (!saveUrl || saveUrl.indexOf("PASTE_") === 0) {
+        alert("Save flow URL not configured. Cannot email without saving.");
+        return;
+      }
+      var toEmail = window.prompt("Send quotation to (email):", customer.email || "");
+      if (toEmail === null) return; // cancelled
+      toEmail = (toEmail || "").trim();
+      if (!toEmail || toEmail.indexOf("@") === -1) { alert("A valid recipient email is required."); return; }
+      var ccEmail = window.prompt("CC (optional, comma-separated):", "");
+      if (ccEmail === null) return;
+      ccEmail = (ccEmail || "").trim();
+
+      var pdfQuoteId = document.querySelector(".qt-customer-summary") ?
+        (document.querySelector(".qt-customer-summary").textContent.match(/QT-\d+-\d+/) || ["Quotation"])[0] : "Quotation";
+      var subject = "Proposal & Quotation - " + pdfQuoteId + " - Smartsoft";
+      var bodyHtml =
+        "<p>Dear " + escapeHtml(customer.contact || "Sir/Madam") + ",</p>" +
+        "<p>Please find attached our proposal and quotation (Ref: <b>" + escapeHtml(pdfQuoteId) + "</b>) for your kind consideration.</p>" +
+        "<p>Should you need any clarifications, feel free to reach out.</p>" +
+        "<p>Warm regards,<br/>Smartsoft Team<br/>29 years of trusted IT solutions<br/>sales@smartsoft.co.in</p>";
+
+      window._pendingEmailFields = {
+        recipientEmail: toEmail,
+        recipientName: customer.contact || "",
+        ccEmail: ccEmail,
+        emailSubject: subject,
+        emailBody: bodyHtml
+      };
+      window._lastEmailedTo = toEmail;
+      console.log("[QT] email fields staged, triggering save flow");
+      // Reuse the existing Save flow � popup will POST with the email fields included.
+      if (saveBtn) saveBtn.click();
+      else alert("Save button not found in DOM; cannot email.");
+    });
+  } else {
+    console.warn("[QT] qt-email button NOT FOUND in DOM at script time");
+  }
+
+  /* --- CRM Dynamics 365 Account/Contact Lookup --- */
+  var accountSearch = $("qt-account-search");
+  var accountDropdown = $("qt-account-dropdown");
+  var contactSearch = $("qt-contact-search");
+  var contactDropdown = $("qt-contact-dropdown");
+  var useD365Btn = $("qt-use-d365-contact");
+  var d365Status = $("qt-d365-status");
+
+  var selectedAccountId = null;
+  var selectedAccountName = null;
+  var selectedContactId = null;
+  var selectedContactData = null;
+
+  function crmFetchAccounts(query) {
+    var url = CONFIG.flowUrls && CONFIG.flowUrls.getCRMData;
+    if (!url || url.indexOf("PASTE_") === 0) { console.warn("[QT] getCRMData flow URL not configured"); return; }
+    accountDropdown.innerHTML = '<div style="padding:8px; color:#888; font-style:italic;">Loading...</div>';
+    accountDropdown.style.display = "block";
+    fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ search: query, top: 500 }) })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var accounts = (data.mode === "accounts" && data.accounts) ? data.accounts : [];
+        if (!accounts.length) {
+          accountDropdown.innerHTML = '<div style="padding:10px; color:#999; font-size:13px;">No accounts found</div>';
+        } else {
+          accountDropdown.innerHTML = accounts.map(function (acc) {
+            return '<div class="qt-dd-item" style="padding:10px 12px; cursor:pointer; border-bottom:1px solid #f0f0f0; font-size:14px;" data-id="' + escapeAttr(acc.id) + '" data-name="' + escapeAttr(acc.name) + '">' +
+              '<strong>' + escapeHtml(acc.name) + '</strong>' +
+              (acc.address ? '<br><span style="font-size:12px; color:#666;">' + escapeHtml(acc.address.trim()) + '</span>' : '') +
+              '</div>';
+          }).join("");
+          accountDropdown.querySelectorAll(".qt-dd-item").forEach(function (el) {
+            el.addEventListener("mousedown", function (e) {
+              e.preventDefault();
+              selectedAccountId = el.getAttribute("data-id");
+              selectedAccountName = el.getAttribute("data-name");
+              accountSearch.value = selectedAccountName;
+              accountDropdown.style.display = "none";
+              // enable contact search and auto-load all contacts
+              contactSearch.disabled = false;
+              contactSearch.style.background = "";
+              contactSearch.placeholder = "Click or type to search contacts in " + selectedAccountName + "...";
+              contactSearch.value = "";
+              contactDropdown.innerHTML = "";
+              selectedContactId = null;
+              selectedContactData = null;
+              useD365Btn.disabled = true;
+              d365Status.textContent = "";
+              // auto-load contacts immediately
+              crmFetchContacts("");
+            });
+          });
+        }
+        accountDropdown.style.display = "block";
+      })
+      .catch(function (err) {
+        accountDropdown.innerHTML = '<div style="padding:10px; color:#c00; font-size:13px;">Error loading accounts</div>';
+        console.error("[QT] CRM account search failed", err);
+      });
+  }
+
+  function crmFetchContacts(query) {
+    if (!selectedAccountId) return;
+    var url = CONFIG.flowUrls && CONFIG.flowUrls.getCRMData;
+    if (!url || url.indexOf("PASTE_") === 0) return;
+    contactDropdown.innerHTML = '<div style="padding:8px; color:#888; font-style:italic;">Loading...</div>';
+    contactDropdown.style.display = "block";
+    fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ accountId: selectedAccountId, search: query, top: 500 }) })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var contacts = (data.mode === "contacts" && data.contacts) ? data.contacts : [];
+        if (!contacts.length) {
+          contactDropdown.innerHTML = '<div style="padding:10px; color:#999; font-size:13px;">No contacts found for this account</div>';
+        } else {
+          contactDropdown.innerHTML = contacts.map(function (con) {
+            var fullName = escapeHtml((con.firstName || "") + " " + (con.lastName || "")).trim();
+            return '<div class="qt-dd-item" style="padding:10px 12px; cursor:pointer; border-bottom:1px solid #f0f0f0; font-size:14px;" data-id="' + escapeAttr(con.contactId) + '" data-contact="' + escapeAttr(JSON.stringify(con)) + '">' +
+              '<strong>' + fullName + '</strong>' +
+              (con.email ? '<br><span style="font-size:12px; color:#666;">✉ ' + escapeHtml(con.email) + '</span>' : '') +
+              (con.phone ? ' &nbsp;<span style="font-size:12px; color:#666;">📞 ' + escapeHtml(con.phone) + '</span>' : '') +
+              '</div>';
+          }).join("");
+          contactDropdown.querySelectorAll(".qt-dd-item").forEach(function (el) {
+            el.addEventListener("mousedown", function (e) {
+              e.preventDefault();
+              selectedContactId = el.getAttribute("data-id");
+              selectedContactData = JSON.parse(el.getAttribute("data-contact"));
+              contactSearch.value = ((selectedContactData.firstName || "") + " " + (selectedContactData.lastName || "")).trim();
+              contactDropdown.style.display = "none";
+              useD365Btn.disabled = false;
+              d365Status.textContent = "✓ Ready to import";
+            });
+          });
+        }
+        contactDropdown.style.display = "block";
+      })
+      .catch(function (err) {
+        contactDropdown.innerHTML = '<div style="padding:10px; color:#c00; font-size:13px;">Error loading contacts</div>';
+        console.error("[QT] CRM contact search failed", err);
+      });
+  }
+
+  if (accountSearch) {
+    console.log("[QT] wiring CRM account/contact lookup");
+
+    // Show all accounts on click/focus
+    accountSearch.addEventListener("focus", function () { crmFetchAccounts((accountSearch.value || "").trim()); });
+    accountSearch.addEventListener("click", function () { crmFetchAccounts((accountSearch.value || "").trim()); });
+    accountSearch.addEventListener("input", function () { crmFetchAccounts((accountSearch.value || "").trim()); });
+
+    // Show/filter contacts on click/focus/input
+    contactSearch.addEventListener("focus", function () { if (selectedAccountId) crmFetchContacts((contactSearch.value || "").trim()); });
+    contactSearch.addEventListener("click", function () { if (selectedAccountId) crmFetchContacts((contactSearch.value || "").trim()); });
+    contactSearch.addEventListener("input", function () { if (selectedAccountId) crmFetchContacts((contactSearch.value || "").trim()); });
+
+    useD365Btn.addEventListener("click", function () {
+      if (!selectedContactData) return;
+      form.company.value = selectedAccountName || "";
+      form.contact.value = (selectedContactData.firstName || "") + " " + (selectedContactData.lastName || "");
+      form.email.value = selectedContactData.email || "";
+      form.phone.value = selectedContactData.phone || "";
+      form.address.value = selectedContactData.address || "";
+      d365Status.textContent = "✓ Imported from Dynamics 365";
+      console.log("[QT] CRM contact imported:", selectedContactData);
+    });
+
+    document.addEventListener("click", function (e) {
+      if (e.target !== accountSearch && e.target !== accountDropdown && !accountDropdown.contains(e.target)) {
+        accountDropdown.style.display = "none";
+      }
+      if (e.target !== contactSearch && e.target !== contactDropdown && !contactDropdown.contains(e.target)) {
+        contactDropdown.style.display = "none";
+      }
+    });
+
+    console.log("[qt-server-flow-1] CRM UI module loaded");
+  }
+
   var currentProductsCache = [];
   var allProductsForCategory = [];
   var lastLoadedCategory = "";
@@ -1006,46 +1193,9 @@
     }, 30000);
   }
 
-  /* --- Email (saves to SharePoint + emails PDF as attachment via Flow 3) ---
-     Asks user to confirm/edit To and CC, then triggers the Save flow with extra fields
-     so Power Automate also sends the PDF via Office 365 Outlook. */
-  if (emailBtn) {
-    emailBtn.addEventListener("click", function () {
-      if (cart.length === 0) { alert("Please add at least one product."); return; }
-      var saveUrl = CONFIG.flowUrls.saveQuotation;
-      if (!saveUrl || saveUrl.indexOf("PASTE_") === 0) {
-        alert("Save flow URL not configured. Cannot email without saving.");
-        return;
-      }
-      var toEmail = window.prompt("Send quotation to (email):", customer.email || "");
-      if (toEmail === null) return; // cancelled
-      toEmail = (toEmail || "").trim();
-      if (!toEmail || toEmail.indexOf("@") === -1) { alert("A valid recipient email is required."); return; }
-      var ccEmail = window.prompt("CC (optional, comma-separated):", "");
-      if (ccEmail === null) return;
-      ccEmail = (ccEmail || "").trim();
-
-      var pdfQuoteId = document.querySelector(".qt-customer-summary") ?
-        (document.querySelector(".qt-customer-summary").textContent.match(/QT-\d+-\d+/) || ["Quotation"])[0] : "Quotation";
-      var subject = "Proposal & Quotation - " + pdfQuoteId + " - Smartsoft";
-      var bodyHtml =
-        "<p>Dear " + escapeHtml(customer.contact || "Sir/Madam") + ",</p>" +
-        "<p>Please find attached our proposal and quotation (Ref: <b>" + escapeHtml(pdfQuoteId) + "</b>) for your kind consideration.</p>" +
-        "<p>Should you need any clarifications, feel free to reach out.</p>" +
-        "<p>Warm regards,<br/>Smartsoft Team<br/>29 years of trusted IT solutions<br/>sales@smartsoft.co.in</p>";
-
-      window._pendingEmailFields = {
-        recipientEmail: toEmail,
-        recipientName: customer.contact || "",
-        ccEmail: ccEmail,
-        emailSubject: subject,
-        emailBody: bodyHtml
-      };
-      window._lastEmailedTo = toEmail;
-      // Reuse the existing Save flow â€” popup will POST with the email fields included.
-      saveBtn.click();
-    });
-  }
+  /* --- Email (handler is wired EARLY near the top of the file so a parse
+     error in the big buildAndSavePdf block above can't ever silently leave
+     this button dead). See the early `if (emailBtn) { ... }` block. */
 
   /* --- Utility --- */
   function escapeHtml(s) {
@@ -1104,7 +1254,7 @@
 
     var wsListsLoaded   = false;
     var wsAllSkus       = [];      // SKUs for the currently selected price list
-    var wsSkuCache      = {};      // { "<listName>": [ {sku objects} ] }  â€” instant on revisit
+    var wsSkuCache      = {};      // { "<listName>": [ {sku objects} ] }  — instant on revisit
     var wsCurrentList   = "";
     var wsCurrentModel  = "";      // selected model filter ("" = none picked yet)
     var wsLoadingSkus   = false;
@@ -1120,7 +1270,7 @@
         builderSv.style.display = isSv ? "block" : "";
       }
       /* qt-shared-area (quotation items table + proposal template + actions)
-         is reused by ALL modes â€” keep it visible. */
+         is reused by ALL modes — keep it visible. */
       if (sharedArea) sharedArea.style.display = "";
       console.log("[QT] setMode", mode, "builderSv=", builderSv, "hasHidden=", builderSv && builderSv.classList.contains("qt-hidden"));
 
@@ -1157,7 +1307,7 @@
       for (var i = 0; i < PRICE_KEYS.length; i++) {
         var raw = row[PRICE_KEYS[i]];
         if (raw == null) continue;
-        // Strip currency symbols, commas, spaces, etc. â€” keep digits, dot, minus.
+        // Strip currency symbols, commas, spaces, etc. — keep digits, dot, minus.
         var cleaned = String(raw).replace(/[^0-9.\-]/g, "");
         if (!cleaned) continue;
         var v = Number(cleaned);
@@ -1181,7 +1331,7 @@
     }
 
     function prettifyModel(name) {
-      /* Excel table names can't contain spaces â€” convert underscores back. */
+      /* Excel table names can't contain spaces — convert underscores back. */
       return String(name || "").replace(/_/g, " ").trim();
     }
 
@@ -1224,7 +1374,7 @@
       var url = CONFIG.flowUrls.getWorkstationData;
       if (!url || url.indexOf("PASTE_") === 0) return;
 
-      // Cache hit â€” skip the network entirely.
+      // Cache hit — skip the network entirely.
       if (wsSkuCache[listName]) {
         wsAllSkus = wsSkuCache[listName];
         populateModelFilter();
@@ -1319,7 +1469,7 @@
       models.sort();
 
       if (!wsModelFilterSel) {
-        // No filter dropdown in DOM â€” fall back to showing all SKUs grouped.
+        // No filter dropdown in DOM — fall back to showing all SKUs grouped.
         wsPanel.classList.remove("qt-hidden");
         renderWsList();
         return;
@@ -1448,18 +1598,20 @@
 })();
 
 /* ========================================================================
-   Server Quotation mode â€” embedded inline as third tab in this page.
-   Self-contained IIFE; exposes window.QT_SERVER.init() which is called by
-   setMode("server") the first time the Server tab is activated.
+   Server Quotation mode - third tab in this page.
+   Prefers SharePoint-backed flow data (getServerData) and falls back to
+   legacy embedded sq-data so existing production behavior is preserved.
    ======================================================================== */
 (function () {
   "use strict";
-  var BUILD = "qt-server-inline-4";
-  console.log("[" + BUILD + "] module loaded; sq-data present?", !!document.getElementById("sq-data"), "qt-builder-server present?", !!document.getElementById("qt-builder-server"));
+  var BUILD = "qt-server-flow-1";
+  var SERVER_BRAND = "Lenovo";
   var DATA = null, OPTIONS = {}, BASES = [], COMPAT = {};
   var selectedBasePartNo = null;
-  var lineItems = [];
   var addedOptionSkus = {};
+  var serverFlowUrl = "";
+
+  console.log("[" + BUILD + "] module loaded; sq-data present?", !!document.getElementById("sq-data"), "qt-builder-server present?", !!document.getElementById("qt-builder-server"));
 
   function $(id) { return document.getElementById(id); }
   function fmt(n) {
@@ -1497,15 +1649,78 @@
     for (var i = 0; i < BASES.length; i++) if (BASES[i].partNo === pn) return BASES[i];
     return null;
   }
+  function clearServerSelections() {
+    selectedBasePartNo = null;
+    addedOptionSkus = {};
+    var d = $("sq-base-detail"), ol = $("sq-options-list"), st = document.querySelector(".sq-section-tools");
+    if (d) { d.style.display = "none"; d.innerHTML = ""; }
+    if (ol) { ol.style.display = "none"; ol.innerHTML = ""; }
+    if (st) st.style.display = "none";
+  }
+  function setData(payload) {
+    DATA = payload || {};
+    OPTIONS = DATA.options || {};
+    BASES = DATA.bases || [];
+    COMPAT = DATA.compat || {};
+  }
+  function readFlowUrl(key) {
+    try {
+      if (window.QT_PRODUCTS && window.QT_PRODUCTS.flowUrls && window.QT_PRODUCTS.flowUrls[key]) {
+        return window.QT_PRODUCTS.flowUrls[key];
+      }
+      var raw = document.getElementById("productData");
+      if (!raw) return "";
+      var cfg = JSON.parse(raw.textContent || "{}");
+      return (cfg.flowUrls && cfg.flowUrls[key]) || "";
+    } catch (e) {
+      console.error("[" + BUILD + "] failed to read flow config", e);
+      return "";
+    }
+  }
+  function parseQuarterYear(name) {
+    var m = String(name || "").match(/\bQ([1-4])\s*(20\d{2})\b/i);
+    if (!m) return null;
+    return { quarter: Number(m[1]), year: Number(m[2]) };
+  }
+  function pickLatestListName(lists) {
+    var best = "";
+    var bestRank = -1;
+    lists.forEach(function (name) {
+      var qy = parseQuarterYear(name);
+      var rank = qy ? (qy.year * 10 + qy.quarter) : -1;
+      if (rank > bestRank) { bestRank = rank; best = name; }
+      if (rank === -1 && bestRank === -1 && name > best) best = name;
+    });
+    return best;
+  }
+  function ensureListSelector() {
+    if ($("sq-list")) return;
+    var row = document.querySelector("#qt-builder-server .sq-filter-row");
+    if (!row) return;
+    var label = el("label", { style: "min-width:260px;" }, ["Price List"]);
+    var sel = el("select", { id: "sq-list" }, [el("option", { value: "" }, ["-- Loading server price lists... --"])]);
+    var note = el("small", { style: "display:block;margin-top:4px;color:#666;font-size:11px;" }, ["Server folder: Documents/MOQ Prices/Server/" + SERVER_BRAND]);
+    label.appendChild(sel);
+    label.appendChild(note);
+    row.insertBefore(label, row.firstChild);
+  }
 
   function setupBasePicker() {
     var fGen = $("sq-f-gen"), fFf = $("sq-f-ff"), fFam = $("sq-f-family"), fS = $("sq-f-search");
-    if (!fGen) return;
+    if (!fGen || !fFf || !fFam || !fS) return;
+    clearServerSelections();
+    fGen.value = "";
+    fS.value = "";
+    fFf.innerHTML = '<option value="">All</option>';
+    fFam.innerHTML = '<option value="">All</option>';
     var ffOpts = uniqSorted(BASES.map(function (b) { return b.formFactor; }));
     for (var i = 0; i < ffOpts.length; i++) fFf.appendChild(el("option", { value: ffOpts[i] }, [ffOpts[i]]));
     var famOpts = uniqSorted(BASES.map(function (b) { return b.family; }));
     for (var j = 0; j < famOpts.length; j++) fFam.appendChild(el("option", { value: famOpts[j] }, [famOpts[j]]));
-    [fGen, fFf, fFam, fS].forEach(function (e) { e.addEventListener("input", renderBaseList); });
+    fGen.oninput = renderBaseList;
+    fFf.oninput = renderBaseList;
+    fFam.oninput = renderBaseList;
+    fS.oninput = renderBaseList;
     renderBaseList();
   }
 
@@ -1537,7 +1752,7 @@
         el("div", null, [
           el("div", null, [b.processor + (b.ghz ? " @ " + b.ghz : "")]),
           el("div", { style: "color:#666;font-size:11.5px" }, [
-            [b.formFactor, b.memory, b.hdd, b.warranty].filter(Boolean).join(" \u2022 ")
+            [b.formFactor, b.memory, b.hdd, b.warranty].filter(Boolean).join(" � ")
           ])
         ]),
         el("div", { class: "sq-bp-price" }, ["INR " + fmt(b.eeup)])
@@ -1554,15 +1769,13 @@
   function initQuoteFromBase() {
     var base = findBase(selectedBasePartNo);
     if (!base) return;
-    var baseDesc = base.family + " (" + base.generation + ") \u2014 " + base.processor
+    var baseDesc = base.family + " (" + base.generation + ") - " + base.processor
       + (base.ghz ? " @ " + base.ghz : "")
       + " | " + base.memory + " | " + base.hdd + " | " + base.warranty;
-    /* Reset shared cart and seed it with the base. */
     if (window.QT_API) {
       window.QT_API.clear();
       window.QT_API.addItem({ sku: base.partNo, description: baseDesc, dtp: base.eeup, margin: 0, qty: 1 });
     }
-    /* Track which option SKUs we added so we can remove them on toggle. */
     addedOptionSkus = {};
     addedOptionSkus[base.partNo] = "base";
     renderBaseDetail(base);
@@ -1577,7 +1790,7 @@
   function renderBaseDetail(b) {
     var dl = ""
       + "<dt>Part No</dt><dd>" + escapeHtml(b.partNo) + "</dd>"
-      + "<dt>Family</dt><dd>" + escapeHtml(b.family) + " (" + escapeHtml(b.generation) + ")</dd>"
+      + "<dt>Model</dt><dd>" + escapeHtml(b.family) + " (" + escapeHtml(b.generation) + ")</dd>"
       + "<dt>Form Factor</dt><dd>" + escapeHtml(b.formFactor) + (b.socket ? " &middot; " + escapeHtml(b.socket) : "") + "</dd>"
       + "<dt>Processor</dt><dd>" + escapeHtml(b.processor) + (b.ghz ? " @ " + escapeHtml(b.ghz) : "") + (b.cache ? " &middot; " + escapeHtml(b.cache) : "") + "</dd>"
       + "<dt>Memory</dt><dd>" + escapeHtml(b.memory) + "</dd>"
@@ -1606,6 +1819,28 @@
     for (var i = 0; i < pns.length; i++) if (OPTIONS[pns[i]]) out.push(OPTIONS[pns[i]]);
     return out;
   }
+  function getCompatibleOptionList() {
+    var showAll = $('sq-opt-all').checked;
+    var arr = [];
+    if (showAll) {
+      for (var pn in OPTIONS) arr.push(OPTIONS[pn]);
+      return arr;
+    }
+    /* Compat matrix covers PROCESSOR rows only.
+       All other option types (Memory, HDDs, RAID, Ethernet, etc.) are
+       universally compatible — show them for every base. */
+    var compatPns = {};
+    (COMPAT[selectedBasePartNo] || []).forEach(function (p) { compatPns[p] = true; });
+    for (var pn in OPTIONS) {
+      var opt = OPTIONS[pn];
+      if (opt.type === 'PROCESSOR') {
+        if (compatPns[pn]) arr.push(opt);
+      } else {
+        arr.push(opt);
+      }
+    }
+    return arr;
+  }
   function setupOptionsToolbar() {
     var typeSel = $("sq-opt-type");
     typeSel.innerHTML = '<option value="">All types</option>';
@@ -1623,12 +1858,6 @@
     var type = $("sq-opt-type").value;
     var q = $("sq-opt-search").value.trim().toLowerCase();
     var opts = getCompatibleOptionList();
-    if (!hasCompatMatrix() && !$("sq-opt-all").checked) {
-      list.appendChild(el("div", { style: "padding:10px 12px;background:#fff8e1;border-bottom:1px solid #f0e0a8;color:#7a5d00;font-size:12.5px;" }, [
-        "\u26A0 No compatibility matrix exists for this base in the price list \u2014 tick 'Show all options' to add line items manually. Verify compatibility before quoting."
-      ]));
-      return;
-    }
     if (!opts.length) {
       list.appendChild(el("div", { class: "sq-empty" }, ["No options."]));
       return;
@@ -1676,7 +1905,7 @@
       list.appendChild(row);
     });
     if (opts.length > capped.length) {
-      list.appendChild(el("div", { class: "sq-empty" }, ["Showing first " + capped.length + " of " + opts.length + " \u2014 narrow the search to see more."]));
+      list.appendChild(el("div", { class: "sq-empty" }, ["Showing first " + capped.length + " of " + opts.length + " - narrow the search to see more."]));
     }
   }
   function renderQuoteTable() {
@@ -1684,21 +1913,99 @@
        qt-shared-area cart via window.QT_API. Kept as a no-op to avoid
        breaking any stale references. */
   }
+  function applyServerPayload(payload, sourceLabel) {
+    setData(payload || {});
+    console.log("[" + BUILD + "] using", sourceLabel, "with", BASES.length, "bases,", Object.keys(OPTIONS).length, "options,", Object.keys(COMPAT).length, "compat maps");
+    setupBasePicker();
+  }
+  function useEmbeddedFallback() {
+    var node = document.getElementById("sq-data");
+    if (!node) { console.warn("[" + BUILD + "] sq-data missing"); return false; }
+    try {
+      applyServerPayload(JSON.parse(node.textContent), "embedded sq-data fallback");
+      return true;
+    } catch (e) {
+      console.error("[" + BUILD + "] failed to parse sq-data", e);
+      return false;
+    }
+  }
+  function loadFlowServerData(listName) {
+    if (!serverFlowUrl || serverFlowUrl.indexOf("PASTE_") === 0) return;
+    var list = $("sq-list");
+    var baseList = $("sq-base-list");
+    if (baseList) baseList.innerHTML = '<div class="sq-empty">Loading server configurations...</div>';
+    fetch(serverFlowUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ brand: SERVER_BRAND, list: listName || "" })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var payload = data.data || data;
+        if (!payload || !payload.bases || !payload.options) {
+          throw new Error("Invalid server payload. Expected {bases, options, compat}.");
+        }
+        applyServerPayload(payload, "flow getServerData" + (listName ? " (" + listName + ")" : ""));
+      })
+      .catch(function (err) {
+        console.error("[" + BUILD + "] getServerData failed, falling back to sq-data", err);
+        if (list) list.title = "Flow failed. Using embedded fallback data.";
+        useEmbeddedFallback();
+      });
+  }
+  function loadServerLists() {
+    var list = $("sq-list");
+    if (!list) return;
+    list.innerHTML = '<option value="">-- Loading server price lists... --</option>';
+    fetch(serverFlowUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ brand: SERVER_BRAND })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var lists = data.lists || data.models || [];
+        list.innerHTML = '<option value="">-- Select Server Price List --</option>';
+        lists.forEach(function (name) {
+          list.appendChild(el("option", { value: name }, [name]));
+        });
+        if (!lists.length) {
+          list.innerHTML = '<option value="">-- No price lists found --</option>';
+          useEmbeddedFallback();
+          return;
+        }
+        var latest = pickLatestListName(lists);
+        if (latest) {
+          list.value = latest;
+          loadFlowServerData(latest);
+        }
+      })
+      .catch(function (err) {
+        console.error("[" + BUILD + "] list loading failed; using embedded sq-data", err);
+        list.innerHTML = '<option value="">-- Flow unavailable (fallback active) --</option>';
+        useEmbeddedFallback();
+      });
+
+    list.onchange = function () {
+      var selected = list.value || "";
+      if (!selected) return;
+      loadFlowServerData(selected);
+    };
+  }
 
   window.QT_SERVER = {
     inited: false,
     init: function () {
       if (this.inited) return;
-      var node = document.getElementById("sq-data");
-      if (!node) { console.warn("[" + BUILD + "] sq-data missing"); return; }
-      try { DATA = JSON.parse(node.textContent); }
-      catch (e) { console.error("[" + BUILD + "] failed to parse sq-data", e); return; }
-      OPTIONS = DATA.options || {};
-      BASES = DATA.bases || [];
-      COMPAT = DATA.compat || {};
-      console.log("[" + BUILD + "] loaded", BASES.length, "bases,", Object.keys(OPTIONS).length, "options,", Object.keys(COMPAT).length, "compat");
-      setupBasePicker();
       this.inited = true;
+      ensureListSelector();
+      serverFlowUrl = readFlowUrl("getServerData");
+      if (!serverFlowUrl || serverFlowUrl.indexOf("PASTE_") === 0) {
+        console.warn("[" + BUILD + "] getServerData flow is not configured. Using embedded sq-data.");
+        useEmbeddedFallback();
+        return;
+      }
+      loadServerLists();
     }
   };
 })();
