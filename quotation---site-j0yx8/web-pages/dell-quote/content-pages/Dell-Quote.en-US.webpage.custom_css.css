@@ -73,6 +73,8 @@
 .dq-items-table tfoot .dq-tot-label,.dq-items-table .dq-tot .dq-tot-label{text-align:right}
 .dq-items-table .dq-line-meta{color:#666;font-size:11.5px;margin-top:2px}
 .dq-items-table .dq-line-dtp{color:#888;font-size:11px;margin-top:2px;font-style:italic}
+.dq-items-table .dq-qty-input{width:56px;padding:4px 6px;border:1px solid #b9c4d0;border-radius:4px;text-align:right;font-size:12.5px;font-variant-numeric:tabular-nums}
+.dq-items-table .dq-qty-input:focus{outline:none;border-color:#0b5cab;box-shadow:0 0 0 2px rgba(11,92,171,.15)}
 
 .dq-comp-section{margin-top:22px;page-break-inside:auto}
 .dq-comp-section h3{margin:0 0 8px;font-size:13.5px;color:#0b5cab;padding:6px 10px;background:#eaf2fb;border-left:3px solid #0b5cab;page-break-after:avoid}

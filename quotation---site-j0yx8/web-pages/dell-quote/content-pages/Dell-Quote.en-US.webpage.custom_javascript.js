@@ -6,7 +6,7 @@
  */
 (function () {
   "use strict";
-  var BUILD = "dq-build-15";
+  var BUILD = "dq-build-16";
   console.log("[DQ] script loaded build=" + BUILD);
 
   /* ----- Config (Power Automate flow URLs) ----- */
@@ -580,7 +580,10 @@
         html += '<div class="dq-line-dtp dq-screen-only">Dell DTP: ' + fmtINR(dUnit) + ' &nbsp;+&nbsp; Margin: ' + marginPct + '%</div>';
       }
       html += '  </td>';
-      html += '  <td class="num">' + (it.qty || 0) + '</td>';
+      html += '  <td class="num dq-qty-cell">';
+      html += '    <input type="number" min="0" step="1" class="dq-qty-input dq-screen-only" data-idx="' + i + '" value="' + (it.qty || 0) + '" />';
+      html += '    <span class="dq-print-only">' + (it.qty || 0) + '</span>';
+      html += '  </td>';
       html += '  <td class="num">' + fmtINR(cUnit) + '</td>';
       html += '  <td class="num">' + fmtINR(lineTotal) + '</td>';
       html += '</tr>';
@@ -1211,6 +1214,23 @@
     }
     if (discountInput) discountInput.addEventListener("input",  applyDiscount);
     if (discountMode)  discountMode.addEventListener("change", applyDiscount);
+
+    // Editable quantity column: recompute on change/blur to avoid focus loss
+    // mid-typing (renderDocument() rebuilds the whole table).
+    var doc = $("dq-document");
+    if (doc) {
+      doc.addEventListener("change", function (e) {
+        var t = e.target;
+        if (!t || !t.classList || t.classList.contains("dq-qty-input") === false) return;
+        if (!STATE.quote || !STATE.quote.items) return;
+        var idx = parseInt(t.getAttribute("data-idx"), 10);
+        if (isNaN(idx) || idx < 0 || idx >= STATE.quote.items.length) return;
+        var v = parseInt(t.value, 10);
+        if (isNaN(v) || v < 0) v = STATE.quote.items[idx].qty || 0;
+        STATE.quote.items[idx].qty = v;
+        renderDocument();
+      });
+    }
 
     // Eagerly fetch proposal templates so the dropdown is ready when the user
     // lands on step 2 (also retried on showStep(2) in case it fails first time).
