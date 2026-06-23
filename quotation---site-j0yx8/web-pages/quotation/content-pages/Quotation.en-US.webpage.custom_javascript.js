@@ -1,9 +1,31 @@
 (function () {
   "use strict";
-  console.log("[QT] script loaded build=2026-06-smartsoft-india-r3");
+  console.log("[QT] script loaded build=2026-06-smartsoft-india-r17");
 
   var GST_RATE = 0.18;
   function fmt(n) { return "\u20B9 " + Number(n || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+  /* Full structured Terms & Conditions (shared by on-screen footer + PDF export). */
+  function qtTermsHtml() {
+    var head = 'font-weight:700;margin:10px 0 3px;color:#1a2533;font-size:12px;';
+    var item = 'margin:2px 0 2px 26px;text-indent:-14px;text-align:justify;font-size:12px;';
+    return '' +
+      '<div style="font-weight:700;font-size:13px;color:#1a2533;margin-bottom:4px;">Terms &amp; Conditions</div>' +
+      '<div style="' + head + '">1) Commercial Terms:</div>' +
+      '<p style="' + item + '">&middot;&nbsp;&nbsp;Price Quoted are valid only for above mentioned Bill of Material, Price will change if any Changes in Bill of Material.</p>' +
+      '<p style="' + item + '">&middot;&nbsp;&nbsp;Interest @18% will be charged for the delayed payments.</p>' +
+      '<p style="' + item + '">&middot;&nbsp;&nbsp;Payment Terms: 100% advance along with the purchase order.</p>' +
+      '<p style="' + item + '">&middot;&nbsp;&nbsp;Warranty coverage shall be as per the terms specified in the product specifications or unique offering terms. No additional warranties are implied unless expressly stated.</p>' +
+      '<div style="' + head + '">2) Taxes:</div>' +
+      '<p style="' + item + '">&middot;&nbsp;&nbsp;Any changes in Taxes by Govt. of India while billing/invoicing will be subsequently added or subtracted from the value without any notice.</p>' +
+      '<p style="' + item + '">&middot;&nbsp;&nbsp;These Terms and Conditions shall be governed by and construed in accordance with the laws of India.</p>' +
+      '<div style="' + head + '">3) Invoicing:</div>' +
+      '<p style="' + item + '">&middot;&nbsp;&nbsp;Invoicing/ Billing will be done only on OR after delivering the Product which has been ordered.</p>' +
+      '<p style="' + item + '">&middot;&nbsp;&nbsp;If any correction to be made in the invoice it should be intimated within 3 days from the date of delivery of invoice.</p>' +
+      '<div style="' + head + '">4) Delivery:</div>' +
+      '<p style="' + item + '">&middot;&nbsp;&nbsp;Within 4-5 weeks from the date of receiving the Purchase Order. Electronic license would be delivered by the respective Principle.</p>' +
+      '<p style="margin:12px 0 0;text-align:justify;font-style:italic;font-size:12px;">We hope that our offer will meet with your approval and wait to receive your firm order at your earliest convenience. Thanking you again and assuring you of our best attention at all times.</p>';
+  }
 
   /* --- Config --- */
   var CONFIG = { flowUrls: {}, defaultMargin: 10 };
@@ -795,22 +817,20 @@
         '<td class="grand-value">' + fmt(discInfo.grand) + '</td>' +
       '</tr></tfoot></table>' +
       '<div class="footer">' +
-        '<p><strong>Terms &amp; Conditions:</strong> Prices are valid for 15 days from the date of this quotation. All prices are in INR. GST @18% is applicable as shown. Payment terms: 100% advance. Delivery as per product availability.</p>' +
+        qtTermsHtml() +
         '<p style="margin-top:8px;">This is a system-generated quotation from <strong>Smartsoft</strong>.</p>' +
       '</div>';
 
-    var bodyContent;
-    if (clHtml && clHtml.indexOf('<!-- QUOTATION_HERE -->') !== -1) {
-      bodyContent = clHtml.replace('<!-- QUOTATION_HERE -->',
-        '<div style="page-break-before:always;"></div>' + quotationBlock + '<div style="page-break-after:always;"></div>');
-    } else {
-      bodyContent = clHtml + (clHtml ? '<div style="page-break-before:always;"></div>' : '') + quotationBlock;
-    }
+    /* Append the quotation AFTER the complete proposal (which ends with its own
+       footer). We intentionally do NOT inject at <!-- QUOTATION_HERE --> so the
+       proposal footer stays at the end of the proposal, with the quotation on
+       its own page(s) after it. */
+    var bodyContent = clHtml + (clHtml ? '<div style="page-break-before:always;"></div>' : '') + '<div class="qt-quote-wrap" style="padding:14mm 12mm;">' + quotationBlock + '</div>';
 
     d.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Quotation ' + escapeHtml(pdfQuoteId) + '</title>' +
       '<style>' +
       '* { margin:0; padding:0; box-sizing:border-box; }' +
-      'body { font-family: Segoe UI, system-ui, -apple-system, sans-serif; color:#222; background:#fff; padding:20px; }' +
+      'body { font-family: Segoe UI, system-ui, -apple-system, sans-serif; color:#222; background:#fff; padding:0; }' +
       '.brand img { height:72px; }' +
       '.title { font-size:22px; font-weight:700; color:#1a2533; margin:16px 0 14px; text-align:center; letter-spacing:.02em; }' +
       '.cs-box { border-top:2px solid #1a2533; border-bottom:1px solid #ddd; padding:14px 0; margin-bottom:18px; display:flex; justify-content:space-between; }' +
@@ -829,7 +849,7 @@
       '.grand-label { text-align:right; font-size:10px; font-weight:700; }' +
       '.grand-value { color:#0b5cab; font-size:11px; font-weight:800; text-align:right; }' +
       '.footer { margin-top:18px; padding-top:10px; border-top:1px solid #bbb; font-size:11px; color:#555; line-height:1.5; }' +
-      '@page { size: A4; margin: 12mm; }' +
+      '@page { size: A4; margin: 0; }' +
       '</style></head><body>' +
       bodyContent +
       '<script>window.onload = function(){ setTimeout(function(){ window.print(); }, 400); };<\/script>' +
@@ -951,7 +971,7 @@
       '<div class="qt-pdf-block" style="font-family:Segoe UI,system-ui,sans-serif;color:#222;padding:12px 36px;background:#fff;box-sizing:border-box;">' +
         (logoSrc ? '<div style="text-align:left;margin-bottom:10px;"><img src="' + escapeAttr(logoSrc) + '" crossorigin="anonymous" style="height:76px;width:auto;" /></div>' : '') +
         '<div style="font-size:30px;font-weight:700;color:#1a2533;margin:12px 0 14px;text-align:center;letter-spacing:.03em;">QUOTATION</div>' +
-        '<div style="border-top:1.5px solid #1a2533;border-bottom:1px solid #ddd;padding:12px 0;margin-bottom:14px;display:flex;justify-content:space-between;font-family:Segoe UI,system-ui,sans-serif;">' +
+        '<div style="padding:12px 0;margin-bottom:14px;display:flex;justify-content:space-between;font-family:Segoe UI,system-ui,sans-serif;">' +
           '<div style="display:flex;flex-direction:column;gap:3px;">' +
             '<div style="font-size:15px;color:#555;font-weight:600;">To,</div>' +
             '<div style="font-size:18px;font-weight:700;color:#1a2533;line-height:1.4;">' + escapeHtml(customer.contact || '') + '</div>' +
@@ -991,7 +1011,7 @@
           '<td style="' + qtTdBase + 'text-align:right;background:#f0f2f5;color:#0b5cab;font-size:18px;font-weight:800;white-space:nowrap;">' + fmt(qtDisc.grand) + '</td>' +
         '</tr></tfoot></table>' +
         '<div style="margin-top:16px;padding-top:10px;border-top:1px solid #bbb;font-size:14px;color:#555;line-height:1.5;font-family:Segoe UI,system-ui,sans-serif;">' +
-          '<p style="margin:0;"><strong>Terms &amp; Conditions:</strong> Prices are valid for 15 days from the date of this quotation. All prices are in INR. GST @18% is applicable as shown. Payment terms: 100% advance. Delivery as per product availability.</p>' +
+          qtTermsHtml() +
           '<p style="margin:8px 0 0;">This is a system-generated quotation from <strong>Smartsoft</strong>.</p>' +
         '</div>' +
       '</div>';
@@ -1012,7 +1032,19 @@
     var proposalHeadStyles = '';
     var proposalBodyHtml = '';
     if (clHtml) {
+      var __sheetSeen = false;
       var cleanedCl = clHtml
+        /* Convert the template author's intended page breaks (class="... page-break")
+           into html2pdf's native forced-break marker. The marker class survives the
+           strip below (\bpage-break\b can't match inside "html2pdf__page-break"), so we
+           get deterministic page breaks instead of relying on the auto-avoid heuristic. */
+        .replace(/(<(?:section|div)[^>]*\bclass=")([^"]*\bpage-break\b[^"]*)(")/gi, '<div class="html2pdf__page-break" style="height:0;"></div>$1$2$3')
+        /* Sheet-based templates wrap each printable page in <div class="sheet">. Insert a forced
+           break before every sheet except the first so each sheet renders on its own page. */
+        .replace(/(<div[^>]*\bclass="[^"]*\bsheet\b[^"]*")/gi, function(m){
+          if (!__sheetSeen) { __sheetSeen = true; return m; }
+          return '<div class="html2pdf__page-break" style="height:0;"></div>' + m;
+        })
         .replace(/\bpage-break\b/g, '')
         .replace(/page-break-before\s*:\s*[^;"']+;?/gi, '')
         .replace(/page-break-after\s*:\s*[^;"']+;?/gi, '')
@@ -1032,6 +1064,9 @@
       'html,body{margin:0 !important;padding:0 !important;background:#fff !important;}' +
       '#proposal-root,#quotation-root{width:1080px !important;margin:0 auto !important;background:#fff !important;}' +
       '#proposal-root .page{width:1080px !important;max-width:1080px !important;box-shadow:none !important;margin:0 !important;}' +
+      /* Sheet-based templates: stretch to full render width and drop the fixed Letter
+         height/margins so content isn't narrow and doesn't overflow into a blank page. */
+      '#proposal-root .sheet{width:1080px !important;max-width:1080px !important;min-height:0 !important;height:auto !important;max-height:none !important;box-shadow:none !important;margin:0 !important;}' +
       /* Re-assert horizontal grids regardless of viewport width */
       '#proposal-root .cover .meta-grid{display:grid !important;grid-template-columns:repeat(4,1fr) !important;}' +
       '#proposal-root .about-strip{display:grid !important;grid-template-columns:repeat(4,1fr) !important;}' +
@@ -1041,8 +1076,14 @@
       '#proposal-root .steps{display:grid !important;grid-template-columns:repeat(5,1fr) !important;}' +
       '#proposal-root .accept-grid{display:grid !important;grid-template-columns:1fr 1fr !important;}' +
       '#proposal-root .doc-footer{display:grid !important;grid-template-columns:1fr 1fr 1fr !important;}' +
-      /* Keep cards and headings intact across page boundaries */
-      '#proposal-root .service-card,#proposal-root .plan-card,#proposal-root .tier,#proposal-root .notes,#proposal-root .accept-grid,#proposal-root .steps,#proposal-root .about-strip{page-break-inside:avoid !important;break-inside:avoid !important;}' +
+      /* `.last-page` pins the footer to the page bottom via min-height:100vh, but
+         html2canvas has no PDF-page concept (100vh = popup window height). Pin it to
+         one A4 page in canvas px (1080px wide render → 297mm ≈ 1527px), minus a buffer. */
+      '#proposal-root .last-page{min-height:1500px !important;display:flex !important;flex-direction:column !important;}' +
+      '#proposal-root .last-page>.doc-footer{margin-top:auto !important;}' +
+      /* Keep individual cards & short rows intact, but let page breaks fall BETWEEN rows
+         of tall multi-row grids (.services/.tiers/.accept-grid) instead of cutting cards. */
+      '#proposal-root .service-card,#proposal-root .plan-card,#proposal-root .tier,#proposal-root .notes,#proposal-root .step,#proposal-root .about-strip{page-break-inside:avoid !important;break-inside:avoid !important;}' +
       '#proposal-root h1,#proposal-root h2,#proposal-root h3,#proposal-root h4{page-break-after:avoid !important;break-after:avoid !important;}' +
       '</style>';
 
@@ -1059,9 +1100,9 @@
         'var quotationEl = document.getElementById("quotation-root");' +
         'var hasProposal = ' + hasProposalJs + ';' +
         'var commonH2C = { scale: 2, useCORS: true, allowTaint: true, logging: false, backgroundColor: "#ffffff", windowWidth: 1080, width: 1080, scrollY: 0, scrollX: 0 };' +
-        'var pagebreakAvoid = ["tr","thead","tfoot",".notes",".about-strip",".accept-grid",".steps",".service-card",".plan-card",".tier",".tiers",".plans-grid",".services",".section-eyebrow",".section-title","h1","h2","h3","h4"];' +
-        'var proposalOpt = { margin:[0,0,0,0], image:{type:"jpeg",quality:0.92}, html2canvas:commonH2C, jsPDF:{unit:"mm",format:"a4",orientation:"portrait",compress:true}, pagebreak:{mode:["css","legacy"],avoid:pagebreakAvoid} };' +
-        'var qtOpt = { margin:[10,10,10,10], image:{type:"jpeg",quality:0.95}, html2canvas:commonH2C, jsPDF:{unit:"mm",format:"legal",orientation:"portrait",compress:true}, pagebreak:{mode:["css","legacy"],avoid:["tr","thead","tfoot"]} };' +
+        'var pagebreakAvoid = ["tr","thead","tfoot",".notes",".about-strip",".service-card",".plan-card",".tier",".step","h2","h3","h4"];' +
+        'var proposalOpt = { margin:[0,0,0,0], image:{type:"jpeg",quality:0.92}, html2canvas:commonH2C, jsPDF:{unit:"pt",format:"a4",orientation:"portrait",compress:true}, pagebreak:{mode:["css","legacy"],avoid:pagebreakAvoid} };' +
+        'var qtOpt = { margin:[54,50,58,50], image:{type:"jpeg",quality:0.95}, html2canvas:commonH2C, jsPDF:{unit:"pt",format:"a4",orientation:"portrait",compress:true}, pagebreak:{mode:["css","legacy"],avoid:["tr","thead","tfoot"]} };' +
 
         'function blobToBase64(blob){' +
           'return blob.arrayBuffer().then(function(buf){' +

@@ -62,24 +62,6 @@
       </div>
     </div>
 
-    <!-- Margin % control (screen only — applied to all line items) -->
-    <div class="dq-margin-bar dq-no-print">
-      <label for="dq-margin">Margin %</label>
-      <input type="number" id="dq-margin" min="0" max="100" step="0.5" value="0" />
-      <span class="dq-margin-hint">Applied to every line item. Subtotal &amp; GST are recomputed using the marked-up unit price.</span>
-    </div>
-
-    <!-- Discount control (screen only — applied to subtotal) -->
-    <div class="dq-margin-bar dq-discount-bar dq-no-print">
-      <label for="dq-discount-mode">Discount</label>
-      <select id="dq-discount-mode">
-        <option value="pct">% (percent)</option>
-        <option value="amt">₹ (value)</option>
-      </select>
-      <input type="number" id="dq-discount" min="0" step="0.5" value="0" />
-      <span class="dq-margin-hint">Applied to the Subtotal. GST is computed on the discounted amount.</span>
-    </div>
-
     <!-- Proposal Template selector (screen only — prepended to PDF / Word) -->
     <div class="dq-margin-bar dq-proposal-bar dq-no-print">
       <label for="dq-proposal-template">Proposal Template</label>
@@ -90,8 +72,46 @@
     </div>
 
     <!-- Editable customer override (screen only) -->
-    <details class="dq-customer-edit dq-no-print">
-      <summary>Override customer / quote details (optional)</summary>
+    <details class="dq-customer-edit dq-no-print" open>
+      <summary>Customer details (enter manually or select from CRM)</summary>
+
+      <!-- Dynamics 365 Sales lookup (optional) -->
+      <style>
+        #dq-account-dropdown .dq-dd-item:hover, #dq-contact-dropdown .dq-dd-item:hover { background:#e8f0fe; }
+        #dq-account-search, #dq-contact-search { box-sizing:border-box; }
+        .dq-dd-arrow { position:absolute; right:10px; top:50%; transform:translateY(-50%); pointer-events:none; color:#666; font-size:12px; }
+      </style>
+      <div id="dq-dynamics-picker" style="margin-bottom:16px; padding:14px; background:#f0f5f9; border:1px solid #d4dfed; border-radius:6px; overflow:visible;">
+        <h3 style="margin-top:0; font-size:15px; color:#1a2533;">🔍 Select from Dynamics 365 CRM</h3>
+
+        <div style="margin-bottom:12px;">
+          <span style="font-weight:600; display:block; margin-bottom:4px;">Account / Company</span>
+          <div style="position:relative;">
+            <input type="text" id="dq-account-search" placeholder="Click or type to search accounts..." autocomplete="off"
+              style="width:100%; padding:8px 30px 8px 8px; border:1px solid #cfd4da; border-radius:4px; font-size:14px; box-sizing:border-box;" />
+            <span class="dq-dd-arrow">▼</span>
+            <div id="dq-account-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #0b5cab; border-top:none; border-radius:0 0 4px 4px; max-height:220px; overflow-y:auto; z-index:99999; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <span style="font-weight:600; display:block; margin-bottom:4px;">Contact Person</span>
+          <div style="position:relative;">
+            <input type="text" id="dq-contact-search" placeholder="Select an account first..." autocomplete="off" disabled
+              style="width:100%; padding:8px 30px 8px 8px; border:1px solid #cfd4da; border-radius:4px; font-size:14px; background:#f5f5f5; box-sizing:border-box;" />
+            <span class="dq-dd-arrow">▼</span>
+            <div id="dq-contact-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #0b5cab; border-top:none; border-radius:0 0 4px 4px; max-height:220px; overflow-y:auto; z-index:99999; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+            </div>
+          </div>
+        </div>
+
+        <button type="button" id="dq-use-d365-contact" class="dq-btn" style="background:#0b5cab; color:#fff; padding:8px 18px; border:none; border-radius:4px; cursor:pointer; font-size:14px;" disabled>
+          ✔ Use Selected Contact
+        </button>
+        <span id="dq-d365-status" style="font-size:12px; color:#2e7d32; margin-left:8px; font-weight:600;"></span>
+      </div>
+
       <form id="dq-customer-form" class="dq-grid">
         <label>Customer / Company<input type="text" name="company" /></label>
         <label>Contact Person<input type="text" name="contact" /></label>
@@ -106,6 +126,24 @@
       </form>
     </details>
 
+    <!-- Margin % + Discount controls (screen only) — placed right above the
+         preview so the user can watch the price update as they change them. -->
+    <div class="dq-margin-bar dq-no-print">
+      <label for="dq-margin">Margin %</label>
+      <input type="number" id="dq-margin" min="0" max="100" step="0.5" value="0" />
+      <span class="dq-margin-hint">Applied to every line item. Subtotal &amp; GST are recomputed using the marked-up unit price.</span>
+    </div>
+
+    <div class="dq-margin-bar dq-discount-bar dq-no-print">
+      <label for="dq-discount-mode">Discount</label>
+      <select id="dq-discount-mode">
+        <option value="pct">% (percent)</option>
+        <option value="amt">₹ (value)</option>
+      </select>
+      <input type="number" id="dq-discount" min="0" step="0.5" value="0" />
+      <span class="dq-margin-hint">Applied to the Subtotal. GST is computed on the discounted amount.</span>
+    </div>
+
     <!-- This entire block is what's exported -->
     <div id="dq-document" class="dq-document">
       <!-- filled by JS -->
@@ -119,7 +157,8 @@
 {
   "flowUrls": {
     "getProposalTemplates": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a0083e6903a54891a2c3e8eacc29fbe5/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=kAHAcH6fsJ7tKIBnM68daRl4N5kVDBkp8ANy_Z9JnPA",
-    "saveQuotation": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/26dbc82788ac43f291929ead45a5462f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=pV4yD3RFHl-GAXS_S4CbMm0CyIBvx1PVf7ScvsmIX4g"
+    "saveQuotation": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/26dbc82788ac43f291929ead45a5462f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=pV4yD3RFHl-GAXS_S4CbMm0CyIBvx1PVf7ScvsmIX4g",
+    "getCRMData": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1af60dea40494a3ebada334b344142c1/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=oOnZYvloWmGJvl_q3wElsTWxsbHyCMVZ009RrNYcArc"
   }
 }
 </script>

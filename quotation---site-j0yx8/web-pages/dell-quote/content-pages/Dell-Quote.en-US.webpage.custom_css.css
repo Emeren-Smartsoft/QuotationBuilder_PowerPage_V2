@@ -51,7 +51,7 @@
 .dq-span-2{grid-column:span 2}
 
 /* ===== Smartsoft branded document (what gets exported) ===== */
-.dq-document{font:13px/1.45 "Segoe UI",Arial,sans-serif;color:#1a2533;background:#fff;padding:24px 26px;border:1px solid #d6dee6;border-radius:8px}
+.dq-document{font:13px/1.45 "Segoe UI",Arial,sans-serif;color:#1a2533;background:#fff;padding:24px 26px}
 .dq-doc-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0b5cab;padding-bottom:12px;margin-bottom:18px;gap:18px;flex-wrap:wrap}
 .dq-doc-head .dq-doc-brand{display:flex;flex-direction:column;gap:2px}
 .dq-doc-head .dq-doc-brand img{max-height:54px;margin-bottom:6px}
@@ -91,6 +91,9 @@
 .dq-export-brand{margin:0 0 4px}
 .dq-export-brand img{height:60px;width:auto;display:inline-block;vertical-align:middle}
 .dq-export-title{margin:0;color:#0b5cab;font-size:26px;letter-spacing:2px;text-align:center;font-weight:700;line-height:1.1}
+.dq-export-to{margin:12px 0 0;text-align:left;font-size:12.5px;line-height:1.5;color:#1a2533;overflow-wrap:break-word;word-wrap:break-word}
+.dq-export-to .dq-to-label{display:block;font-weight:700;color:#0b5cab;margin-bottom:2px}
+.dq-export-to strong{color:#1a2533}
 
 .dq-foot{margin-top:18px;padding-top:10px;border-top:1px solid #d6dee6;font-size:11.5px;color:#555;line-height:1.5}
 .dq-foot strong{color:#1a2533}
