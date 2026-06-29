@@ -6,7 +6,7 @@
  */
 (function () {
   "use strict";
-  var BUILD = "dq-build-83";
+  var BUILD = "dq-build-84";
   console.log("[DQ] script loaded build=" + BUILD);
 
   /* ----- Config (Power Automate flow URLs) ----- */
@@ -1710,11 +1710,19 @@
   // Open a print popup containing the (optional) proposal template + the Dell
   // quotation as selectable text, then trigger the browser print dialog.
   function printDellQuotation(templateName) {
-    return fetchProposalTemplateHtml(templateName).then(function (rawTpl) {
+    return Promise.all([fetchProposalTemplateHtml(templateName), ensureLogoDataUrl()]).then(function (res) {
+      var rawTpl = res[0];
+      var logoData = res[1];
       var tplHtml = rawTpl ? fillProposalTemplate(rawTpl, proposalTemplateContext()) : "";
       var prop = tplHtml ? buildProposalPrintHtml(tplHtml) : { styleHtml: "", bodyHtml: "" };
       var dqCss = collectDqRules();
       var quoteEl = buildPrintQuoteEl();
+      // Inline the logo so it renders regardless of the popup's origin/relative
+      // URL resolution (works identically on the site and in the Outlook add-in).
+      if (logoData) {
+        var lg = quoteEl.querySelector("#dq-export-logo");
+        if (lg) lg.setAttribute("src", logoData);
+      }
 
       var pw = window.open("", "_blank", "width=850,height=1100");
       if (!pw) { alert("Please allow pop-ups for this site to download the PDF."); return; }
