@@ -56,6 +56,21 @@
   if (window.Office && Office.onReady) {
     Office.onReady(function () {
       trySso();
+
+      // Register ItemChanged handler — required for pinnable task panes.
+      // When the user switches emails while the pane is pinned, Outlook fires
+      // this event. We deliberately do nothing so the in-progress quotation
+      // stays undisturbed. Without this handler pinning may not activate.
+      if (Office.context && Office.context.mailbox &&
+          Office.context.mailbox.addHandlerAsync) {
+        Office.context.mailbox.addHandlerAsync(
+          Office.EventType.ItemChanged,
+          function (eventArgs) {
+            // No-op: keep the current quotation state intact.
+            if (window.console) console.log("[ADDIN] ItemChanged — pinned pane kept open");
+          }
+        );
+      }
     });
   } else {
     window.addEventListener("DOMContentLoaded", trySso);
