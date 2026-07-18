@@ -36,6 +36,12 @@ var PAGES = [
     title: "Build Dell Quote",
     dir: path.join(SITE, "dell-quote", "content-pages"),
     base: "Dell-Quote.en-US.webpage"
+  },
+  {
+    out: "ocr-extract.html",
+    title: "OCR Extract",
+    dir: path.join(SITE, "ocr-extract", "content-pages"),
+    base: "OCR-Extract.en-US.webpage"
   }
 ];
 
@@ -262,6 +268,78 @@ var SHELL_JS = [
   "}());"
 ].join("\n");
 
+// STATE_JS auto-saves and restores form inputs via sessionStorage so that
+// if Outlook reloads the task pane (e.g. message switch without pinning),
+// the user's in-progress quotation data is preserved.
+var STATE_JS = [
+  "(function(){",
+  "  var KEY = 'qb_addin_state_' + location.pathname.replace(/[^a-z0-9]/gi,'_');",
+  "  var DEBOUNCE = 400;",
+  "  var _timer = null;",
+  "",
+  "  function getAllInputs(){",
+  "    return document.querySelectorAll('input,textarea,select');",
+  "  }",
+  "",
+  "  function saveState(){",
+  "    try {",
+  "      var state = {};",
+  "      getAllInputs().forEach(function(el,i){",
+  "        var id = el.id || el.name || ('_idx_'+i);",
+  "        if(el.type==='checkbox'||el.type==='radio'){ state[id] = el.checked; }",
+  "        else { state[id] = el.value; }",
+  "      });",
+  "      // Save which steps/sections are visible",
+  "      var visible = [];",
+  "      document.querySelectorAll('[id]').forEach(function(el){",
+  "        if(el.style && el.style.display !== 'none' && el.id &&",
+  "           (el.id.indexOf('step')>-1 || el.id.indexOf('Step')>-1)){",
+  "          visible.push(el.id);",
+  "        }",
+  "      });",
+  "      state._visibleSteps = visible;",
+  "      sessionStorage.setItem(KEY, JSON.stringify(state));",
+  "    } catch(e){ /* storage full or blocked */ }",
+  "  }",
+  "",
+  "  function restoreState(){",
+  "    try {",
+  "      var raw = sessionStorage.getItem(KEY);",
+  "      if(!raw) return;",
+  "      var state = JSON.parse(raw);",
+  "      getAllInputs().forEach(function(el,i){",
+  "        var id = el.id || el.name || ('_idx_'+i);",
+  "        if(!(id in state)) return;",
+  "        if(el.type==='checkbox'||el.type==='radio'){ el.checked = !!state[id]; }",
+  "        else { el.value = state[id]; }",
+  "        // Fire change event so page JS picks up the value",
+  "        try { el.dispatchEvent(new Event('change',{bubbles:true})); } catch(e){}",
+  "      });",
+  "    } catch(e){ /* parse error or blocked */ }",
+  "  }",
+  "",
+  "  function debouncedSave(){",
+  "    clearTimeout(_timer);",
+  "    _timer = setTimeout(saveState, DEBOUNCE);",
+  "  }",
+  "",
+  "  // Listen for changes on all current and future inputs",
+  "  document.addEventListener('input', debouncedSave, true);",
+  "  document.addEventListener('change', debouncedSave, true);",
+  "",
+  "  // Restore state after page JS has initialised",
+  "  function init(){",
+  "    setTimeout(restoreState, 300);",
+  "  }",
+  "  if(document.readyState==='loading'){",
+  "    document.addEventListener('DOMContentLoaded', init);",
+  "  } else { init(); }",
+  "",
+  "  // Clear saved state after a successful save/email (clean slate)",
+  "  window._clearAddinState = function(){ try{ sessionStorage.removeItem(KEY); }catch(e){} };",
+  "}());"
+].join("\n");
+
 function buildPage(page) {
   var body = read(path.join(page.dir, page.base + ".copy.html"));
   var css = readIfExists(path.join(page.dir, page.base + ".custom_css.css"));
@@ -288,6 +366,8 @@ function buildPage(page) {
     "  <script>\n" + js + "\n</script>\n" +
     "  <!-- Add-in shell JS: email modal + prompt override (Outlook WebView2 fix) -->\n" +
     "  <script>\n" + SHELL_JS + "\n</script>\n" +
+    "  <!-- Add-in state persistence: survives task-pane reloads -->\n" +
+    "  <script>\n" + STATE_JS + "\n</script>\n" +
     "</body>\n" +
     "</html>\n";
 

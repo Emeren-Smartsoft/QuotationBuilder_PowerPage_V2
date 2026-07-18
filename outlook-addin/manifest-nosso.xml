@@ -22,7 +22,7 @@
   xsi:type="MailApp">
 
   <Id>1d17484b-e54d-4ae1-b979-e472ab538aed</Id>
-  <Version>1.0.0.0</Version>
+  <Version>1.0.1.0</Version>
   <ProviderName>Smartsoft</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Quotation Builder" />
@@ -83,53 +83,55 @@
               <Group id="qbGroup">
                 <Label resid="Group.Label" />
 
-                <!-- Menu control = the "New" dropdown, like Business Central -->
-                <Control xsi:type="Menu" id="qbNewMenu">
-                  <Label resid="NewMenu.Label" />
+                <Control xsi:type="Button" id="qbStartQuotation">
+                  <Label resid="StartQuotation.Label" />
                   <Supertip>
-                    <Title resid="NewMenu.Label" />
-                    <Description resid="NewMenu.Tooltip" />
+                    <Title resid="StartQuotation.Label" />
+                    <Description resid="StartQuotation.Tooltip" />
                   </Supertip>
                   <Icon>
                     <bt:Image size="16" resid="Icon.16" />
                     <bt:Image size="32" resid="Icon.32" />
                     <bt:Image size="80" resid="Icon.80" />
                   </Icon>
-                  <Items>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="Quotation.Url" />
+                    <SupportsPinning>true</SupportsPinning>
+                  </Action>
+                </Control>
 
-                    <Item id="qbStartQuotation">
-                      <Label resid="StartQuotation.Label" />
-                      <Supertip>
-                        <Title resid="StartQuotation.Label" />
-                        <Description resid="StartQuotation.Tooltip" />
-                      </Supertip>
-                      <Icon>
-                        <bt:Image size="16" resid="Icon.16" />
-                        <bt:Image size="32" resid="Icon.32" />
-                        <bt:Image size="80" resid="Icon.80" />
-                      </Icon>
-                      <Action xsi:type="ShowTaskpane">
-                        <SourceLocation resid="Quotation.Url" />
-                      </Action>
-                    </Item>
+                <Control xsi:type="Button" id="qbBuildDellQuote">
+                  <Label resid="DellQuote.Label" />
+                  <Supertip>
+                    <Title resid="DellQuote.Label" />
+                    <Description resid="DellQuote.Tooltip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16" />
+                    <bt:Image size="32" resid="Icon.32" />
+                    <bt:Image size="80" resid="Icon.80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="DellQuote.Url" />
+                    <SupportsPinning>true</SupportsPinning>
+                  </Action>
+                </Control>
 
-                    <Item id="qbBuildDellQuote">
-                      <Label resid="DellQuote.Label" />
-                      <Supertip>
-                        <Title resid="DellQuote.Label" />
-                        <Description resid="DellQuote.Tooltip" />
-                      </Supertip>
-                      <Icon>
-                        <bt:Image size="16" resid="Icon.16" />
-                        <bt:Image size="32" resid="Icon.32" />
-                        <bt:Image size="80" resid="Icon.80" />
-                      </Icon>
-                      <Action xsi:type="ShowTaskpane">
-                        <SourceLocation resid="DellQuote.Url" />
-                      </Action>
-                    </Item>
-
-                  </Items>
+                <Control xsi:type="Button" id="qbOcrExtract">
+                  <Label resid="OcrExtract.Label" />
+                  <Supertip>
+                    <Title resid="OcrExtract.Label" />
+                    <Description resid="OcrExtract.Tooltip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16" />
+                    <bt:Image size="32" resid="Icon.32" />
+                    <bt:Image size="80" resid="Icon.80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="OcrExtract.Url" />
+                    <SupportsPinning>true</SupportsPinning>
+                  </Action>
                 </Control>
               </Group>
             </OfficeTab>
@@ -140,49 +142,55 @@
             <OfficeTab id="TabComposeDefault">
               <Group id="qbGroupCompose">
                 <Label resid="Group.Label" />
-                <Control xsi:type="Menu" id="qbNewMenuCompose">
-                  <Label resid="NewMenu.Label" />
+                <Control xsi:type="Button" id="qbStartQuotationCompose">
+                  <Label resid="StartQuotation.Label" />
                   <Supertip>
-                    <Title resid="NewMenu.Label" />
-                    <Description resid="NewMenu.Tooltip" />
+                    <Title resid="StartQuotation.Label" />
+                    <Description resid="StartQuotation.Tooltip" />
                   </Supertip>
                   <Icon>
                     <bt:Image size="16" resid="Icon.16" />
                     <bt:Image size="32" resid="Icon.32" />
                     <bt:Image size="80" resid="Icon.80" />
                   </Icon>
-                  <Items>
-                    <Item id="qbStartQuotationCompose">
-                      <Label resid="StartQuotation.Label" />
-                      <Supertip>
-                        <Title resid="StartQuotation.Label" />
-                        <Description resid="StartQuotation.Tooltip" />
-                      </Supertip>
-                      <Icon>
-                        <bt:Image size="16" resid="Icon.16" />
-                        <bt:Image size="32" resid="Icon.32" />
-                        <bt:Image size="80" resid="Icon.80" />
-                      </Icon>
-                      <Action xsi:type="ShowTaskpane">
-                        <SourceLocation resid="Quotation.Url" />
-                      </Action>
-                    </Item>
-                    <Item id="qbBuildDellQuoteCompose">
-                      <Label resid="DellQuote.Label" />
-                      <Supertip>
-                        <Title resid="DellQuote.Label" />
-                        <Description resid="DellQuote.Tooltip" />
-                      </Supertip>
-                      <Icon>
-                        <bt:Image size="16" resid="Icon.16" />
-                        <bt:Image size="32" resid="Icon.32" />
-                        <bt:Image size="80" resid="Icon.80" />
-                      </Icon>
-                      <Action xsi:type="ShowTaskpane">
-                        <SourceLocation resid="DellQuote.Url" />
-                      </Action>
-                    </Item>
-                  </Items>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="Quotation.Url" />
+                    <SupportsPinning>true</SupportsPinning>
+                  </Action>
+                </Control>
+
+                <Control xsi:type="Button" id="qbBuildDellQuoteCompose">
+                  <Label resid="DellQuote.Label" />
+                  <Supertip>
+                    <Title resid="DellQuote.Label" />
+                    <Description resid="DellQuote.Tooltip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16" />
+                    <bt:Image size="32" resid="Icon.32" />
+                    <bt:Image size="80" resid="Icon.80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="DellQuote.Url" />
+                    <SupportsPinning>true</SupportsPinning>
+                  </Action>
+                </Control>
+
+                <Control xsi:type="Button" id="qbOcrExtractCompose">
+                  <Label resid="OcrExtract.Label" />
+                  <Supertip>
+                    <Title resid="OcrExtract.Label" />
+                    <Description resid="OcrExtract.Tooltip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16" />
+                    <bt:Image size="32" resid="Icon.32" />
+                    <bt:Image size="80" resid="Icon.80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="OcrExtract.Url" />
+                    <SupportsPinning>true</SupportsPinning>
+                  </Action>
                 </Control>
               </Group>
             </OfficeTab>
@@ -202,17 +210,20 @@
         <bt:Url id="Commands.Url" DefaultValue="https://gray-desert-0d038cd0f.7.azurestaticapps.net/commands.html" />
         <bt:Url id="Quotation.Url" DefaultValue="https://gray-desert-0d038cd0f.7.azurestaticapps.net/quotation.html" />
         <bt:Url id="DellQuote.Url" DefaultValue="https://gray-desert-0d038cd0f.7.azurestaticapps.net/dell-quote.html" />
+        <bt:Url id="OcrExtract.Url" DefaultValue="https://gray-desert-0d038cd0f.7.azurestaticapps.net/ocr-extract.html" />
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="Group.Label" DefaultValue="Quotation Builder" />
         <bt:String id="NewMenu.Label" DefaultValue="New" />
         <bt:String id="StartQuotation.Label" DefaultValue="Start a Quotation" />
         <bt:String id="DellQuote.Label" DefaultValue="Build Dell Quote" />
+        <bt:String id="OcrExtract.Label" DefaultValue="OCR Extract" />
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="NewMenu.Tooltip" DefaultValue="Create a new quotation without leaving Outlook." />
         <bt:String id="StartQuotation.Tooltip" DefaultValue="Open the Smartsoft quotation builder in the side panel." />
         <bt:String id="DellQuote.Tooltip" DefaultValue="Rebuild a Dell quotation email on the Smartsoft template." />
+        <bt:String id="OcrExtract.Tooltip" DefaultValue="Extract text and tables from documents using OCR." />
       </bt:LongStrings>
     </Resources>
 
