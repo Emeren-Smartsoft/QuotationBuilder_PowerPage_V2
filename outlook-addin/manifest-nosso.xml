@@ -22,7 +22,7 @@
   xsi:type="MailApp">
 
   <Id>1d17484b-e54d-4ae1-b979-e472ab538aed</Id>
-  <Version>1.0.2.0</Version>
+  <Version>1.0.3.0</Version>
   <ProviderName>Smartsoft</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Quotation Builder" />
@@ -225,7 +225,7 @@
          open when the user switches between emails (requires Mailbox 1.5+). -->
     <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
       <Requirements>
-        <bt:Sets DefaultMinVersion="1.5">
+        <bt:Sets DefaultMinVersion="1.3">
           <bt:Set Name="Mailbox" />
         </bt:Sets>
       </Requirements>
@@ -308,7 +308,6 @@
                     </Icon>
                     <Action xsi:type="ShowTaskpane">
                       <SourceLocation resid="Quotation.Url" />
-                      <SupportsPinning>true</SupportsPinning>
                     </Action>
                   </Control>
                   <Control xsi:type="Button" id="qbBuildDellQuoteCompose">
@@ -324,7 +323,6 @@
                     </Icon>
                     <Action xsi:type="ShowTaskpane">
                       <SourceLocation resid="DellQuote.Url" />
-                      <SupportsPinning>true</SupportsPinning>
                     </Action>
                   </Control>
                   <Control xsi:type="Button" id="qbOcrExtractCompose">
@@ -340,7 +338,6 @@
                     </Icon>
                     <Action xsi:type="ShowTaskpane">
                       <SourceLocation resid="OcrExtract.Url" />
-                      <SupportsPinning>true</SupportsPinning>
                     </Action>
                   </Control>
                 </Group>
