@@ -1,0 +1,1 @@
+﻿/* Moved to data URI in content HTML */
