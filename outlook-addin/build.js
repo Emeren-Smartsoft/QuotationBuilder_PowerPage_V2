@@ -268,13 +268,17 @@ var SHELL_JS = [
   "}());"
 ].join("\n");
 
-// STATE_JS auto-saves and restores form inputs via sessionStorage so that
-// if Outlook reloads the task pane (e.g. message switch without pinning),
-// the user's in-progress quotation data is preserved.
+// STATE_JS auto-saves and restores form inputs via localStorage so that
+// if Outlook closes and reopens the task pane (e.g. message switch),
+// the user's in-progress quotation data is preserved and restored.
+// Uses localStorage (not sessionStorage) because Outlook creates a new
+// WebView session each time the pane opens, which clears sessionStorage.
 var STATE_JS = [
   "(function(){",
   "  var KEY = 'qb_addin_state_' + location.pathname.replace(/[^a-z0-9]/gi,'_');",
+  "  var TS_KEY = KEY + '_ts';",
   "  var DEBOUNCE = 400;",
+  "  var MAX_AGE = 8 * 60 * 60 * 1000; // 8 hours — auto-expire stale state",
   "  var _timer = null;",
   "",
   "  function getAllInputs(){",
@@ -287,7 +291,7 @@ var STATE_JS = [
   "      getAllInputs().forEach(function(el,i){",
   "        var id = el.id || el.name || ('_idx_'+i);",
   "        if(el.type==='checkbox'||el.type==='radio'){ state[id] = el.checked; }",
-  "        else { state[id] = el.value; }",
+  "        else if(el.value) { state[id] = el.value; }",
   "      });",
   "      // Save which steps/sections are visible",
   "      var visible = [];",
@@ -298,15 +302,22 @@ var STATE_JS = [
   "        }",
   "      });",
   "      state._visibleSteps = visible;",
-  "      sessionStorage.setItem(KEY, JSON.stringify(state));",
+  "      localStorage.setItem(KEY, JSON.stringify(state));",
+  "      localStorage.setItem(TS_KEY, Date.now().toString());",
   "    } catch(e){ /* storage full or blocked */ }",
   "  }",
   "",
   "  function restoreState(){",
   "    try {",
-  "      var raw = sessionStorage.getItem(KEY);",
+  "      // Check age — don't restore stale state from yesterday",
+  "      var ts = parseInt(localStorage.getItem(TS_KEY) || '0', 10);",
+  "      if(Date.now() - ts > MAX_AGE){ localStorage.removeItem(KEY); localStorage.removeItem(TS_KEY); return; }",
+  "      var raw = localStorage.getItem(KEY);",
   "      if(!raw) return;",
   "      var state = JSON.parse(raw);",
+  "      var hasValues = Object.keys(state).some(function(k){ return k !== '_visibleSteps' && state[k]; });",
+  "      if(!hasValues) return;",
+  "      if(window.console) console.log('[ADDIN] Restoring saved quotation state');",
   "      getAllInputs().forEach(function(el,i){",
   "        var id = el.id || el.name || ('_idx_'+i);",
   "        if(!(id in state)) return;",
@@ -336,7 +347,7 @@ var STATE_JS = [
   "  } else { init(); }",
   "",
   "  // Clear saved state after a successful save/email (clean slate)",
-  "  window._clearAddinState = function(){ try{ sessionStorage.removeItem(KEY); }catch(e){} };",
+  "  window._clearAddinState = function(){ try{ localStorage.removeItem(KEY); localStorage.removeItem(TS_KEY); }catch(e){} };",
   "}());"
 ].join("\n");
 
