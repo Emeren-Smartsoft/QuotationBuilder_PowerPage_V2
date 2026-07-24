@@ -125,8 +125,11 @@ body > div:first-child[style*="background-color"] { display:none !important; }
   .qt-screen-only { display:none !important; }
   .qt-print-only { display:inline !important; }
 
+  /* Remove browser print headers/footers (date, title, URL) */
+  @page { size: A4; margin: 0; }
+
   /* Layout cleanups */
-  body { background:#fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { background:#fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding:14mm 12mm !important; margin:0 !important; }
   .qt-wrapper { margin:0; padding:0; max-width:none; font-size:11px; }
   .qt-card { box-shadow:none; border:none; padding:0; margin:0; }
 
@@ -201,7 +204,7 @@ body > div:first-child[style*="background-color"] { display:none !important; }
   .qt-print-footer p { margin:0; }
 }
 
-@page { size: A4; margin: 16mm 14mm; }
+/* @page rule moved inside @media print above */
 
 /* ============================================================
    Server Quotation builder — embedded inline in /quotation page.

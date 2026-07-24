@@ -133,6 +133,8 @@ var SHELL_CSS = [
   "  .qt-cs-right .qt-cs-row{justify-content:flex-end !important;}",
   "  .qt-cs-l{min-width:80px !important;}",
   "  .qt-cl-row,.addin-banner,.qt-no-print{display:none !important;}",
+  "  @page{size:A4;margin:0;}",
+  "  body{padding:14mm 12mm !important;margin:0 !important;}",
   "}"
 ].join("\n");
 
