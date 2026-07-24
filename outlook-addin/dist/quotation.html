@@ -34,8 +34,8 @@ img{max-width:100%;height:auto;}
 .qt-cs-l{min-width:auto !important;}
 .qt-cs-v,.qt-cs-l{word-break:break-word;overflow-wrap:anywhere;}
 
-/* Mode switch (Software / Hardware / Server) wraps to full-width buttons
-   instead of three unreadable slivers. */
+/* Mode switch (Software / Hardware) wraps to full-width buttons
+   instead of two unreadable slivers. */
 .qt-mode-bar{flex-wrap:wrap !important;max-width:100% !important;}
 .qt-mode-btn{flex:1 1 100% !important;}
 
@@ -60,6 +60,15 @@ img{max-width:100%;height:auto;}
 @media (max-width:600px){
   .qt-card,.qt-customer-summary{padding:12px !important;}
   .qt-table,.dq-document table{font-size:11px !important;}
+}
+
+/* Restore proper layout for print/PDF output */
+@media print{
+  .qt-cs-two-col{grid-template-columns:1fr 1fr !important;gap:4px 40px !important;}
+  .qt-cs-right{text-align:right !important;}
+  .qt-cs-right .qt-cs-row{justify-content:flex-end !important;}
+  .qt-cs-l{min-width:80px !important;}
+  .qt-cl-row,.addin-banner,.qt-no-print{display:none !important;}
 }
 </style>
   <style>
@@ -176,6 +185,7 @@ body > div:first-child[style*="background-color"] { display:none !important; }
   /* Hide page-level UI we don't want on the PDF */
   .qt-header, .qt-steps, .qt-builder, .qt-actions,
   .qt-mode-bar, .qt-no-print, .qt-discount-row-input,
+  .qt-cl-row,
   #qt-step-2 > h2, .qt-table-title,
   .qt-table .qt-remove, .qt-table input.qt-qty,
   .qt-table input.qt-margin { display:none !important; }

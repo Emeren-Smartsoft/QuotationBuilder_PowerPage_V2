@@ -124,6 +124,15 @@ var SHELL_CSS = [
   "@media (max-width:600px){",
   "  .qt-card,.qt-customer-summary{padding:12px !important;}",
   "  .qt-table,.dq-document table{font-size:11px !important;}",
+  "}",
+  "",
+  "/* Restore proper layout for print/PDF output */",
+  "@media print{",
+  "  .qt-cs-two-col{grid-template-columns:1fr 1fr !important;gap:4px 40px !important;}",
+  "  .qt-cs-right{text-align:right !important;}",
+  "  .qt-cs-right .qt-cs-row{justify-content:flex-end !important;}",
+  "  .qt-cs-l{min-width:80px !important;}",
+  "  .qt-cl-row,.addin-banner,.qt-no-print{display:none !important;}",
   "}"
 ].join("\n");
 

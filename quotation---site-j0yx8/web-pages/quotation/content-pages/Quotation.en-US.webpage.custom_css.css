@@ -111,6 +111,7 @@ body > div:first-child[style*="background-color"] { display:none !important; }
   /* Hide page-level UI we don't want on the PDF */
   .qt-header, .qt-steps, .qt-builder, .qt-actions,
   .qt-mode-bar, .qt-no-print, .qt-discount-row-input,
+  .qt-cl-row,
   #qt-step-2 > h2, .qt-table-title,
   .qt-table .qt-remove, .qt-table input.qt-qty,
   .qt-table input.qt-margin { display:none !important; }
