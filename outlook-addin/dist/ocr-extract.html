@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OCR Extract — Smartsoft</title>
+  <!-- Office.js: required for task-pane lifecycle + SSO -->
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <script src="office-sso.js"></script>
+  <style>
+/* Add-in shell: makes the lifted builders usable in a narrow Outlook task pane */
+html,body{margin:0;padding:0;}
+*{box-sizing:border-box;}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:#f3f4f6;-webkit-text-size-adjust:100%;overflow-x:hidden;}
+img{max-width:100%;height:auto;}
+.addin-banner{display:none;font-size:12px;padding:6px 10px;background:#eef4ff;color:#0b5cab;border-bottom:1px solid #cfe0f7;}
+.addin-banner.show{display:block;}
+
+/* The builder is a full-bleed pane here, not a centred 1180px A4 sheet. */
+.qt-wrapper,.dq-wrapper{max-width:100% !important;margin:0 !important;padding:8px 10px !important;}
+
+/* The add-in pane is ALWAYS narrow, so stack every 2-column layout into one
+   column unconditionally. This prevents the cramped columns that make long
+   values (e.g. the quote number) wrap one character per line. */
+.qt-grid,.dq-grid,.qt-cs-two-col,.qt-builder-row,.qt-ws-selectors{
+  display:grid !important;grid-template-columns:1fr !important;gap:10px 0 !important;}
+.qt-span-2{grid-column:auto !important;}
+
+/* QUOTATION header: left-align the meta block (To / Quotation No / Date /
+   Valid Until) once it is stacked, and drop the fixed label width so values
+   keep their own line instead of being squeezed. */
+.qt-cs-right{text-align:left !important;}
+.qt-cs-right .qt-cs-row{justify-content:flex-start !important;}
+.qt-cs-l{min-width:auto !important;}
+.qt-cs-v,.qt-cs-l{word-break:break-word;overflow-wrap:anywhere;}
+
+/* Mode switch (Software / Hardware / Server) wraps to full-width buttons
+   instead of three unreadable slivers. */
+.qt-mode-bar{flex-wrap:wrap !important;max-width:100% !important;}
+.qt-mode-btn{flex:1 1 100% !important;}
+
+/* Wide data tables scroll horizontally inside their wrapper rather than
+   pushing the whole pane sideways. */
+.qt-table-wrap,.qt-table-scroll,.qt-shared-area,#qt-shared-area,.dq-table-wrap{
+  overflow-x:auto !important;-webkit-overflow-scrolling:touch;max-width:100%;}
+
+/* OCR page: fit into narrow task pane */
+.ocr-wrapper{max-width:100% !important;margin:0 !important;padding:8px 10px !important;}
+.ocr-card{padding:14px 12px !important;}
+.ocr-drop-zone{padding:24px 12px !important;}
+.ocr-toolbar{flex-direction:column !important;align-items:stretch !important;}
+.ocr-toolbar>div{display:flex;flex-direction:column;gap:6px;}
+.ocr-steps-nav{flex-wrap:wrap !important;}
+.ocr-btn{padding:8px 12px !important;font-size:13px !important;width:100%;text-align:center;box-sizing:border-box;}
+.ocr-tabs{flex-wrap:wrap !important;}
+.ocr-preview{max-height:none !important;}
+.ocr-result-table{font-size:11px !important;}
+.ocr-result-table th,.ocr-result-table td{padding:5px 6px !important;}
+
+@media (max-width:600px){
+  .qt-card,.qt-customer-summary{padding:12px !important;}
+  .qt-table,.dq-document table{font-size:11px !important;}
+}
+</style>
+  <style>
+﻿.ocr-wrapper{max-width:960px;margin:24px auto;padding:0 16px;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#222}
+.ocr-brand{display:flex;align-items:center;padding:8px 0 16px;border-bottom:3px solid #1a2533;margin-bottom:18px}
+.ocr-brand-logo{height:80px;width:auto;max-width:100%}
+.ocr-header{margin-bottom:20px}
+.ocr-header h1{font-family:'Playfair Display','Georgia','Times New Roman',serif;font-size:28px;font-weight:700;margin:0 0 4px;color:#1a2533;letter-spacing:-0.01em}
+.ocr-sub{color:#666;font-size:14px;margin:0 0 16px}
+.ocr-steps-nav{list-style:none;padding:0;display:flex;gap:8px;margin:12px 0 20px}
+.ocr-step-nav{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:#f1f3f5;color:#666;font-size:14px;font-weight:500;transition:background .2s,color .2s}
+.ocr-step-nav span{display:inline-flex;width:24px;height:24px;border-radius:50%;background:#dee2e6;color:#333;align-items:center;justify-content:center;font-weight:600;font-size:12px}
+.ocr-step-nav.active{background:#0b5cab;color:#fff}
+.ocr-step-nav.active span{background:#fff;color:#0b5cab}
+.ocr-card{background:#fff;border:1px solid #e6e8eb;border-radius:10px;padding:22px 24px;box-shadow:0 1px 2px rgba(0,0,0,.03);margin-bottom:20px}
+.ocr-card h2{font-family:'Playfair Display','Georgia','Times New Roman',serif;font-size:20px;font-weight:700;margin:0 0 16px;color:#1a2533}
+.ocr-drop-zone{border:2px dashed #cfd4da;border-radius:10px;padding:44px 20px;text-align:center;transition:border-color .2s,background .2s;cursor:pointer;background:#fafbfc}
+.ocr-drop-zone:hover,.ocr-drop-zone.is-drag{border-color:#0b5cab;background:#f0f7ff}
+.ocr-drop-inner{display:flex;flex-direction:column;align-items:center}
+.ocr-drop-icon{font-size:44px;margin-bottom:10px}
+.ocr-btn{display:inline-block;padding:9px 18px;font-size:14px;font-weight:600;border:1px solid #cfd4da;border-radius:6px;background:#fff;color:#333;cursor:pointer;transition:background .15s,border-color .15s;text-decoration:none}
+.ocr-btn:hover{background:#f5f7fa;border-color:#999}
+.ocr-btn:disabled{opacity:.5;cursor:not-allowed}
+.ocr-btn-primary{background:#0b5cab;color:#fff;border-color:#0b5cab}
+.ocr-btn-primary:hover{background:#094a8c;border-color:#094a8c}
+.ocr-error{background:#fef2f2;border:1px solid #fca5a5;color:#b91c1c;padding:10px 14px;border-radius:6px;font-size:13px;margin-top:12px}
+.ocr-hidden{display:none!important}
+.ocr-actions{display:flex;justify-content:flex-end}
+.ocr-progress-wrap{display:flex;flex-direction:column;align-items:center;padding:48px 20px}
+.ocr-spinner{width:44px;height:44px;border:4px solid #e6e8eb;border-top-color:#0b5cab;border-radius:50%;animation:ocr-spin .8s linear infinite;margin-bottom:18px}
+@keyframes ocr-spin{to{transform:rotate(360deg)}}
+.ocr-status{font-size:16px;font-weight:600;color:#1a2533}
+.ocr-progress-hint{font-size:13px;color:#666;margin-top:8px}
+.ocr-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.ocr-summary{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.ocr-summary span{display:inline-block;padding:5px 14px;background:#f1f3f5;border-radius:999px;font-size:13px;font-weight:600;color:#0b5cab}
+.ocr-tabs{display:flex;gap:0;border-bottom:2px solid #e6e8eb;margin-bottom:14px}
+.ocr-tab{padding:9px 18px;font-size:13px;font-weight:600;color:#666;background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;transition:color .15s,border-color .15s;margin-bottom:-2px}
+.ocr-tab:hover{color:#0b5cab}
+.ocr-tab.active{color:#0b5cab;border-bottom-color:#0b5cab}
+.ocr-preview{max-height:500px;overflow-y:auto;padding:14px;border:1px solid #e6e8eb;border-radius:8px;background:#fafbfc}
+.ocr-prev-heading{font-family:'Playfair Display','Georgia',serif;font-size:16px;font-weight:700;margin:16px 0 6px;color:#1a2533}
+.ocr-prev-para{font-size:14px;line-height:1.65;margin:4px 0;color:#333}
+.ocr-table-wrap{margin-bottom:20px}
+.ocr-table-wrap h4{font-size:13px;font-weight:700;color:#1a2533;margin:0 0 8px}
+.ocr-result-table{width:100%;border-collapse:collapse;font-size:13px}
+.ocr-result-table th,.ocr-result-table td{border:1px solid #d1d5db;padding:7px 10px;text-align:left}
+.ocr-result-table th{background:#5a7a8a;color:#fff;font-weight:600}
+.ocr-result-table tr:nth-child(even) td{background:#f9fafb}
+.ocr-raw-json{font-family:Consolas,"Courier New",monospace;font-size:12px;white-space:pre-wrap;word-break:break-word;margin:0;color:#374151}
+@media print{.ocr-no-print{display:none!important}}
+@media(max-width:600px){.ocr-wrapper{padding:12px 8px}.ocr-card{padding:16px 14px}.ocr-toolbar{flex-direction:column;align-items:stretch}.ocr-steps-nav{flex-wrap:wrap}}
+
+</style>
+</head>
+<body>
+  <div id="addin-identity" class="addin-banner"></div>
+<!-- Add-in email dialog (replaces window.prompt blocked by Outlook WebView2) -->
+<div id="qt-addin-email-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:8px;padding:22px 20px;width:90%;max-width:340px;box-shadow:0 4px 24px rgba(0,0,0,.25);font-family:'Segoe UI',sans-serif;">
+    <div style="font-size:15px;font-weight:700;color:#1a2533;margin-bottom:14px;">Email Quotation</div>
+    <label style="display:block;font-size:12px;color:#555;margin-bottom:4px;">To (recipient email) <span style="color:red">*</span></label>
+    <input id="qt-addin-email-to" type="email" placeholder="customer@example.com"
+      style="width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:5px;font-size:13px;margin-bottom:10px;box-sizing:border-box;"/>
+    <label style="display:block;font-size:12px;color:#555;margin-bottom:4px;">CC (optional, comma-separated)</label>
+    <input id="qt-addin-email-cc" type="text" placeholder="cc@example.com"
+      style="width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:5px;font-size:13px;margin-bottom:16px;box-sizing:border-box;"/>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button id="qt-addin-email-cancel" type="button"
+        style="padding:8px 16px;border:1px solid #ccc;border-radius:5px;background:#f5f5f5;font-size:13px;cursor:pointer;">Cancel</button>
+      <button id="qt-addin-email-send" type="button"
+        style="padding:8px 18px;border:0;border-radius:5px;background:#0b5cab;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">Send</button>
+    </div>
+  </div>
+</div>
+<div class="ocr-wrapper">
+
+  <header class="ocr-brand ocr-no-print"><img src="/smartsoft-logo.png" alt="Smartsoft - 29 years of trusted IT solutions" onerror="this.style.display='none'" class="ocr-brand-logo" /></header>
+
+  <header class="ocr-header ocr-no-print">
+    <h1>OCR Extract</h1>
+    <p class="ocr-sub">Upload any document &mdash; scanned PDF, image, handwritten note &mdash; and extract the text. Download as Excel or Word preserving tables and paragraphs.</p>
+    <ol class="ocr-steps-nav">
+      <li class="ocr-step-nav active" data-step="1"><span>1</span> Upload</li>
+      <li class="ocr-step-nav" data-step="2"><span>2</span> Extract</li>
+      <li class="ocr-step-nav" data-step="3"><span>3</span> Download</li>
+    </ol>
+  </header>
+
+  <section id="ocr-step-upload" class="ocr-card ocr-no-print">
+    <h2>Upload Document</h2>
+    <p style="color:#555;font-size:13px;margin:0 0 14px;">
+      Supports PDF, JPEG, PNG, TIFF, BMP, DOCX, and any image-based scanned document.<br>
+      Maximum file size: <strong>50 MB</strong>. Multi-page PDFs are fully supported.
+    </p>
+    <div id="ocr-drop-zone" class="ocr-drop-zone">
+      <div class="ocr-drop-inner">
+        <div class="ocr-drop-icon">&#x1F4C4;</div>
+        <div><strong>Drop your file here</strong></div>
+        <div style="margin:6px 0 12px;color:#666;font-size:12.5px;">or</div>
+        <label for="ocr-file" class="ocr-btn ocr-btn-primary" style="cursor:pointer;">Choose file</label>
+        <input type="file" id="ocr-file" accept=".pdf,.jpg,.jpeg,.png,.tiff,.tif,.bmp,.docx,.doc,.xlsx,.xls" style="display:none;" />
+        <div id="ocr-file-name" style="margin-top:10px;font-size:12.5px;color:#0b5cab;font-weight:600;"></div>
+      </div>
+    </div>
+    <div style="margin-top:14px;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+      <label style="font-size:13px;font-weight:600;color:#333;display:block;margin-bottom:8px;">Page Range <span style="font-weight:400;color:#888;">(optional &mdash; leave blank to extract all pages)</span></label>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span style="font-size:13px;color:#555;">From page</span>
+        <input type="number" id="ocr-page-from" min="1" placeholder="1" style="width:60px;padding:6px 8px;border:1px solid #cfd4da;border-radius:4px;font-size:13px;" />
+        <span style="font-size:13px;color:#555;">to page</span>
+        <input type="number" id="ocr-page-to" min="1" placeholder="last" style="width:60px;padding:6px 8px;border:1px solid #cfd4da;border-radius:4px;font-size:13px;" />
+      </div>
+    </div>
+    <div id="ocr-error" class="ocr-error ocr-hidden"></div>
+    <div class="ocr-actions" style="margin-top:14px;">
+      <button type="button" class="ocr-btn ocr-btn-primary" id="ocr-extract-btn" disabled>Extract Text &rarr;</button>
+    </div>
+  </section>
+
+  <section id="ocr-step-extract" class="ocr-card ocr-hidden">
+    <div class="ocr-progress-wrap">
+      <div class="ocr-spinner"></div>
+      <div id="ocr-status" class="ocr-status">Uploading document&hellip;</div>
+      <p class="ocr-progress-hint">This may take 10&ndash;30 seconds depending on document size.</p>
+    </div>
+  </section>
+
+  <section id="ocr-step-results" class="ocr-card ocr-hidden">
+    <div class="ocr-toolbar ocr-no-print">
+      <button type="button" class="ocr-btn" id="ocr-back-btn">&larr; Upload another file</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="button" class="ocr-btn ocr-btn-primary" id="ocr-download-excel">Download Excel (.xlsx)</button>
+        <button type="button" class="ocr-btn" id="ocr-download-word">Download Word (.docx)</button>
+      </div>
+    </div>
+    <div class="ocr-summary">
+      <span id="ocr-page-count"></span>
+      <span id="ocr-table-count"></span>
+      <span id="ocr-para-count"></span>
+    </div>
+    <div class="ocr-tabs ocr-no-print">
+      <button class="ocr-tab active" data-tab="text">Text</button>
+      <button class="ocr-tab" data-tab="tables">Tables</button>
+      <button class="ocr-tab" data-tab="raw">Raw JSON</button>
+    </div>
+    <div id="ocr-preview-text" class="ocr-preview"></div>
+    <div id="ocr-preview-tables" class="ocr-preview ocr-hidden"></div>
+    <div id="ocr-preview-raw" class="ocr-preview ocr-hidden"></div>
+  </section>
+
+</div>
+
+<script id="productData" type="application/json">
+{
+  "flowUrls": {
+    "ocrExtract": "https://smartsoft-ocr-proxy.azurewebsites.net/api/ocrextract?code=sdgiwYYzC13IyqRrSk47M9axo2Orjn17G8jqSvlCoP1KAzFuEQJgaw=="
+  }
+}
+</script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/docx@9.0.2/build/index.umd.js"></script>
+<script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+<script src="data:text/javascript;base64,KGZ1bmN0aW9uKCl7InVzZSBzdHJpY3QiO3ZhciBCVUlMRD0ib2NyLXYxOC4xIjtjb25zb2xlLmxvZygiW09DUl0gc2NyaXB0IGxvYWRlZCBidWlsZD0iK0JVSUxEKTt2YXIgQ09ORklHPXtmbG93VXJsczp7fX07dHJ5e3ZhciBwZD1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgicHJvZHVjdERhdGEiKTtpZihwZCYmcGQudGV4dENvbnRlbnQpe0NPTkZJRz1KU09OLnBhcnNlKHBkLnRleHRDb250ZW50KTtDT05GSUcuZmxvd1VybHM9Q09ORklHLmZsb3dVcmxzfHx7fTt9fWNhdGNoKGUpe2NvbnNvbGUud2FybigiW09DUl0gcHJvZHVjdERhdGEgcGFyc2UgZmFpbGVkIixlKTt9DQpmdW5jdGlvbiAkKGlkKXtyZXR1cm4gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoaWQpO30NCmZ1bmN0aW9uIGVzYyhzKXtyZXR1cm4gU3RyaW5nKHM9PW51bGw/IiI6cykucmVwbGFjZSgvWyY8PiInXS9nLGZ1bmN0aW9uKGMpe3JldHVybnsiJiI6IiZhbXA7IiwiPCI6IiZsdDsiLCI+IjoiJmd0OyIsJyInOiImcXVvdDsiLCInIjoiJiMzOTsifVtjXTt9KTt9DQpmdW5jdGlvbiBzaG93KGVsKXtpZihlbCllbC5jbGFzc0xpc3QucmVtb3ZlKCJvY3ItaGlkZGVuIik7fQ0KZnVuY3Rpb24gaGlkZShlbCl7aWYoZWwpZWwuY2xhc3NMaXN0LmFkZCgib2NyLWhpZGRlbiIpO30NCmZ1bmN0aW9uIGZvcm1hdEJ5dGVzKGIpe2lmKGI8MTAyNClyZXR1cm4gYisiIEIiO2lmKGI8MTA0ODU3NilyZXR1cm4oYi8xMDI0KS50b0ZpeGVkKDEpKyIgS0IiO3JldHVybihiLzEwNDg1NzYpLnRvRml4ZWQoMSkrIiBNQiI7fQ0KdmFyIHNlbGVjdGVkRmlsZT1udWxsLG9jclJlc3VsdD1udWxsOw0KZnVuY3Rpb24gc2hvd1N0ZXAobil7dmFyIHN0ZXBzPVskKCJvY3Itc3RlcC11cGxvYWQiKSwkKCJvY3Itc3RlcC1leHRyYWN0IiksJCgib2NyLXN0ZXAtcmVzdWx0cyIpXTtmb3IodmFyIGk9MDtpPHN0ZXBzLmxlbmd0aDtpKyspe2lmKHN0ZXBzW2ldKXtpZihpPT09bi0xKXNob3coc3RlcHNbaV0pO2Vsc2UgaGlkZShzdGVwc1tpXSk7fX12YXIgbmF2SXRlbXM9ZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgiLm9jci1zdGVwLW5hdiIpO2Zvcih2YXIgaj0wO2o8bmF2SXRlbXMubGVuZ3RoO2orKyl7bmF2SXRlbXNbal0uY2xhc3NMaXN0LnRvZ2dsZSgiYWN0aXZlIixqPG4pO319DQpmdW5jdGlvbiBoYW5kbGVGaWxlKGZpbGUpe2lmKCFmaWxlKXJldHVybjtpZihmaWxlLnNpemU+NTAqMTAyNCoxMDI0KXtzaG93RXJyb3IoIkZpbGUgdG9vIGxhcmdlICgiK2Zvcm1hdEJ5dGVzKGZpbGUuc2l6ZSkrIikuIE1heCA1MCBNQi4iKTtyZXR1cm47fWhpZGVFcnJvcigpO3NlbGVjdGVkRmlsZT1maWxlOyQoIm9jci1maWxlLW5hbWUiKS50ZXh0Q29udGVudD0iU2VsZWN0ZWQ6ICIrZmlsZS5uYW1lKyIgKCIrZm9ybWF0Qnl0ZXMoZmlsZS5zaXplKSsiKSI7JCgib2NyLWV4dHJhY3QtYnRuIikuZGlzYWJsZWQ9ZmFsc2U7fQ0KZnVuY3Rpb24gc2hvd0Vycm9yKG1zZyl7dmFyIGVsPSQoIm9jci1lcnJvciIpO2lmKGVsKXtlbC50ZXh0Q29udGVudD1tc2c7c2hvdyhlbCk7fX0NCmZ1bmN0aW9uIGhpZGVFcnJvcigpe3ZhciBlbD0kKCJvY3ItZXJyb3IiKTtpZihlbCl7ZWwudGV4dENvbnRlbnQ9IiI7aGlkZShlbCk7fX0NCmZ1bmN0aW9uIGZpbGVUb0Jhc2U2NChmaWxlKXtyZXR1cm4gbmV3IFByb21pc2UoZnVuY3Rpb24ocmVzb2x2ZSxyZWplY3Qpe3ZhciByZWFkZXI9bmV3IEZpbGVSZWFkZXIoKTtyZWFkZXIub25sb2FkPWZ1bmN0aW9uKCl7dmFyIHJlc3VsdD1yZWFkZXIucmVzdWx0fHwiIjt2YXIgaWR4PXJlc3VsdC5pbmRleE9mKCIsIik7cmVzb2x2ZShpZHg+PTA/cmVzdWx0LnN1YnN0cmluZyhpZHgrMSk6cmVzdWx0KTt9O3JlYWRlci5vbmVycm9yPWZ1bmN0aW9uKCl7cmVqZWN0KG5ldyBFcnJvcigiRmFpbGVkIHRvIHJlYWQgZmlsZSIpKTt9O3JlYWRlci5yZWFkQXNEYXRhVVJMKGZpbGUpO30pO30NCmZ1bmN0aW9uIGV4dHJhY3RUZXh0KCl7aWYoIXNlbGVjdGVkRmlsZSlyZXR1cm47dmFyIHVybD1DT05GSUcuZmxvd1VybHMmJkNPTkZJRy5mbG93VXJscy5vY3JFeHRyYWN0O2lmKCF1cmx8fHVybC5pbmRleE9mKCJQQVNURV8iKT09PTApe3Nob3dFcnJvcigiT0NSIGZsb3cgVVJMIG5vdCBjb25maWd1cmVkLiIpO3JldHVybjt9dmFyIHBhZ2VGcm9tPSQoIm9jci1wYWdlLWZyb20iKT9wYXJzZUludCgkKCJvY3ItcGFnZS1mcm9tIikudmFsdWUpfHwwOjA7dmFyIHBhZ2VUbz0kKCJvY3ItcGFnZS10byIpP3BhcnNlSW50KCQoIm9jci1wYWdlLXRvIikudmFsdWUpfHwwOjA7aWYocGFnZUZyb20mJnBhZ2VUbyYmcGFnZUZyb20+cGFnZVRvKXtzaG93RXJyb3IoIidGcm9tIHBhZ2UnIG11c3QgYmUgbGVzcyB0aGFuIG9yIGVxdWFsIHRvICdUbyBwYWdlJy4iKTtyZXR1cm47fXNob3dTdGVwKDIpO3NldFN0YXR1cygiVXBsb2FkaW5nIGRvY3VtZW50XHUyMDI2Iik7ZmlsZVRvQmFzZTY0KHNlbGVjdGVkRmlsZSkudGhlbihmdW5jdGlvbihiNjQpe3NldFN0YXR1cygiQW5hbHl6aW5nIGRvY3VtZW50IHdpdGggT0NSXHUyMDI2Iik7dmFyIHBheWxvYWQ9e2ZpbGVDb250ZW50OmI2NCxmaWxlTmFtZTpzZWxlY3RlZEZpbGUubmFtZX07aWYocGFnZUZyb20+MClwYXlsb2FkLnBhZ2VGcm9tPXBhZ2VGcm9tO2lmKHBhZ2VUbz4wKXBheWxvYWQucGFnZVRvPXBhZ2VUbzt2YXIgYm9keVN0cj1KU09OLnN0cmluZ2lmeShwYXlsb2FkKTtjb25zb2xlLmxvZygiW09DUl0gc2VuZGluZyBYSFIsIGJvZHkgYnl0ZXM9Iitib2R5U3RyLmxlbmd0aCsocGFnZUZyb218fHBhZ2VUbz8iIHBhZ2VzPSIrcGFnZUZyb20rIi0iK3BhZ2VUbzoiIikpO3JldHVybiBuZXcgUHJvbWlzZShmdW5jdGlvbihyZXNvbHZlLHJlamVjdCl7dmFyIHhocj1uZXcgWE1MSHR0cFJlcXVlc3QoKTt4aHIub3BlbigiUE9TVCIsdXJsLHRydWUpO3hoci5zZXRSZXF1ZXN0SGVhZGVyKCJDb250ZW50LVR5cGUiLCJ0ZXh0L3BsYWluIik7eGhyLm9ubG9hZD1mdW5jdGlvbigpe2lmKHhoci5zdGF0dXM+PTIwMCYmeGhyLnN0YXR1czwzMDApe3RyeXtyZXNvbHZlKEpTT04ucGFyc2UoeGhyLnJlc3BvbnNlVGV4dCkpO31jYXRjaChlKXtyZWplY3QobmV3IEVycm9yKCJJbnZhbGlkIEpTT04gcmVzcG9uc2UiKSk7fX1lbHNle3ZhciBlcnJNc2c9IkhUVFAgIit4aHIuc3RhdHVzO3RyeXt2YXIgZXJySnNvbj1KU09OLnBhcnNlKHhoci5yZXNwb25zZVRleHQpO2Vyck1zZz1lcnJKc29uLmVycm9yfHxlcnJNc2c7fWNhdGNoKGUpe2Vyck1zZz14aHIucmVzcG9uc2VUZXh0fHxlcnJNc2c7fXJlamVjdChuZXcgRXJyb3IoZXJyTXNnKSk7fX07eGhyLm9uZXJyb3I9ZnVuY3Rpb24oKXtyZWplY3QobmV3IEVycm9yKCJOZXR3b3JrIGVycm9yIikpO307eGhyLnNlbmQoYm9keVN0cik7fSk7fSkudGhlbihmdW5jdGlvbihkYXRhKXtjb25zb2xlLmxvZygiW09DUl0gZmxvdyByZXNwb25zZToiLEpTT04uc3RyaW5naWZ5KGRhdGEpLnN1YnN0cmluZygwLDUwMCkpO29jclJlc3VsdD1kYXRhO3JlbmRlclJlc3VsdHMoZGF0YSk7c2hvd1N0ZXAoMyk7fSkuY2F0Y2goZnVuY3Rpb24oZXJyKXtjb25zb2xlLmVycm9yKCJbT0NSXSBleHRyYWN0aW9uIGZhaWxlZCIsZXJyKTtzaG93U3RlcCgxKTtzaG93RXJyb3IoIk9DUiBmYWlsZWQ6ICIrKGVyci5tZXNzYWdlfHxlcnIpKTt9KTt9DQpmdW5jdGlvbiBzZXRTdGF0dXMobXNnKXt2YXIgZWw9JCgib2NyLXN0YXR1cyIpO2lmKGVsKWVsLnRleHRDb250ZW50PW1zZzt9DQpmdW5jdGlvbiBidWlsZFRhYmxlSHRtbCh0Ymwpe3ZhciBncmlkPVtdO2Zvcih2YXIgcj0wO3I8dGJsLnJvd0NvdW50O3IrKyl7Z3JpZFtyXT1bXTtmb3IodmFyIGM9MDtjPHRibC5jb2x1bW5Db3VudDtjKyspe2dyaWRbcl1bY109e2NvbnRlbnQ6IiIsa2luZDoiY29udGVudCIscm93U3BhbjoxLGNvbFNwYW46MX07fX12YXIgY2VsbHM9dGJsLmNlbGxzfHxbXTtmb3IodmFyIGNpPTA7Y2k8Y2VsbHMubGVuZ3RoO2NpKyspe3ZhciBjZWxsPWNlbGxzW2NpXTtpZihjZWxsLnJvd0luZGV4PHRibC5yb3dDb3VudCYmY2VsbC5jb2x1bW5JbmRleDx0YmwuY29sdW1uQ291bnQpe2dyaWRbY2VsbC5yb3dJbmRleF1bY2VsbC5jb2x1bW5JbmRleF09e2NvbnRlbnQ6Y2VsbC5jb250ZW50fHwiIixraW5kOmNlbGwua2luZHx8ImNvbnRlbnQiLHJvd1NwYW46Y2VsbC5yb3dTcGFufHwxLGNvbFNwYW46Y2VsbC5jb2x1bW5TcGFufHwxfTt9fXZhciBodG1sPSI8dGFibGUgY2xhc3M9XCJvY3ItcmVzdWx0LXRhYmxlXCI+PHRib2R5PiI7Zm9yKHZhciByaT0wO3JpPGdyaWQubGVuZ3RoO3JpKyspe2h0bWwrPSI8dHI+Ijtmb3IodmFyIGNqPTA7Y2o8Z3JpZFtyaV0ubGVuZ3RoO2NqKyspe3ZhciBnPWdyaWRbcmldW2NqXTt2YXIgdGFnPShyaT09PTB8fGcua2luZD09PSJjb2x1bW5IZWFkZXIiKT8idGgiOiJ0ZCI7aHRtbCs9IjwiK3RhZysiPiIrZXNjKGcuY29udGVudCkrIjwvIit0YWcrIj4iO31odG1sKz0iPC90cj4iO31odG1sKz0iPC90Ym9keT48L3RhYmxlPiI7cmV0dXJuIGh0bWw7fQ0KZnVuY3Rpb24gcmVuZGVyUmVzdWx0cyhkYXRhKXt2YXIgYmxvY2tzPWRhdGEuYmxvY2tzfHxbXTt2YXIgcGFyYWdyYXBocz1kYXRhLnBhcmFncmFwaHN8fFtdO3ZhciB0YWJsZXM9ZGF0YS50YWJsZXN8fFtdO3ZhciBwYWdlcz1kYXRhLnBhZ2VzfHwwOyQoIm9jci1wYWdlLWNvdW50IikudGV4dENvbnRlbnQ9cGFnZXMrIiBwYWdlIisocGFnZXMhPT0xPyJzIjoiIik7JCgib2NyLXRhYmxlLWNvdW50IikudGV4dENvbnRlbnQ9dGFibGVzLmxlbmd0aCsiIHRhYmxlIisodGFibGVzLmxlbmd0aCE9PTE/InMiOiIiKTskKCJvY3ItcGFyYS1jb3VudCIpLnRleHRDb250ZW50PXBhcmFncmFwaHMubGVuZ3RoKyIgcGFyYWdyYXBoIisocGFyYWdyYXBocy5sZW5ndGghPT0xPyJzIjoiIik7dmFyIHRleHRIdG1sPSIiO2lmKGJsb2Nrcy5sZW5ndGg+MCl7Zm9yKHZhciBpPTA7aTxibG9ja3MubGVuZ3RoO2krKyl7dmFyIGI9YmxvY2tzW2ldO2lmKGIudHlwZT09PSJwYXJhZ3JhcGgiKXt2YXIgcm9sZT1iLnJvbGV8fCJib2R5IjtpZihyb2xlPT09InRpdGxlInx8cm9sZT09PSJzZWN0aW9uSGVhZGluZyIpe3RleHRIdG1sKz0iPGgzIGNsYXNzPVwib2NyLXByZXYtaGVhZGluZ1wiPiIrZXNjKGIuY29udGVudCkrIjwvaDM+Ijt9ZWxzZXt0ZXh0SHRtbCs9IjxwIGNsYXNzPVwib2NyLXByZXYtcGFyYVwiPiIrZXNjKGIuY29udGVudCkrIjwvcD4iO319ZWxzZSBpZihiLnR5cGU9PT0idGFibGUiKXt0ZXh0SHRtbCs9IjxkaXYgY2xhc3M9XCJvY3ItdGFibGUtd3JhcFwiPiIrYnVpbGRUYWJsZUh0bWwoYikrIjwvZGl2PiI7fX19ZWxzZXtmb3IodmFyIGkyPTA7aTI8cGFyYWdyYXBocy5sZW5ndGg7aTIrKyl7dmFyIHA9cGFyYWdyYXBoc1tpMl07dmFyIHJvbGUyPXAucm9sZXx8ImJvZHkiO2lmKHJvbGUyPT09InRpdGxlInx8cm9sZTI9PT0ic2VjdGlvbkhlYWRpbmciKXt0ZXh0SHRtbCs9IjxoMyBjbGFzcz1cIm9jci1wcmV2LWhlYWRpbmdcIj4iK2VzYyhwLmNvbnRlbnQpKyI8L2gzPiI7fWVsc2V7dGV4dEh0bWwrPSI8cCBjbGFzcz1cIm9jci1wcmV2LXBhcmFcIj4iK2VzYyhwLmNvbnRlbnQpKyI8L3A+Ijt9fX0kKCJvY3ItcHJldmlldy10ZXh0IikuaW5uZXJIVE1MPXRleHRIdG1sfHwiPHAgc3R5bGU9J2NvbG9yOiM4ODg7Jz5ObyB0ZXh0IGV4dHJhY3RlZC48L3A+Ijt2YXIgdGFibGVzSHRtbD0iIjtmb3IodmFyIHQ9MDt0PHRhYmxlcy5sZW5ndGg7dCsrKXt2YXIgdGJsPXRhYmxlc1t0XTt0YWJsZXNIdG1sKz0iPGRpdiBjbGFzcz1cIm9jci10YWJsZS13cmFwXCI+PGg0PlRhYmxlICIrKHQrMSkrIiAoIit0Ymwucm93Q291bnQrIiByb3dzICZ0aW1lczsgIit0YmwuY29sdW1uQ291bnQrIiBjb2xzKTwvaDQ+IitidWlsZFRhYmxlSHRtbCh0YmwpKyI8L2Rpdj4iO30kKCJvY3ItcHJldmlldy10YWJsZXMiKS5pbm5lckhUTUw9dGFibGVzSHRtbHx8IjxwIHN0eWxlPSdjb2xvcjojODg4Oyc+Tm8gdGFibGVzIGRldGVjdGVkLjwvcD4iOyQoIm9jci1wcmV2aWV3LXJhdyIpLmlubmVySFRNTD0iPHByZSBjbGFzcz1cIm9jci1yYXctanNvblwiPiIrZXNjKEpTT04uc3RyaW5naWZ5KGRhdGEsbnVsbCwyKSkrIjwvcHJlPiI7fQ0KZnVuY3Rpb24gc3dpdGNoVGFiKHRhYk5hbWUpe3ZhciB0YWJzPWRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoIi5vY3ItdGFiIik7Zm9yKHZhciBpPTA7aTx0YWJzLmxlbmd0aDtpKyspe3RhYnNbaV0uY2xhc3NMaXN0LnRvZ2dsZSgiYWN0aXZlIix0YWJzW2ldLmdldEF0dHJpYnV0ZSgiZGF0YS10YWIiKT09PXRhYk5hbWUpO312YXIgcHJldmlld3M9e3RleHQ6Im9jci1wcmV2aWV3LXRleHQiLHRhYmxlczoib2NyLXByZXZpZXctdGFibGVzIixyYXc6Im9jci1wcmV2aWV3LXJhdyJ9O2Zvcih2YXIga2V5IGluIHByZXZpZXdzKXtpZihwcmV2aWV3cy5oYXNPd25Qcm9wZXJ0eShrZXkpKXt2YXIgZWw9JChwcmV2aWV3c1trZXldKTtpZihrZXk9PT10YWJOYW1lKXNob3coZWwpO2Vsc2UgaGlkZShlbCk7fX19DQpmdW5jdGlvbiBkb3dubG9hZEV4Y2VsKCl7aWYoIW9jclJlc3VsdClyZXR1cm47aWYodHlwZW9mIFhMU1g9PT0idW5kZWZpbmVkIil7c2hvd0Vycm9yKCJTaGVldEpTIG5vdCBsb2FkZWQuIik7cmV0dXJuO312YXIgd2I9WExTWC51dGlscy5ib29rX25ldygpO3ZhciBibG9ja3M9b2NyUmVzdWx0LmJsb2Nrc3x8W107dmFyIHRhYmxlcz1vY3JSZXN1bHQudGFibGVzfHxbXTt2YXIgcGFyYWdyYXBocz1vY3JSZXN1bHQucGFyYWdyYXBoc3x8W107aWYoYmxvY2tzLmxlbmd0aD4wKXt2YXIgZG9jRGF0YT1bWyJQYWdlIiwiVHlwZSIsIkNvbnRlbnQiXV07dmFyIHRhYmxlSWR4PTE7Zm9yKHZhciBpPTA7aTxibG9ja3MubGVuZ3RoO2krKyl7dmFyIGI9YmxvY2tzW2ldO2lmKGIudHlwZT09PSJwYXJhZ3JhcGgiKXtkb2NEYXRhLnB1c2goW2IucGFnZU51bWJlcnx8MSxiLnJvbGV8fCJib2R5IixiLmNvbnRlbnR8fCIiXSk7fWVsc2UgaWYoYi50eXBlPT09InRhYmxlIil7ZG9jRGF0YS5wdXNoKFtiLnBhZ2VOdW1iZXJ8fDEsIltUYWJsZSAiK3RhYmxlSWR4KyJdIiwiU2VlICdUYWJsZSAiK3RhYmxlSWR4KyInIHNoZWV0Il0pO3RhYmxlSWR4Kys7fX12YXIgd3NEb2M9WExTWC51dGlscy5hb2FfdG9fc2hlZXQoZG9jRGF0YSk7d3NEb2NbIiFjb2xzIl09W3t3Y2g6Nn0se3djaDoxNn0se3djaDoxMDB9XTtYTFNYLnV0aWxzLmJvb2tfYXBwZW5kX3NoZWV0KHdiLHdzRG9jLCJEb2N1bWVudCIpO31lbHNle3ZhciB0ZXh0RGF0YT1bWyJQYWdlIiwiUm9sZSIsIkNvbnRlbnQiXV07Zm9yKHZhciBpMj0wO2kyPHBhcmFncmFwaHMubGVuZ3RoO2kyKyspe3ZhciBwPXBhcmFncmFwaHNbaTJdO3RleHREYXRhLnB1c2goW3AucGFnZU51bWJlcnx8MSxwLnJvbGV8fCJib2R5IixwLmNvbnRlbnR8fCIiXSk7fXZhciB3c1RleHQ9WExTWC51dGlscy5hb2FfdG9fc2hlZXQodGV4dERhdGEpO3dzVGV4dFsiIWNvbHMiXT1be3djaDo2fSx7d2NoOjE1fSx7d2NoOjEwMH1dO1hMU1gudXRpbHMuYm9va19hcHBlbmRfc2hlZXQod2Isd3NUZXh0LCJUZXh0Iik7fWZvcih2YXIgdD0wO3Q8dGFibGVzLmxlbmd0aDt0Kyspe3ZhciB0Ymw9dGFibGVzW3RdO3ZhciBncmlkPVtdO2Zvcih2YXIgcj0wO3I8dGJsLnJvd0NvdW50O3IrKyl7Z3JpZFtyXT1bXTtmb3IodmFyIGM9MDtjPHRibC5jb2x1bW5Db3VudDtjKyspe2dyaWRbcl1bY109IiI7fX12YXIgY2VsbHM9dGJsLmNlbGxzfHxbXTtmb3IodmFyIGNpPTA7Y2k8Y2VsbHMubGVuZ3RoO2NpKyspe3ZhciBjZWxsPWNlbGxzW2NpXTtpZihjZWxsLnJvd0luZGV4PHRibC5yb3dDb3VudCYmY2VsbC5jb2x1bW5JbmRleDx0YmwuY29sdW1uQ291bnQpe2dyaWRbY2VsbC5yb3dJbmRleF1bY2VsbC5jb2x1bW5JbmRleF09Y2VsbC5jb250ZW50fHwiIjt9fXZhciB3c1RibD1YTFNYLnV0aWxzLmFvYV90b19zaGVldChncmlkKTtYTFNYLnV0aWxzLmJvb2tfYXBwZW5kX3NoZWV0KHdiLHdzVGJsLCJUYWJsZSAiKyh0KzEpKTt9dmFyIGZpbGVOYW1lPShzZWxlY3RlZEZpbGU/c2VsZWN0ZWRGaWxlLm5hbWUucmVwbGFjZSgvXC5bXi5dKyQvLCIiKToib2NyLWV4dHJhY3QiKSsiLnhsc3giO1hMU1gud3JpdGVGaWxlKHdiLGZpbGVOYW1lKTt9DQpmdW5jdGlvbiBkb3dubG9hZFdvcmQoKXtpZighb2NyUmVzdWx0KXJldHVybjtpZih0eXBlb2YgZG9jeD09PSJ1bmRlZmluZWQiKXtzaG93RXJyb3IoImRvY3guanMgbm90IGxvYWRlZC4iKTtyZXR1cm47fXZhciBibG9ja3M9b2NyUmVzdWx0LmJsb2Nrc3x8W107dmFyIHBhcmFncmFwaHM9b2NyUmVzdWx0LnBhcmFncmFwaHN8fFtdO3ZhciB0YWJsZXM9b2NyUmVzdWx0LnRhYmxlc3x8W107dmFyIGNoaWxkcmVuPVtdO2lmKGJsb2Nrcy5sZW5ndGg+MCl7Zm9yKHZhciBpPTA7aTxibG9ja3MubGVuZ3RoO2krKyl7dmFyIGI9YmxvY2tzW2ldO2lmKGIudHlwZT09PSJwYXJhZ3JhcGgiKXt2YXIgcm9sZT1iLnJvbGV8fCJib2R5IjtpZihyb2xlPT09InRpdGxlIil7Y2hpbGRyZW4ucHVzaChuZXcgZG9jeC5QYXJhZ3JhcGgoe3RleHQ6Yi5jb250ZW50fHwiIixoZWFkaW5nOmRvY3guSGVhZGluZ0xldmVsLkhFQURJTkdfMX0pKTt9ZWxzZSBpZihyb2xlPT09InNlY3Rpb25IZWFkaW5nIil7Y2hpbGRyZW4ucHVzaChuZXcgZG9jeC5QYXJhZ3JhcGgoe3RleHQ6Yi5jb250ZW50fHwiIixoZWFkaW5nOmRvY3guSGVhZGluZ0xldmVsLkhFQURJTkdfMn0pKTt9ZWxzZXtjaGlsZHJlbi5wdXNoKG5ldyBkb2N4LlBhcmFncmFwaCh7dGV4dDpiLmNvbnRlbnR8fCIifSkpO319ZWxzZSBpZihiLnR5cGU9PT0idGFibGUiKXtjaGlsZHJlbi5wdXNoKG5ldyBkb2N4LlBhcmFncmFwaCh7dGV4dDoiIn0pKTt2YXIgZ3JpZD1bXTtmb3IodmFyIHI9MDtyPGIucm93Q291bnQ7cisrKXtncmlkW3JdPVtdO2Zvcih2YXIgYz0wO2M8Yi5jb2x1bW5Db3VudDtjKyspe2dyaWRbcl1bY109IiI7fX12YXIgY2VsbHM9Yi5jZWxsc3x8W107Zm9yKHZhciBjaT0wO2NpPGNlbGxzLmxlbmd0aDtjaSsrKXt2YXIgY2VsbD1jZWxsc1tjaV07aWYoY2VsbC5yb3dJbmRleDxiLnJvd0NvdW50JiZjZWxsLmNvbHVtbkluZGV4PGIuY29sdW1uQ291bnQpe2dyaWRbY2VsbC5yb3dJbmRleF1bY2VsbC5jb2x1bW5JbmRleF09Y2VsbC5jb250ZW50fHwiIjt9fXZhciByb3dzPVtdO2Zvcih2YXIgcmk9MDtyaTxncmlkLmxlbmd0aDtyaSsrKXt2YXIgcm93Q2VsbHM9W107Zm9yKHZhciBjaj0wO2NqPGdyaWRbcmldLmxlbmd0aDtjaisrKXtyb3dDZWxscy5wdXNoKG5ldyBkb2N4LlRhYmxlQ2VsbCh7Y2hpbGRyZW46W25ldyBkb2N4LlBhcmFncmFwaCh7dGV4dDpncmlkW3JpXVtjal19KV0sc2hhZGluZzpyaT09PTA/e2ZpbGw6IkQ5RTJGMyJ9OnVuZGVmaW5lZH0pKTt9cm93cy5wdXNoKG5ldyBkb2N4LlRhYmxlUm93KHtjaGlsZHJlbjpyb3dDZWxsc30pKTt9aWYocm93cy5sZW5ndGg+MCl7Y2hpbGRyZW4ucHVzaChuZXcgZG9jeC5UYWJsZSh7cm93czpyb3dzLHdpZHRoOntzaXplOjEwMCx0eXBlOmRvY3guV2lkdGhUeXBlLlBFUkNFTlRBR0V9fSkpO31jaGlsZHJlbi5wdXNoKG5ldyBkb2N4LlBhcmFncmFwaCh7dGV4dDoiIn0pKTt9fX1lbHNle2Zvcih2YXIgaTI9MDtpMjxwYXJhZ3JhcGhzLmxlbmd0aDtpMisrKXt2YXIgcD1wYXJhZ3JhcGhzW2kyXTt2YXIgcm9sZTI9cC5yb2xlfHwiYm9keSI7aWYocm9sZTI9PT0idGl0bGUiKXtjaGlsZHJlbi5wdXNoKG5ldyBkb2N4LlBhcmFncmFwaCh7dGV4dDpwLmNvbnRlbnR8fCIiLGhlYWRpbmc6ZG9jeC5IZWFkaW5nTGV2ZWwuSEVBRElOR18xfSkpO31lbHNlIGlmKHJvbGUyPT09InNlY3Rpb25IZWFkaW5nIil7Y2hpbGRyZW4ucHVzaChuZXcgZG9jeC5QYXJhZ3JhcGgoe3RleHQ6cC5jb250ZW50fHwiIixoZWFkaW5nOmRvY3guSGVhZGluZ0xldmVsLkhFQURJTkdfMn0pKTt9ZWxzZXtjaGlsZHJlbi5wdXNoKG5ldyBkb2N4LlBhcmFncmFwaCh7dGV4dDpwLmNvbnRlbnR8fCIifSkpO319Zm9yKHZhciB0PTA7dDx0YWJsZXMubGVuZ3RoO3QrKyl7dmFyIHRibD10YWJsZXNbdF07Y2hpbGRyZW4ucHVzaChuZXcgZG9jeC5QYXJhZ3JhcGgoe3RleHQ6IiJ9KSk7dmFyIGdyaWQyPVtdO2Zvcih2YXIgcjI9MDtyMjx0Ymwucm93Q291bnQ7cjIrKyl7Z3JpZDJbcjJdPVtdO2Zvcih2YXIgYzI9MDtjMjx0YmwuY29sdW1uQ291bnQ7YzIrKyl7Z3JpZDJbcjJdW2MyXT0iIjt9fXZhciBjZWxsczI9dGJsLmNlbGxzfHxbXTtmb3IodmFyIGNpMj0wO2NpMjxjZWxsczIubGVuZ3RoO2NpMisrKXt2YXIgY2VsbDI9Y2VsbHMyW2NpMl07aWYoY2VsbDIucm93SW5kZXg8dGJsLnJvd0NvdW50JiZjZWxsMi5jb2x1bW5JbmRleDx0YmwuY29sdW1uQ291bnQpe2dyaWQyW2NlbGwyLnJvd0luZGV4XVtjZWxsMi5jb2x1bW5JbmRleF09Y2VsbDIuY29udGVudHx8IiI7fX12YXIgcm93czI9W107Zm9yKHZhciByaTI9MDtyaTI8Z3JpZDIubGVuZ3RoO3JpMisrKXt2YXIgcm93Q2VsbHMyPVtdO2Zvcih2YXIgY2oyPTA7Y2oyPGdyaWQyW3JpMl0ubGVuZ3RoO2NqMisrKXtyb3dDZWxsczIucHVzaChuZXcgZG9jeC5UYWJsZUNlbGwoe2NoaWxkcmVuOltuZXcgZG9jeC5QYXJhZ3JhcGgoe3RleHQ6Z3JpZDJbcmkyXVtjajJdfSldLHNoYWRpbmc6cmkyPT09MD97ZmlsbDoiRDlFMkYzIn06dW5kZWZpbmVkfSkpO31yb3dzMi5wdXNoKG5ldyBkb2N4LlRhYmxlUm93KHtjaGlsZHJlbjpyb3dDZWxsczJ9KSk7fWlmKHJvd3MyLmxlbmd0aD4wKXtjaGlsZHJlbi5wdXNoKG5ldyBkb2N4LlRhYmxlKHtyb3dzOnJvd3MyLHdpZHRoOntzaXplOjEwMCx0eXBlOmRvY3guV2lkdGhUeXBlLlBFUkNFTlRBR0V9fSkpO319fWlmKGNoaWxkcmVuLmxlbmd0aD09PTApe2NoaWxkcmVuLnB1c2gobmV3IGRvY3guUGFyYWdyYXBoKHt0ZXh0OiJObyBjb250ZW50IGV4dHJhY3RlZC4ifSkpO312YXIgZG9jPW5ldyBkb2N4LkRvY3VtZW50KHtzZWN0aW9uczpbe3Byb3BlcnRpZXM6e3BhZ2U6e21hcmdpbjp7dG9wOjcyMCxyaWdodDo3MjAsYm90dG9tOjcyMCxsZWZ0OjcyMH19fSxjaGlsZHJlbjpjaGlsZHJlbn1dfSk7dmFyIGZpbGVOYW1lPShzZWxlY3RlZEZpbGU/c2VsZWN0ZWRGaWxlLm5hbWUucmVwbGFjZSgvXC5bXi5dKyQvLCIiKToib2NyLWV4dHJhY3QiKSsiLmRvY3giO2RvY3guUGFja2VyLnRvQmxvYihkb2MpLnRoZW4oZnVuY3Rpb24oYmxvYil7c2F2ZUFzKGJsb2IsZmlsZU5hbWUpO30pLmNhdGNoKGZ1bmN0aW9uKGVycil7c2hvd0Vycm9yKCJXb3JkIGdlbmVyYXRpb24gZmFpbGVkOiAiKyhlcnIubWVzc2FnZXx8ZXJyKSk7fSk7fQ0KZnVuY3Rpb24gaW5pdCgpe3ZhciBkcm9wWm9uZT0kKCJvY3ItZHJvcC16b25lIik7dmFyIGZpbGVJbnB1dD0kKCJvY3ItZmlsZSIpO2lmKGRyb3Bab25lKXtkcm9wWm9uZS5hZGRFdmVudExpc3RlbmVyKCJkcmFnZW50ZXIiLGZ1bmN0aW9uKGUpe2UucHJldmVudERlZmF1bHQoKTtkcm9wWm9uZS5jbGFzc0xpc3QuYWRkKCJpcy1kcmFnIik7fSk7ZHJvcFpvbmUuYWRkRXZlbnRMaXN0ZW5lcigiZHJhZ292ZXIiLGZ1bmN0aW9uKGUpe2UucHJldmVudERlZmF1bHQoKTtkcm9wWm9uZS5jbGFzc0xpc3QuYWRkKCJpcy1kcmFnIik7fSk7ZHJvcFpvbmUuYWRkRXZlbnRMaXN0ZW5lcigiZHJhZ2xlYXZlIixmdW5jdGlvbihlKXtlLnByZXZlbnREZWZhdWx0KCk7ZHJvcFpvbmUuY2xhc3NMaXN0LnJlbW92ZSgiaXMtZHJhZyIpO30pO2Ryb3Bab25lLmFkZEV2ZW50TGlzdGVuZXIoImRyb3AiLGZ1bmN0aW9uKGUpe2UucHJldmVudERlZmF1bHQoKTtkcm9wWm9uZS5jbGFzc0xpc3QucmVtb3ZlKCJpcy1kcmFnIik7dmFyIGZpbGVzPWUuZGF0YVRyYW5zZmVyJiZlLmRhdGFUcmFuc2Zlci5maWxlcztpZihmaWxlcyYmZmlsZXMubGVuZ3RoPjApaGFuZGxlRmlsZShmaWxlc1swXSk7fSk7fWlmKGZpbGVJbnB1dCl7ZmlsZUlucHV0LmFkZEV2ZW50TGlzdGVuZXIoImNoYW5nZSIsZnVuY3Rpb24oKXtpZihmaWxlSW5wdXQuZmlsZXMmJmZpbGVJbnB1dC5maWxlcy5sZW5ndGg+MCloYW5kbGVGaWxlKGZpbGVJbnB1dC5maWxlc1swXSk7fSk7fXZhciBleHRyYWN0QnRuPSQoIm9jci1leHRyYWN0LWJ0biIpO2lmKGV4dHJhY3RCdG4pZXh0cmFjdEJ0bi5hZGRFdmVudExpc3RlbmVyKCJjbGljayIsZnVuY3Rpb24oKXtleHRyYWN0VGV4dCgpO30pO3ZhciBiYWNrQnRuPSQoIm9jci1iYWNrLWJ0biIpO2lmKGJhY2tCdG4pYmFja0J0bi5hZGRFdmVudExpc3RlbmVyKCJjbGljayIsZnVuY3Rpb24oKXtzZWxlY3RlZEZpbGU9bnVsbDtvY3JSZXN1bHQ9bnVsbDskKCJvY3ItZmlsZS1uYW1lIikudGV4dENvbnRlbnQ9IiI7JCgib2NyLWV4dHJhY3QtYnRuIikuZGlzYWJsZWQ9dHJ1ZTtpZihmaWxlSW5wdXQpZmlsZUlucHV0LnZhbHVlPSIiO3Nob3dTdGVwKDEpO30pO3ZhciBkbEV4Y2VsPSQoIm9jci1kb3dubG9hZC1leGNlbCIpO2lmKGRsRXhjZWwpZGxFeGNlbC5hZGRFdmVudExpc3RlbmVyKCJjbGljayIsZnVuY3Rpb24oKXtkb3dubG9hZEV4Y2VsKCk7fSk7dmFyIGRsV29yZD0kKCJvY3ItZG93bmxvYWQtd29yZCIpO2lmKGRsV29yZClkbFdvcmQuYWRkRXZlbnRMaXN0ZW5lcigiY2xpY2siLGZ1bmN0aW9uKCl7ZG93bmxvYWRXb3JkKCk7fSk7dmFyIHRhYnM9ZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgiLm9jci10YWIiKTtmb3IodmFyIGk9MDtpPHRhYnMubGVuZ3RoO2krKyl7dGFic1tpXS5hZGRFdmVudExpc3RlbmVyKCJjbGljayIsZnVuY3Rpb24oKXtzd2l0Y2hUYWIodGhpcy5nZXRBdHRyaWJ1dGUoImRhdGEtdGFiIikpO30pO31zaG93U3RlcCgxKTtjb25zb2xlLmxvZygiW09DUl0gaW5pdCBjb21wbGV0ZSIpO30NCmlmKGRvY3VtZW50LnJlYWR5U3RhdGU9PT0ibG9hZGluZyIpe2RvY3VtZW50LmFkZEV2ZW50TGlzdGVuZXIoIkRPTUNvbnRlbnRMb2FkZWQiLGluaXQpO31lbHNle2luaXQoKTt9DQp9KSgpOw0K"></script>
+
+  <!-- Lifted page logic (single source of truth: Power Pages custom JS) -->
+  <script>
+﻿/* Moved to data URI in content HTML */
+
+</script>
+  <!-- Add-in shell JS: email modal + prompt override (Outlook WebView2 fix) -->
+  <script>
+(function(){
+  var overlay = document.getElementById('qt-addin-email-overlay');
+  if (!overlay) return;
+  var toInput  = document.getElementById('qt-addin-email-to');
+  var ccInput  = document.getElementById('qt-addin-email-cc');
+  var sendBtn  = document.getElementById('qt-addin-email-send');
+  var cancelBtn= document.getElementById('qt-addin-email-cancel');
+  var _resolve = null;
+
+  // Replace window.prompt with our modal for add-in context.
+  // The page JS calls window.prompt() twice: once for To, once for CC.
+  // We intercept both with a single two-field modal.
+  var _promptCallCount = 0;
+  var _toValue = '';
+  var _ccValue = '';
+  var _originalPrompt = window.prompt;
+
+  function showEmailDialog(defaultTo) {
+    return new Promise(function(resolve) {
+      _resolve = resolve;
+      toInput.value = defaultTo || '';
+      ccInput.value = '';
+      overlay.style.display = 'flex';
+      setTimeout(function(){ toInput.focus(); }, 100);
+    });
+  }
+
+  function closeDialog(result) {
+    overlay.style.display = 'none';
+    if (_resolve) { _resolve(result); _resolve = null; }
+  }
+
+  sendBtn.addEventListener('click', function(){
+    var to = (toInput.value || '').trim();
+    if (!to || to.indexOf('@') === -1) {
+      toInput.style.borderColor = 'red';
+      toInput.focus();
+      return;
+    }
+    toInput.style.borderColor = '';
+    closeDialog({ to: to, cc: (ccInput.value || '').trim() });
+  });
+
+  cancelBtn.addEventListener('click', function(){ closeDialog(null); });
+
+  // Patch email buttons on both pages to use the dialog.
+  function patchEmailButton(btnId, getDefaultEmail) {
+    var btn = document.getElementById(btnId);
+    if (!btn) return;
+    // Clone to remove existing listeners wired by page JS.
+    var fresh = btn.cloneNode(true);
+    btn.parentNode.replaceChild(fresh, btn);
+    fresh.addEventListener('click', function(e) {
+      e.stopImmediatePropagation();
+      var defaultEmail = typeof getDefaultEmail === 'function' ? getDefaultEmail() : '';
+      showEmailDialog(defaultEmail).then(function(result) {
+        if (!result) return; // cancelled
+        // For the Quotation page: set pending fields then trigger save.
+        if (btnId === 'qt-email') {
+          // Check cart via the save button guard.
+          var saveBtn = document.getElementById('qt-save');
+          if (!saveBtn) { alert('Save button not found.'); return; }
+          // Build email fields the same way the page JS does.
+          var summaryEl = document.querySelector('.qt-customer-summary');
+          var qId = summaryEl ? (summaryEl.textContent.match(/QT-\d+-\d+/) || ['Quotation'])[0] : 'Quotation';
+          var contact = (document.querySelector('[name=contact]') || {}).value || 'Sir/Madam';
+          var subject = 'Proposal & Quotation - ' + qId + ' - Smartsoft';
+          var body = '<p>Dear ' + contact + ',</p>' +
+            '<p>Please find attached our proposal and quotation (Ref: <b>' + qId + '</b>) for your kind consideration.</p>' +
+            '<p>Should you need any clarifications, feel free to reach out.</p>' +
+            '<p>Warm regards,<br/>Smartsoft Team<br/>29 years of trusted IT solutions<br/>sales@smartsoft.co.in</p>';
+          window._pendingEmailFields = {
+            recipientEmail: result.to,
+            recipientName:  contact,
+            ccEmail:        result.cc,
+            emailSubject:   subject,
+            emailBody:      body
+          };
+          saveBtn.click();
+        }
+        // Dell-Quote page handled separately via patchDellEmailButton.
+      });
+    });
+  }
+
+  // Patch when DOM is ready (page JS may not have run yet).
+  function patchDellEmailButton() {
+    var btn = document.getElementById('dq-email-pdf');
+    if (!btn || btn._addinPatched) return;
+    btn._addinPatched = true;
+    // Use capturing so we intercept BEFORE page JS listener.
+    btn.addEventListener('click', function(e) {
+      e.stopImmediatePropagation(); // prevent page JS from running now
+      var defaultEmail = '';
+      showEmailDialog(defaultEmail).then(function(result) {
+        if (!result) return;
+        var calls = 0;
+        window.prompt = function() {
+          calls++;
+          if (calls === 1) return result.to;
+          if (calls === 2) return result.cc;
+          return null;
+        };
+        // Now fire a fresh click that the page JS listener will handle.
+        btn.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+        setTimeout(function(){ window.prompt = _originalPrompt; }, 2000);
+      });
+    }, true); // capture phase
+  }
+
+  function tryPatch() {
+    patchEmailButton('qt-email', function(){ return (document.querySelector('[name=email]') || {}).value || ''; });
+    patchDellEmailButton();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tryPatch);
+  } else {
+    // Page JS already ran; patch immediately then once more after a tick
+    // in case page JS clones/re-wires buttons during initialisation.
+    tryPatch();
+    setTimeout(tryPatch, 500);
+  }
+}());
+</script>
+  <!-- Add-in state persistence: survives task-pane reloads -->
+  <script>
+(function(){
+  var KEY = 'qb_addin_state_' + location.pathname.replace(/[^a-z0-9]/gi,'_');
+  var TS_KEY = KEY + '_ts';
+  var DEBOUNCE = 400;
+  var MAX_AGE = 8 * 60 * 60 * 1000; // 8 hours — auto-expire stale state
+  var _timer = null;
+
+  function getAllInputs(){
+    return document.querySelectorAll('input,textarea,select');
+  }
+
+  function saveState(){
+    try {
+      var state = {};
+      getAllInputs().forEach(function(el,i){
+        var id = el.id || el.name || ('_idx_'+i);
+        if(el.type==='checkbox'||el.type==='radio'){ state[id] = el.checked; }
+        else if(el.value) { state[id] = el.value; }
+      });
+      // Save which steps/sections are visible
+      var visible = [];
+      document.querySelectorAll('[id]').forEach(function(el){
+        if(el.style && el.style.display !== 'none' && el.id &&
+           (el.id.indexOf('step')>-1 || el.id.indexOf('Step')>-1)){
+          visible.push(el.id);
+        }
+      });
+      state._visibleSteps = visible;
+      localStorage.setItem(KEY, JSON.stringify(state));
+      localStorage.setItem(TS_KEY, Date.now().toString());
+    } catch(e){ /* storage full or blocked */ }
+  }
+
+  function restoreState(){
+    try {
+      // Check age — don't restore stale state from yesterday
+      var ts = parseInt(localStorage.getItem(TS_KEY) || '0', 10);
+      if(Date.now() - ts > MAX_AGE){ localStorage.removeItem(KEY); localStorage.removeItem(TS_KEY); return; }
+      var raw = localStorage.getItem(KEY);
+      if(!raw) return;
+      var state = JSON.parse(raw);
+      var hasValues = Object.keys(state).some(function(k){ return k !== '_visibleSteps' && state[k]; });
+      if(!hasValues) return;
+      if(window.console) console.log('[ADDIN] Restoring saved quotation state');
+      getAllInputs().forEach(function(el,i){
+        var id = el.id || el.name || ('_idx_'+i);
+        if(!(id in state)) return;
+        if(el.type==='checkbox'||el.type==='radio'){ el.checked = !!state[id]; }
+        else { el.value = state[id]; }
+        // Fire change event so page JS picks up the value
+        try { el.dispatchEvent(new Event('change',{bubbles:true})); } catch(e){}
+      });
+    } catch(e){ /* parse error or blocked */ }
+  }
+
+  function debouncedSave(){
+    clearTimeout(_timer);
+    _timer = setTimeout(saveState, DEBOUNCE);
+  }
+
+  // Listen for changes on all current and future inputs
+  document.addEventListener('input', debouncedSave, true);
+  document.addEventListener('change', debouncedSave, true);
+  document.addEventListener('click', debouncedSave, true);
+
+  // Periodic auto-save: CRM lookups populate fields via JS without firing
+  // input/change events, so poll every 3 seconds to catch those values.
+  setInterval(saveState, 3000);
+
+  // Also save immediately when the page is about to unload/hide
+  window.addEventListener('beforeunload', saveState);
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState==='hidden') saveState();
+  });
+
+  // Restore state after page JS has initialised
+  function init(){
+    setTimeout(restoreState, 300);
+    if(window.console) console.log('[ADDIN] State persistence active, key=' + KEY);
+
+    // Intercept alert() to detect save success and clear state.
+    // The page JS calls alert('Quotation saved to SharePoint...') on success.
+    var _origAlert = window.alert;
+    window.alert = function(msg) {
+      _origAlert.apply(window, arguments);
+      if (typeof msg === 'string' && msg.indexOf('saved') > -1 && msg.indexOf('successfully') > -1) {
+        if(window.console) console.log('[ADDIN] Save success detected — clearing saved state');
+        window._clearAddinState();
+      }
+    };
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else { init(); }
+
+  // Clear saved state after a successful save/email (clean slate)
+  window._clearAddinState = function(){ try{ localStorage.removeItem(KEY); localStorage.removeItem(TS_KEY); }catch(e){} };
+}());
+</script>
+</body>
+</html>

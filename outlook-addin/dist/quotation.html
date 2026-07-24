@@ -1,3 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Start a Quotation — Smartsoft</title>
+  <!-- Office.js: required for task-pane lifecycle + SSO -->
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <script src="office-sso.js"></script>
+  <style>
+/* Add-in shell: makes the lifted builders usable in a narrow Outlook task pane */
+html,body{margin:0;padding:0;}
+*{box-sizing:border-box;}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:#f3f4f6;-webkit-text-size-adjust:100%;overflow-x:hidden;}
+img{max-width:100%;height:auto;}
+.addin-banner{display:none;font-size:12px;padding:6px 10px;background:#eef4ff;color:#0b5cab;border-bottom:1px solid #cfe0f7;}
+.addin-banner.show{display:block;}
+
+/* The builder is a full-bleed pane here, not a centred 1180px A4 sheet. */
+.qt-wrapper,.dq-wrapper{max-width:100% !important;margin:0 !important;padding:8px 10px !important;}
+
+/* The add-in pane is ALWAYS narrow, so stack every 2-column layout into one
+   column unconditionally. This prevents the cramped columns that make long
+   values (e.g. the quote number) wrap one character per line. */
+.qt-grid,.dq-grid,.qt-cs-two-col,.qt-builder-row,.qt-ws-selectors{
+  display:grid !important;grid-template-columns:1fr !important;gap:10px 0 !important;}
+.qt-span-2{grid-column:auto !important;}
+
+/* QUOTATION header: left-align the meta block (To / Quotation No / Date /
+   Valid Until) once it is stacked, and drop the fixed label width so values
+   keep their own line instead of being squeezed. */
+.qt-cs-right{text-align:left !important;}
+.qt-cs-right .qt-cs-row{justify-content:flex-start !important;}
+.qt-cs-l{min-width:auto !important;}
+.qt-cs-v,.qt-cs-l{word-break:break-word;overflow-wrap:anywhere;}
+
+/* Mode switch (Software / Hardware / Server) wraps to full-width buttons
+   instead of three unreadable slivers. */
+.qt-mode-bar{flex-wrap:wrap !important;max-width:100% !important;}
+.qt-mode-btn{flex:1 1 100% !important;}
+
+/* Wide data tables scroll horizontally inside their wrapper rather than
+   pushing the whole pane sideways. */
+.qt-table-wrap,.qt-table-scroll,.qt-shared-area,#qt-shared-area,.dq-table-wrap{
+  overflow-x:auto !important;-webkit-overflow-scrolling:touch;max-width:100%;}
+
+/* OCR page: fit into narrow task pane */
+.ocr-wrapper{max-width:100% !important;margin:0 !important;padding:8px 10px !important;}
+.ocr-card{padding:14px 12px !important;}
+.ocr-drop-zone{padding:24px 12px !important;}
+.ocr-toolbar{flex-direction:column !important;align-items:stretch !important;}
+.ocr-toolbar>div{display:flex;flex-direction:column;gap:6px;}
+.ocr-steps-nav{flex-wrap:wrap !important;}
+.ocr-btn{padding:8px 12px !important;font-size:13px !important;width:100%;text-align:center;box-sizing:border-box;}
+.ocr-tabs{flex-wrap:wrap !important;}
+.ocr-preview{max-height:none !important;}
+.ocr-result-table{font-size:11px !important;}
+.ocr-result-table th,.ocr-result-table td{padding:5px 6px !important;}
+
+@media (max-width:600px){
+  .qt-card,.qt-customer-summary{padding:12px !important;}
+  .qt-table,.dq-document table{font-size:11px !important;}
+}
+</style>
+  <style>
+/* Hide "This site is private" banner */
+[class*="site-visibility"], [class*="private-site"], .portal-site-visibility,
+[data-site-visibility], .site-visibility-notification,
+body > div:first-child[style*="background-color"] { display:none !important; }
+
+.qt-wrapper { max-width: 1180px; margin: 32px auto; padding: 0 24px; font-family: "Segoe UI", system-ui, -apple-system, sans-serif; color:#222; line-height:1.5; }
+
+.qt-brand { display:flex; align-items:center; padding:8px 0 16px; border-bottom:3px solid #1a2533; margin-bottom:18px; }
+.qt-brand-logo { height:80px; width:auto; max-width:100%; }
+.qt-header h1 { margin: 0 0 6px; font-size: 30px; font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif; letter-spacing: -0.01em; color:#1a2533; }
+.qt-sub { color:#5a6a7a; margin: 0 0 18px; font-size:15px; }
+
+.qt-steps { list-style:none; padding:0; display:flex; gap:10px; margin: 14px 0 24px; }
+.qt-step { display:flex; align-items:center; gap:8px; padding:9px 18px; border-radius:999px; background:#f1f3f5; color:#666; font-size:14px; font-weight:500; transition: background .2s; }
+.qt-step span { display:inline-flex; width:26px; height:26px; border-radius:50%; background:#dee2e6; color:#333; align-items:center; justify-content:center; font-weight:700; font-size:12px; }
+.qt-step.active { background:#0b5cab; color:#fff; box-shadow: 0 2px 6px rgba(11,92,171,.2); }
+.qt-step.active span { background:#fff; color:#0b5cab; }
+
+.qt-card { background:#fff; border:1px solid #e2e6ea; border-radius:12px; padding:28px 32px; box-shadow: 0 2px 8px rgba(0,0,0,.05); margin-bottom:24px; }
+.qt-card h2 { margin: 0 0 16px; font-size:20px; }
+.qt-hidden { display:none !important; }
+
+.qt-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+.qt-grid label { display:flex; flex-direction:column; font-size:13px; color:#444; gap:6px; }
+.qt-grid input, .qt-grid textarea, .qt-grid select, .qt-builder select, .qt-panel-head input {
+  font: inherit; padding:10px 12px; border:1px solid #cfd4da; border-radius:6px; background:#fff; transition: border-color .15s, box-shadow .15s;
+}
+.qt-grid input:focus, .qt-grid textarea:focus, .qt-grid select:focus { outline:none; border-color:#0b5cab; box-shadow: 0 0 0 3px rgba(11,92,171,.1); }
+.qt-span-2 { grid-column: 1 / -1; }
+.req { color:#c0392b; }
+
+.qt-actions { display:flex; gap:10px; }
+.qt-actions-end { justify-content:flex-end; margin-top:18px; }
+.qt-btn { font: inherit; padding:10px 20px; border-radius:6px; border:1px solid #cfd4da; background:#fff; cursor:pointer; transition: background .15s, box-shadow .15s; }
+.qt-btn:hover { background:#f5f7fa; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.qt-btn-primary { background:#0b5cab; color:#fff; border-color:#0b5cab; font-weight:600; }
+.qt-btn-primary:hover { background:#094a8c; box-shadow: 0 2px 6px rgba(11,92,171,.25); }
+.qt-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+.qt-customer-summary { background:#f8fafd; border:1px solid #d4dfed; border-radius:10px; padding:20px 24px; margin-bottom:22px; font-size:14px; }
+.qt-cs-header { display:flex; justify-content:space-between; align-items:flex-start; }
+.qt-cs-quoteid { text-align:right; font-size:13px; padding-top:4px; }
+.qt-cs-quoteid .qt-cs-l { margin-right:6px; }
+.qt-cs-title { font-size:28px; font-weight:700; color:#1a2533; margin-bottom:16px; letter-spacing:.02em; text-align:center; }
+.qt-cs-company { font-size:22px; font-weight:700; color:#1a2533; margin: 2px 0 12px; }
+.qt-cs-two-col { display:grid; grid-template-columns: 1fr 1fr; gap: 8px 40px; }
+.qt-cs-left, .qt-cs-right { display:flex; flex-direction:column; gap:4px; }
+.qt-cs-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 6px 28px; }
+.qt-cs-row { display:flex; gap:8px; font-size:13px; line-height:1.5; }
+.qt-cs-l { color:#555; min-width:90px; font-weight:500; }
+.qt-cs-v { color:#1a2533; font-weight:600; word-break:break-word; }
+.qt-cs-name { font-size:15px; font-weight:700; }
+@media (max-width: 720px) { .qt-cs-grid { grid-template-columns: 1fr; } }
+
+.qt-builder-row { display:grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; margin-bottom:14px; }
+.qt-builder label { display:flex; flex-direction:column; font-size:13px; color:#444; gap:6px; }
+
+.qt-products-panel { border:1px solid #e2e6ea; border-radius:10px; padding:18px 20px; background:#f8fafb; margin-top:10px; }
+.qt-panel-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; }
+.qt-panel-head h3 { margin:0; font-size:15px; }
+.qt-panel-head small { color:#777; font-weight:normal; margin-left:6px; }
+.qt-panel-head input { min-width:340px; }
+
+.qt-products-list { max-height: 420px; overflow:auto; border:1px solid #e6e8eb; border-radius:6px; background:#fff; }
+.qt-prod-item { display:flex; align-items:center; gap:12px; padding:11px 14px; border-bottom:1px solid #eef0f2; cursor:pointer; transition: background .15s; }
+.qt-prod-item:last-child { border-bottom:none; }
+.qt-prod-item:hover { background:#edf3fb; }
+.qt-prod-item input { accent-color:#0b5cab; }
+.qt-prod-item .qt-prod-desc { flex:1; }
+.qt-prod-item .qt-prod-price { color:#0b5cab; font-weight:600; white-space:nowrap; }
+
+.qt-panel-actions { margin-top:12px; text-align:right; }
+
+.qt-table-title { margin: 22px 0 10px; font-size:16px; }
+.qt-table-wrap { overflow-x:auto; }
+.qt-table { width:100%; border-collapse:collapse; font-size:13px; }
+.qt-table th, .qt-table td { border:1px solid #e3e6ea; padding:10px 10px; text-align:center; vertical-align:middle; }
+.qt-table tbody td:nth-child(2) { text-align:left; }
+.qt-table thead th { background:#1f3a5c; color:#fff; font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; text-align:center; }
+.qt-table td.num, .qt-table th.num { text-align:center; }
+.qt-table input.qt-qty { width:70px; padding:5px 6px; text-align:center; border:1px solid #cfd4da; border-radius:4px; font:inherit; }
+.qt-table .qt-qty-print { display:none; }
+.qt-table .qt-margin-print { display:none; }
+.qt-table .qt-remove { background:transparent; border:none; color:#c0392b; cursor:pointer; font-size:18px; line-height:1; }
+.qt-table .qt-empty td { text-align:center; color:#888; padding:20px; }
+.qt-table tbody tr:nth-child(even) td { background:#f9fafb; }
+.qt-table tfoot td { background:#f3f6fa; font-weight:700; border-top:1px solid #bbb; }
+.qt-table tfoot .qt-grand-spacer { border:none; background:transparent; }
+.qt-table tfoot .qt-grand-merged { border:none; background:transparent; }
+.qt-grand-label { text-align:right; text-transform:uppercase; font-size:12px; letter-spacing:.04em; }
+.qt-grand-value { text-align:right; color:#0b5cab; font-size:16px; font-weight:800; }
+
+.qt-print-footer { display:none; }
+.qt-print-only { display:none; }
+
+@media (max-width: 720px) {
+  .qt-grid, .qt-builder-row { grid-template-columns: 1fr; }
+  .qt-span-2 { grid-column: auto; }
+}
+
+@media print {
+  /* Hide Power Pages site chrome */
+  header, footer, nav, .navbar, .navbar-static-top, .page-heading,
+  .breadcrumb, #breadcrumb, .alert, .site-visibility-alert,
+  [class*="site-visibility"], [class*="private-site"],
+  .portal-site-visibility, [data-site-visibility],
+  .footer, #footer, .header, #header,
+  .notification-bar, .portal-nav,
+  div[style*="background"][style*="fixed"] { display:none !important; }
+
+  /* Hide page-level UI we don't want on the PDF */
+  .qt-header, .qt-steps, .qt-builder, .qt-actions,
+  .qt-mode-bar, .qt-no-print, .qt-discount-row-input,
+  #qt-step-2 > h2, .qt-table-title,
+  .qt-table .qt-remove, .qt-table input.qt-qty,
+  .qt-table input.qt-margin { display:none !important; }
+  .qt-table .qt-qty-print { display:inline !important; }
+  .qt-table .qt-margin-print { display:none !important; }
+
+  /* Hide Unit Price (DTP) and Margin % columns in print via class */
+  .qt-col-hide-print { display:none !important; }
+
+  /* Swap column header text for print */
+  .qt-screen-only { display:none !important; }
+  .qt-print-only { display:inline !important; }
+
+  /* Layout cleanups */
+  body { background:#fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .qt-wrapper { margin:0; padding:0; max-width:none; font-size:11px; }
+  .qt-card { box-shadow:none; border:none; padding:0; margin:0; }
+
+  /* Brand header */
+  .qt-brand { display:flex !important; align-items:center; padding:0 0 12px; margin-bottom:16px; border-bottom:none; }
+  .qt-brand-logo { height:72px; }
+
+  /* Customer summary - professional two-column style */
+  .qt-customer-summary {
+    background:#fff !important;
+    border:none;
+    border-top:2px solid #1a2533;
+    border-bottom:1px solid #ddd;
+    border-radius:0;
+    padding:14px 0;
+    margin-bottom:18px;
+    page-break-inside: avoid;
+  }
+  .qt-cs-title { font-size:22px; color:#1a2533; font-weight:700; margin-bottom:12px; text-align:center; border-bottom:none; }
+  .qt-cs-two-col { display:grid; grid-template-columns: 1fr 1fr; gap:4px 40px; }
+  .qt-cs-left, .qt-cs-right { display:flex; flex-direction:column; gap:3px; }
+  .qt-cs-row { font-size:11.5px; line-height:1.5; }
+  .qt-cs-l { color:#333; min-width:80px; font-weight:600; }
+  .qt-cs-v { color:#1a2533; font-weight:500; }
+  .qt-cs-name { font-size:12.5px; font-weight:700; }
+
+  /* Table - clean professional look matching Save Quotation PDF output */
+  .qt-table-wrap { margin-top:0; overflow:visible; }
+  .qt-table { width:100%; border-collapse:collapse; font-size:11px; border:1px solid #e3e6ea; }
+  .qt-table th, .qt-table td { border:1px solid #e3e6ea; padding:7px 6px; text-align:center; vertical-align:middle; }
+  .qt-table th { width:auto !important; min-width:0 !important; }
+  .qt-table thead th {
+    background:#5a7a8a !important;
+    color:#fff !important;
+    font-weight:600;
+    font-size:10px;
+    letter-spacing:.02em;
+    padding:9px 6px;
+  }
+  /* Description left-aligned, numbers right-aligned */
+  .qt-table tbody td:nth-child(2) { text-align:left !important; }
+  .qt-table td.num { text-align:right !important; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .qt-table tbody tr:nth-child(even) td { background:#f7f9fb !important; }
+  .qt-table tbody tr:nth-child(odd) td { background:#fff !important; }
+  .qt-table tfoot td {
+    background:#f0f2f5 !important;
+    font-weight:700;
+    border:1px solid #e3e6ea;
+    padding:10px 6px;
+  }
+  .qt-table tfoot .qt-grand-spacer { background:#f0f2f5 !important; border:1px solid #e3e6ea; }
+  .qt-table tfoot .qt-grand-merged { border:1px solid #e3e6ea; background:#f0f2f5 !important; }
+  .qt-grand-label { text-align:right !important; font-size:10px; font-weight:700; white-space:nowrap; background:#f0f2f5 !important; }
+  .qt-grand-value { text-align:right !important; color:#0b5cab; font-size:11px; font-weight:800; white-space:nowrap; background:#f0f2f5 !important; }
+
+  /* Remove button hidden in print, total column stays visible */
+  .qt-table .qt-remove { display:none !important; }
+
+  /* Show qty as plain text */
+  .qt-table .qt-qty-print { display:inline !important; }
+
+  /* Footer note area */
+  .qt-print-footer {
+    display:block !important;
+    margin-top:18px;
+    padding-top:10px;
+    border-top:1px solid #bbb;
+    font-size:11.5px;
+    color:#555;
+    line-height:1.4;
+  }
+  .qt-print-footer p { margin:0; }
+}
+
+@page { size: A4; margin: 16mm 14mm; }
+
+/* ============================================================
+   Server Quotation builder — embedded inline in /quotation page.
+   Strong selectors (#qt-builder-server) + !important on layout
+   primitives to override the portal theme's default block rules.
+   ============================================================ */
+
+/* ── Step 1: Filters ── */
+#qt-builder-server .sq-filter-row {
+  display: flex !important; flex-wrap: wrap; gap: 10px;
+  align-items: flex-end; margin: 0 0 14px;
+  background: #f3f6f9; border: 1px solid #e3e8ee; border-radius: 8px;
+  padding: 12px 14px;
+}
+#qt-builder-server .sq-filter-row label {
+  display: flex !important; flex-direction: column; gap: 4px;
+  font-size: 11.5px; font-weight: 600; color: #4a5568;
+  text-transform: uppercase; letter-spacing: .3px;
+  min-width: 150px; margin: 0;
+}
+#qt-builder-server .sq-filter-row select,
+#qt-builder-server .sq-filter-row input {
+  font: 13px "Segoe UI", system-ui, sans-serif;
+  padding: 6px 9px; border: 1px solid #cfd4da; border-radius: 5px;
+  background: #fff; height: 34px; box-sizing: border-box; color: #1a2533;
+}
+#qt-builder-server .sq-filter-row select:focus,
+#qt-builder-server .sq-filter-row input:focus {
+  outline: none; border-color: #0b5cab; box-shadow: 0 0 0 2px rgba(11,92,171,.12);
+}
+
+/* ── Step 2: Base server list ── */
+#qt-builder-server .sq-base-list {
+  max-height: 340px; overflow: auto;
+  border: 1px solid #dde3ea; border-radius: 8px; background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+#qt-builder-server .sq-base-row {
+  display: grid !important;
+  grid-template-columns: 190px 1fr 150px;
+  gap: 12px; align-items: center;
+  padding: 11px 16px; border-bottom: 1px solid #f0f3f6;
+  cursor: pointer; font-size: 12.5px; line-height: 1.4;
+  transition: background .12s;
+}
+#qt-builder-server .sq-base-row:last-child { border-bottom: 0; }
+#qt-builder-server .sq-base-row:hover { background: #f0f6ff; }
+#qt-builder-server .sq-base-row.selected {
+  background: #e8f0fb; border-left: 3px solid #0b5cab; padding-left: 13px;
+}
+#qt-builder-server .sq-base-row > div { min-width: 0; }
+#qt-builder-server .sq-bp-fam {
+  font-size: 13px; font-weight: 700; color: #0b5cab;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#qt-builder-server .sq-bp-fam + div {
+  font-size: 11.5px; color: #6b7685; margin-top: 2px;
+  font-family: Consolas, "Courier New", monospace;
+}
+#qt-builder-server .sq-bp-price {
+  text-align: right; font-size: 13.5px; font-weight: 700; color: #1a2533;
+  white-space: nowrap;
+}
+#qt-builder-server .sq-empty {
+  padding: 24px 18px; color: #888; text-align: center; font-size: 13px;
+}
+
+/* ── Step 3: Base configuration detail card ── */
+#qt-builder-server .sq-base-detail {
+  background: #fff; border: 1px solid #dde3ea; border-radius: 8px;
+  padding: 16px 20px; margin: 14px 0 0; font-size: 12.5px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+#qt-builder-server .sq-base-detail h3 {
+  margin: 0 0 12px; font-size: 13.5px; font-weight: 700;
+  color: #0b5cab; text-transform: uppercase; letter-spacing: .4px;
+  padding-bottom: 8px; border-bottom: 1px solid #e8edf2;
+}
+#qt-builder-server .sq-base-detail dl {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0 20px; margin: 0;
+}
+#qt-builder-server .sq-base-detail dt {
+  font-weight: 600; color: #6b7685; font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: .4px; margin: 8px 0 2px;
+}
+#qt-builder-server .sq-base-detail dd {
+  margin: 0; color: #1a2533; font-size: 13px; line-height: 1.4;
+}
+/* BASE PRICE stands out */
+#qt-builder-server .sq-base-detail dt:last-of-type { color: #0b5cab; }
+#qt-builder-server .sq-base-detail dd:last-of-type {
+  font-size: 15px; font-weight: 700; color: #1a2533;
+}
+
+/* ── Step 4: Compatible options section header ── */
+#qt-builder-server .sq-section-h {
+  margin: 20px 0 8px !important; font-size: 13.5px !important;
+  font-weight: 700; color: #1a2533; text-transform: uppercase;
+  letter-spacing: .4px; border-top: 1px solid #e8edf2; padding-top: 14px;
+}
+
+/* ── Step 5: Options toolbar ── */
+#qt-builder-server .sq-section-tools {
+  background: #f3f6f9; border: 1px solid #e3e8ee; border-radius: 8px;
+  padding: 10px 14px; margin-bottom: 10px;
+}
+#qt-builder-server .sq-options-toolbar {
+  display: flex !important; flex-wrap: wrap; gap: 10px; align-items: center;
+}
+#qt-builder-server .sq-options-toolbar select,
+#qt-builder-server .sq-options-toolbar input[type=search] {
+  font: 13px "Segoe UI", system-ui, sans-serif;
+  padding: 6px 9px; border: 1px solid #cfd4da; border-radius: 5px;
+  flex: 1 1 200px; min-width: 180px; height: 34px; box-sizing: border-box;
+}
+#qt-builder-server .sq-options-toolbar select:focus,
+#qt-builder-server .sq-options-toolbar input[type=search]:focus {
+  outline: none; border-color: #0b5cab; box-shadow: 0 0 0 2px rgba(11,92,171,.12);
+}
+#qt-builder-server .sq-options-toolbar label {
+  display: inline-flex !important; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; color: #4a5568;
+  white-space: nowrap; margin: 0; flex: 0 0 auto;
+}
+#qt-builder-server .sq-options-toolbar label input[type=checkbox] {
+  margin: 0; width: auto; height: auto;
+}
+
+/* ── Step 6: Options list rows ── */
+#qt-builder-server .sq-options-list {
+  max-height: 380px; overflow: auto;
+  border: 1px solid #dde3ea; border-radius: 8px; background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+#qt-builder-server .sq-opt-row {
+  display: grid !important;
+  grid-template-columns: 34px 100px 1fr 140px;
+  gap: 10px; align-items: center;
+  padding: 9px 14px; border-bottom: 1px solid #f0f3f6;
+  font-size: 12.5px; line-height: 1.4; transition: background .1s;
+}
+#qt-builder-server .sq-opt-row:last-child { border-bottom: 0; }
+#qt-builder-server .sq-opt-row:hover { background: #f5f8ff; }
+#qt-builder-server .sq-opt-row > div { min-width: 0; }
+#qt-builder-server .sq-opt-row input[type=checkbox] {
+  margin: 0; width: 16px; height: 16px; cursor: pointer;
+}
+#qt-builder-server .sq-opt-type {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .3px;
+  text-transform: uppercase; padding: 2px 6px; border-radius: 3px;
+  background: #e8f0fb; color: #0b5cab; text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#qt-builder-server .sq-opt-pn {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 11px; color: #8a95a3; margin-top: 3px;
+}
+#qt-builder-server .sq-opt-price {
+  text-align: right; font-size: 13px; font-weight: 700;
+  color: #1a2533; white-space: nowrap;
+}
+
+/* Hide the now-unused legacy server-only table + toolbar */
+#qt-builder-server #sq-quote-table,
+#qt-builder-server .sq-line-h,
+#qt-builder-server #sq-toolbar { display: none !important; }
+
+@media print {
+  #qt-builder-server { display: none !important; }
+}
+
+</style>
+</head>
+<body>
+  <div id="addin-identity" class="addin-banner"></div>
+<!-- Add-in email dialog (replaces window.prompt blocked by Outlook WebView2) -->
+<div id="qt-addin-email-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:8px;padding:22px 20px;width:90%;max-width:340px;box-shadow:0 4px 24px rgba(0,0,0,.25);font-family:'Segoe UI',sans-serif;">
+    <div style="font-size:15px;font-weight:700;color:#1a2533;margin-bottom:14px;">Email Quotation</div>
+    <label style="display:block;font-size:12px;color:#555;margin-bottom:4px;">To (recipient email) <span style="color:red">*</span></label>
+    <input id="qt-addin-email-to" type="email" placeholder="customer@example.com"
+      style="width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:5px;font-size:13px;margin-bottom:10px;box-sizing:border-box;"/>
+    <label style="display:block;font-size:12px;color:#555;margin-bottom:4px;">CC (optional, comma-separated)</label>
+    <input id="qt-addin-email-cc" type="text" placeholder="cc@example.com"
+      style="width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:5px;font-size:13px;margin-bottom:16px;box-sizing:border-box;"/>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button id="qt-addin-email-cancel" type="button"
+        style="padding:8px 16px;border:1px solid #ccc;border-radius:5px;background:#f5f5f5;font-size:13px;cursor:pointer;">Cancel</button>
+      <button id="qt-addin-email-send" type="button"
+        style="padding:8px 18px;border:0;border-radius:5px;background:#0b5cab;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">Send</button>
+    </div>
+  </div>
+</div>
+<style>
+@media print {
+  .qt-print-footer { display:block !important; margin-top:18px; padding-top:10px; border-top:1px solid #bbb; font-size:11.5px !important; color:#555; line-height:1.4; }
+  .qt-print-footer p { margin:0 !important; font-size:11.5px !important; }
+  .qt-print-footer strong { font-size:11.5px !important; }
+  .qt-table td.num { text-align:center !important; }
+  .qt-table thead th { text-align:center !important; }
+  .qt-grand-value { text-align:center !important; }
+}
+</style>
+<div class="qt-wrapper">
+
+  <header class="qt-brand">
+    <img src="/smartsoft-logo.png" alt="Smartsoft - 29 years of trusted IT solutions" class="qt-brand-logo" />
+  </header>
+
+  <header class="qt-header">
+    <h1>Quotation Preparation</h1>
+    <p class="qt-sub">Fill in customer details, then build the quotation.</p>
+    <ol class="qt-steps">
+      <li class="qt-step active" data-step="1"><span>1</span> Customer Details</li>
+      <li class="qt-step"        data-step="2"><span>2</span> Build Quotation</li>
+    </ol>
+  </header>
+
+  <section id="qt-step-1" class="qt-card">
+    <h2>Customer Details</h2>
+    
+    <!-- Dynamics 365 Sales lookup (optional) -->
+    <style>
+      #qt-account-dropdown .qt-dd-item:hover, #qt-contact-dropdown .qt-dd-item:hover { background:#e8f0fe; }
+      #qt-account-search, #qt-contact-search { box-sizing:border-box; }
+      .qt-dd-arrow { position:absolute; right:10px; top:50%; transform:translateY(-50%); pointer-events:none; color:#666; font-size:12px; }
+    </style>
+    <div id="qt-dynamics-picker" style="margin-bottom:20px; padding:14px; background:#f0f5f9; border:1px solid #d4dfed; border-radius:6px; overflow:visible;">
+      <h3 style="margin-top:0; font-size:16px; color:#1a2533;">🔍 Select from Dynamics 365 CRM</h3>
+      
+      <div style="margin-bottom:12px;">
+        <span style="font-weight:600; display:block; margin-bottom:4px;">Account / Company</span>
+        <div style="position:relative;">
+          <input type="text" id="qt-account-search" placeholder="Click or type to search accounts..." autocomplete="off"
+            style="width:100%; padding:8px 30px 8px 8px; border:1px solid #cfd4da; border-radius:4px; font-size:14px; box-sizing:border-box;" />
+          <span class="qt-dd-arrow">▼</span>
+          <div id="qt-account-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #0b5cab; border-top:none; border-radius:0 0 4px 4px; max-height:220px; overflow-y:auto; z-index:99999; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <span style="font-weight:600; display:block; margin-bottom:4px;">Contact Person</span>
+        <div style="position:relative;">
+          <input type="text" id="qt-contact-search" placeholder="Select an account first..." autocomplete="off" disabled
+            style="width:100%; padding:8px 30px 8px 8px; border:1px solid #cfd4da; border-radius:4px; font-size:14px; background:#f5f5f5; box-sizing:border-box;" />
+          <span class="qt-dd-arrow">▼</span>
+          <div id="qt-contact-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #0b5cab; border-top:none; border-radius:0 0 4px 4px; max-height:220px; overflow-y:auto; z-index:99999; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+          </div>
+        </div>
+      </div>
+
+      <button type="button" id="qt-use-d365-contact" class="qt-btn" style="background:#0b5cab; color:#fff; padding:8px 18px; border:none; border-radius:4px; cursor:pointer; font-size:14px;" disabled>
+        ✔ Use Selected Contact
+      </button>
+      <span id="qt-d365-status" style="font-size:12px; color:#2e7d32; margin-left:8px; font-weight:600;"></span>
+    </div>
+
+    <!-- Manual entry form -->
+    <form id="qt-customer-form" class="qt-grid" novalidate>
+      <label><span>Customer / Company Name <span class="req">*</span></span>
+        <input type="text" name="company" required />
+      </label>
+      <label><span>Contact Person <span class="req">*</span></span>
+        <input type="text" name="contact" required />
+      </label>
+      <label><span>Email <span class="req">*</span></span>
+        <input type="email" name="email" required />
+      </label>
+      <label><span>Phone <span class="req">*</span></span>
+        <input type="tel" name="phone" required />
+      </label>
+      <label>Quote Date
+        <input type="date" name="quoteDate" />
+      </label>
+      <label>Valid Until
+        <input type="date" name="validUntil" />
+      </label>
+      <label class="qt-span-2">Billing Address
+        <textarea name="address" rows="2"></textarea>
+      </label>
+
+      <div class="qt-actions qt-span-2">
+        <button type="submit" class="qt-btn qt-btn-primary">Continue to Quotation &rarr;</button>
+      </div>
+    </form>
+  </section>
+
+  <section id="qt-step-2" class="qt-card qt-hidden">
+
+    <div class="qt-customer-summary" id="qt-customer-summary"></div>
+
+    <h2>Build Quotation</h2>
+
+    <div class="qt-mode-bar" role="tablist" aria-label="Quotation type" style="display:flex; gap:0; margin:0 0 14px; border:1px solid #cfd4da; border-radius:6px; overflow:hidden; background:#f3f5f7; max-width:720px;">
+      <button type="button" id="qt-mode-software"    class="qt-mode-btn qt-mode-active" data-mode="software"    role="tab" aria-selected="true"
+        style="flex:1; padding:9px 14px; border:0; background:#0b5cab; color:#fff; font:600 13px Segoe UI,system-ui,sans-serif; cursor:pointer;">Software Quotation</button>
+      <button type="button" id="qt-mode-workstation" class="qt-mode-btn"                 data-mode="workstation" role="tab" aria-selected="false"
+        style="flex:1; padding:9px 14px; border:0; background:transparent; color:#1a2533; font:600 13px Segoe UI,system-ui,sans-serif; cursor:pointer;">Hardware Quotation</button>
+    </div>
+
+    <!-- ============ Software builder (existing) ============ -->
+    <div class="qt-builder" id="qt-builder-software">
+      <div class="qt-builder-row">
+        <label>Product Category
+          <select id="qt-category">
+            <option value="">-- Loading categories... --</option>
+          </select>
+        </label>
+
+        <label>Segment
+          <select id="qt-segment" disabled>
+            <option value="">-- All --</option>
+            <option value="Commercial">Commercial</option>
+            <option value="Education">Education</option>
+            <option value="Charity">Charity</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="qt-loading" class="qt-hidden" style="padding:12px;color:#666;">
+        <span>⏳ Loading products from price list...</span>
+      </div>
+
+      <div id="qt-products-panel" class="qt-products-panel qt-hidden">
+        <div class="qt-panel-head">
+          <h3>Select products <small id="qt-panel-context"></small></h3>
+          <input type="search" id="qt-search" placeholder="Search products..." />
+        </div>
+        <div id="qt-products-list" class="qt-products-list"></div>
+        <div class="qt-panel-actions">
+          <button type="button" id="qt-add-selected" class="qt-btn qt-btn-primary" disabled>Add selected</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ Hardware builder (new) — backed by Documents/MOQ Prices/ ============ -->
+    <div class="qt-builder qt-hidden" id="qt-builder-workstation">
+      <div class="qt-builder-row qt-ws-selectors">
+        <label style="flex:1;min-width:220px;">Price List
+          <select id="qt-ws-model">
+            <option value="">-- Loading price lists... --</option>
+          </select>
+          <small style="display:block;margin-top:4px;color:#666;font-size:11px;">Brand + product + month, e.g. "HP Desktop Workstation June 2025".</small>
+        </label>
+        <label class="qt-hidden" id="qt-ws-modelfilter-row" style="flex:1;min-width:220px;">Model
+          <select id="qt-ws-modelfilter">
+            <option value="">-- Select Model --</option>
+          </select>
+          <small style="display:block;margin-top:4px;color:#666;font-size:11px;">One section per Excel sheet / named table in the chosen price list.</small>
+        </label>
+      </div>
+
+      <div id="qt-ws-loading" class="qt-hidden" style="padding:12px;color:#666;">
+        <span>⏳ Loading SKUs from price list...</span>
+      </div>
+
+      <div id="qt-ws-panel" class="qt-products-panel qt-hidden">
+        <div class="qt-panel-head">
+          <h3>Available SKUs <small id="qt-ws-context"></small></h3>
+          <input type="search" id="qt-ws-search" placeholder="Search by SKU, spec, brand..." />
+        </div>
+        <div id="qt-ws-list" class="qt-products-list"></div>
+        <div class="qt-panel-actions">
+          <button type="button" id="qt-ws-add" class="qt-btn qt-btn-primary" disabled>Add selected</button>
+        </div>
+      </div>
+
+      <div id="qt-ws-empty" style="padding:14px;color:#888;font-size:13px;">
+        Choose a price list above to view available SKUs.
+      </div>
+    </div>
+
+
+
+    <style>
+      .qt-ws-selectors { display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start; }
+      #qt-builder-workstation #qt-ws-list { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; }
+      #qt-builder-workstation .qt-ws-section { grid-column:1 / -1; }
+      .qt-ws-card { display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border:1px solid #e3e6ea; border-radius:6px; margin:0; background:#fff; }
+      .qt-ws-card:hover { border-color:#0b5cab; }
+      .qt-ws-card input[type=checkbox] { margin-top:4px; }
+      .qt-ws-card .qt-ws-body { flex:1; min-width:0; }
+      .qt-ws-card .qt-ws-head { display:flex; justify-content:space-between; gap:12px; align-items:baseline; margin-bottom:6px; flex-wrap:wrap; }
+      .qt-ws-card .qt-ws-sku  { font:700 13px Segoe UI,system-ui,sans-serif; color:#1a2533; letter-spacing:.02em; }
+      .qt-ws-card .qt-ws-plant{ font:600 11px Segoe UI,system-ui,sans-serif; color:#5a7a8a; background:#eef2f5; padding:1px 6px; border-radius:3px; }
+      .qt-ws-card .qt-ws-price{ font:700 13px Segoe UI,system-ui,sans-serif; color:#0b5cab; margin-left:auto; white-space:nowrap; }
+      .qt-ws-card .qt-ws-specs{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:4px 14px; font:12px Segoe UI,system-ui,sans-serif; color:#333; }
+      .qt-ws-card .qt-ws-specs span b { color:#555; font-weight:600; margin-right:4px; }
+      .qt-ws-section { margin:14px 0 4px; padding:6px 10px; background:#1f4d80; color:#fff; font:700 12px Segoe UI,system-ui,sans-serif; border-radius:4px; letter-spacing:.03em; display:flex; align-items:center; justify-content:space-between; }
+      .qt-ws-section:first-child { margin-top:4px; }
+      .qt-ws-section-count { background:rgba(255,255,255,.2); padding:1px 8px; border-radius:10px; font-weight:600; font-size:11px; }
+    </style>
+
+
+
+    <!-- Shared area (Quotation Items table + covering letter + actions) — hidden in Server mode -->
+    <div id="qt-shared-area">
+
+    <h3 class="qt-table-title">Quotation Items</h3>
+    <div class="qt-table-wrap">
+      <table class="qt-table" id="qt-table">
+        <thead>
+          <tr>
+            <th style="width:45px;"><span class="qt-screen-only">Sl.No.</span><span class="qt-print-only">SL<br>No.</span></th>
+            <th id="qt-th-pid" style="width:130px; display:none;">Product ID</th>
+            <th style="min-width:200px;">Product Description</th>
+            <th class="qt-col-hide-print" style="width:110px;">Unit Price (DTP)</th>
+            <th class="qt-col-hide-print" style="width:80px;">Margin %</th>
+            <th style="width:120px;"><span class="qt-screen-only">Customer Price</span><span class="qt-print-only">Unit Price<br>(&#8377;)</span></th>
+            <th style="width:50px;">Qty.</th>
+            <th style="width:110px;"><span class="qt-screen-only">GST (18%)</span><span class="qt-print-only">GST<br>(18%)</span></th>
+            <th style="width:140px;"><span class="qt-screen-only">Price Incl. GST</span><span class="qt-print-only">Unit Price<br>Including<br>GST (&#8377;)</span></th>
+            <th style="width:120px;"><span class="qt-screen-only">Total</span><span class="qt-print-only">Total<br>Price<br>(&#8377;)</span></th>
+          </tr>
+        </thead>
+        <tbody id="qt-table-body">
+          <tr class="qt-empty"><td colspan="9">No products added yet. Use the selector above.</td></tr>
+        </tbody>
+        <tfoot>
+          <tr class="qt-subtotal-row">
+            <td class="qt-grand-spacer qt-grand-merged" colspan="5"></td>
+            <td class="qt-grand-spacer qt-col-hide-print"></td>
+            <td class="qt-grand-spacer qt-col-hide-print"></td>
+            <td class="qt-grand-label">Subtotal (&#8377;)</td>
+            <td id="qt-subtotal" class="qt-grand-value">&#8377; 0.00</td>
+          </tr>
+          <tr class="qt-discount-row" style="display:none;">
+            <td class="qt-grand-spacer qt-grand-merged" colspan="5"></td>
+            <td class="qt-grand-spacer qt-col-hide-print"></td>
+            <td class="qt-grand-spacer qt-col-hide-print"></td>
+            <td class="qt-grand-label" id="qt-discount-label">Discount</td>
+            <td id="qt-discount-amount" class="qt-grand-value" style="color:#b00;">&#8377; 0.00</td>
+          </tr>
+          <tr>
+            <td class="qt-grand-spacer qt-grand-merged" colspan="5"></td>
+            <td class="qt-grand-spacer qt-col-hide-print"></td>
+            <td class="qt-grand-spacer qt-col-hide-print"></td>
+            <td class="qt-grand-label">Grand Total (&#8377;)</td>
+            <td id="qt-grand-total" class="qt-grand-value">&#8377; 0.00</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="qt-discount-row-input qt-no-print" style="margin-top:14px; padding:12px 14px; background:#fff8e1; border:1px solid #f0d97a; border-radius:6px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+      <label for="qt-discount-mode" style="font-size:13px; font-weight:600; color:#1a2533; margin:0;">Discount:</label>
+      <select id="qt-discount-mode" style="font:inherit; padding:7px 10px; border:1px solid #cfd4da; border-radius:6px; background:#fff;">
+        <option value="none">None</option>
+        <option value="pct">Percentage (%)</option>
+        <option value="value">Flat amount (&#8377;)</option>
+      </select>
+      <input type="number" id="qt-discount-value" min="0" step="0.01" value="0" placeholder="0"
+        style="font:inherit; padding:7px 10px; border:1px solid #cfd4da; border-radius:6px; background:#fff; width:130px; display:none;" />
+      <span id="qt-discount-preview" style="font-size:12px; color:#666;">No discount applied.</span>
+    </div>
+
+    <div class="qt-cl-row" style="margin-top:18px; padding:12px 14px; background:#f8fafd; border:1px solid #d4dfed; border-radius:6px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+      <label for="qt-covering-letter" style="font-size:13px; font-weight:600; color:#1a2533; margin:0;">Proposal Template:</label>
+      <select id="qt-covering-letter" style="font:inherit; padding:7px 10px; border:1px solid #cfd4da; border-radius:6px; background:#fff; min-width:220px;">
+        <option value="">-- None (quotation only) --</option>
+      </select>
+      <span style="font-size:12px; color:#666;">Merges the quotation inside the selected proposal template when you Save, Print, or Email.</span>
+    </div>
+
+    <div class="qt-actions qt-actions-end">
+      <button type="button" id="qt-back"  class="qt-btn">&larr; Back</button>
+      <button type="button" id="qt-print" class="qt-btn">Print / Save</button>
+      <button type="button" id="qt-email" class="qt-btn">Email via Outlook</button>
+      <button type="button" id="qt-save"  class="qt-btn qt-btn-primary">Save to SharePoint</button>
+    </div>
+
+    </div><!-- /#qt-shared-area -->
+
+    <div class="qt-print-footer">
+      <div style="font-weight:700;font-size:13px;color:#1a2533;margin-bottom:4px;">Terms &amp; Conditions</div>
+      <div style="font-weight:700;margin:10px 0 3px;color:#1a2533;">1) Commercial Terms:</div>
+      <p style="margin:2px 0 2px 26px;text-indent:-14px;text-align:justify;">&middot;&nbsp;&nbsp;Price Quoted are valid only for above mentioned Bill of Material, Price will change if any Changes in Bill of Material.</p>
+      <p style="margin:2px 0 2px 26px;text-indent:-14px;text-align:justify;">&middot;&nbsp;&nbsp;Interest @18% will be charged for the delayed payments.</p>
+      <p style="margin:2px 0 2px 26px;text-indent:-14px;text-align:justify;">&middot;&nbsp;&nbsp;Payment Terms: 100% advance along with the purchase order.</p>
+      <p style="margin:2px 0 2px 26px;text-indent:-14px;text-align:justify;">&middot;&nbsp;&nbsp;Warranty coverage shall be as per the terms specified in the product specifications or unique offering terms. No additional warranties are implied unless expressly stated.</p>
+      <div style="font-weight:700;margin:10px 0 3px;color:#1a2533;">2) Taxes:</div>
+      <p style="margin:2px 0 2px 26px;text-indent:-14px;text-align:justify;">&middot;&nbsp;&nbsp;Any changes in Taxes by Govt. of India while billing/invoicing will be subsequently added or subtracted from the value without any notice.</p>
+      <p style="margin:2px 0 2px 26px;text-indent:-14px;text-align:justify;">&middot;&nbsp;&nbsp;These Terms and Conditions shall be governed by and construed in accordance with the laws of India.</p>
+      <div style="font-weight:700;margin:10px 0 3px;color:#1a2533;">3) Invoicing:</div>
+      <p style="margin:2px 0 2px 26px;text-indent:-14px;text-align:justify;">&middot;&nbsp;&nbsp;Invoicing/ Billing will be done only on OR after delivering the Product which has been ordered.</p>
+      <p style="margin:2px 0 2px 26px;text-indent:-14px;text-align:justify;">&middot;&nbsp;&nbsp;If any correction to be made in the invoice it should be intimated within 3 days from the date of delivery of invoice.</p>
+      <div style="font-weight:700;margin:10px 0 3px;color:#1a2533;">4) Delivery:</div>
+      <p style="margin:2px 0 2px 26px;text-indent:-14px;text-align:justify;">&middot;&nbsp;&nbsp;Within 4-5 weeks from the date of receiving the Purchase Order. Electronic license would be delivered by the respective Principle.</p>
+      <p style="margin:12px 0 0;text-align:justify;font-style:italic;">We hope that our offer will meet with your approval and wait to receive your firm order at your earliest convenience. Thanking you again and assuring you of our best attention at all times.</p>
+      <p style="margin-top:8px;">This is a system-generated quotation from <strong>Smartsoft</strong>.</p>
+    </div>
+  </section>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
+<script id="productData" type="application/json">
+{
+  "flowUrls": {
+    "getCategories": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/4dedd668ea5b4211a877776d18daaf9e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=BQXolqJ5BHhfg903MRX1f8CeD66ZfoW539fFaEp9iPs",
+    "getProducts": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f729dbb5b10b42c081c8131c91d8464f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hTqPdSox8w4WJw48N3T9ILp9ZfIZ5q7pyur6Lwzi-uc",
+    "saveQuotation": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/26dbc82788ac43f291929ead45a5462f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=pV4yD3RFHl-GAXS_S4CbMm0CyIBvx1PVf7ScvsmIX4g",
+    "getProposalTemplates": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a0083e6903a54891a2c3e8eacc29fbe5/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=kAHAcH6fsJ7tKIBnM68daRl4N5kVDBkp8ANy_Z9JnPA",
+    "getWorkstationData": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/c1339acf61544fbd9160751596f1547f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MTDYvlb8sNfzJyf9-9-b6FFqgQwjSWuSzkpOIkWHSZk",
+    "getServerData": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1652680138654d4b97a6c195205f2a51/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=wtGi45Wq7gPv53aszumDanQkDAw4FApPeKKHxNM2g1k",
+    "getCRMData": "https://9084990698c9e0a28abaeae092055c.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1af60dea40494a3ebada334b344142c1/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=oOnZYvloWmGJvl_q3wElsTWxsbHyCMVZ009RrNYcArc",
+    "upsertQuote": ""
+  },
+  "defaultMargin": 10,
+  "enableDynamicsWriteBack": false
+}
+</script>
+
+  <!-- Lifted page logic (single source of truth: Power Pages custom JS) -->
+  <script>
 ﻿(function () {
   "use strict";
   console.log("[QT] script loaded build=2026-07-smartsoft-india-r22");
@@ -1913,3 +2699,235 @@
     }
   };
 })();
+
+</script>
+  <!-- Add-in shell JS: email modal + prompt override (Outlook WebView2 fix) -->
+  <script>
+(function(){
+  var overlay = document.getElementById('qt-addin-email-overlay');
+  if (!overlay) return;
+  var toInput  = document.getElementById('qt-addin-email-to');
+  var ccInput  = document.getElementById('qt-addin-email-cc');
+  var sendBtn  = document.getElementById('qt-addin-email-send');
+  var cancelBtn= document.getElementById('qt-addin-email-cancel');
+  var _resolve = null;
+
+  // Replace window.prompt with our modal for add-in context.
+  // The page JS calls window.prompt() twice: once for To, once for CC.
+  // We intercept both with a single two-field modal.
+  var _promptCallCount = 0;
+  var _toValue = '';
+  var _ccValue = '';
+  var _originalPrompt = window.prompt;
+
+  function showEmailDialog(defaultTo) {
+    return new Promise(function(resolve) {
+      _resolve = resolve;
+      toInput.value = defaultTo || '';
+      ccInput.value = '';
+      overlay.style.display = 'flex';
+      setTimeout(function(){ toInput.focus(); }, 100);
+    });
+  }
+
+  function closeDialog(result) {
+    overlay.style.display = 'none';
+    if (_resolve) { _resolve(result); _resolve = null; }
+  }
+
+  sendBtn.addEventListener('click', function(){
+    var to = (toInput.value || '').trim();
+    if (!to || to.indexOf('@') === -1) {
+      toInput.style.borderColor = 'red';
+      toInput.focus();
+      return;
+    }
+    toInput.style.borderColor = '';
+    closeDialog({ to: to, cc: (ccInput.value || '').trim() });
+  });
+
+  cancelBtn.addEventListener('click', function(){ closeDialog(null); });
+
+  // Patch email buttons on both pages to use the dialog.
+  function patchEmailButton(btnId, getDefaultEmail) {
+    var btn = document.getElementById(btnId);
+    if (!btn) return;
+    // Clone to remove existing listeners wired by page JS.
+    var fresh = btn.cloneNode(true);
+    btn.parentNode.replaceChild(fresh, btn);
+    fresh.addEventListener('click', function(e) {
+      e.stopImmediatePropagation();
+      var defaultEmail = typeof getDefaultEmail === 'function' ? getDefaultEmail() : '';
+      showEmailDialog(defaultEmail).then(function(result) {
+        if (!result) return; // cancelled
+        // For the Quotation page: set pending fields then trigger save.
+        if (btnId === 'qt-email') {
+          // Check cart via the save button guard.
+          var saveBtn = document.getElementById('qt-save');
+          if (!saveBtn) { alert('Save button not found.'); return; }
+          // Build email fields the same way the page JS does.
+          var summaryEl = document.querySelector('.qt-customer-summary');
+          var qId = summaryEl ? (summaryEl.textContent.match(/QT-\d+-\d+/) || ['Quotation'])[0] : 'Quotation';
+          var contact = (document.querySelector('[name=contact]') || {}).value || 'Sir/Madam';
+          var subject = 'Proposal & Quotation - ' + qId + ' - Smartsoft';
+          var body = '<p>Dear ' + contact + ',</p>' +
+            '<p>Please find attached our proposal and quotation (Ref: <b>' + qId + '</b>) for your kind consideration.</p>' +
+            '<p>Should you need any clarifications, feel free to reach out.</p>' +
+            '<p>Warm regards,<br/>Smartsoft Team<br/>29 years of trusted IT solutions<br/>sales@smartsoft.co.in</p>';
+          window._pendingEmailFields = {
+            recipientEmail: result.to,
+            recipientName:  contact,
+            ccEmail:        result.cc,
+            emailSubject:   subject,
+            emailBody:      body
+          };
+          saveBtn.click();
+        }
+        // Dell-Quote page handled separately via patchDellEmailButton.
+      });
+    });
+  }
+
+  // Patch when DOM is ready (page JS may not have run yet).
+  function patchDellEmailButton() {
+    var btn = document.getElementById('dq-email-pdf');
+    if (!btn || btn._addinPatched) return;
+    btn._addinPatched = true;
+    // Use capturing so we intercept BEFORE page JS listener.
+    btn.addEventListener('click', function(e) {
+      e.stopImmediatePropagation(); // prevent page JS from running now
+      var defaultEmail = '';
+      showEmailDialog(defaultEmail).then(function(result) {
+        if (!result) return;
+        var calls = 0;
+        window.prompt = function() {
+          calls++;
+          if (calls === 1) return result.to;
+          if (calls === 2) return result.cc;
+          return null;
+        };
+        // Now fire a fresh click that the page JS listener will handle.
+        btn.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
+        setTimeout(function(){ window.prompt = _originalPrompt; }, 2000);
+      });
+    }, true); // capture phase
+  }
+
+  function tryPatch() {
+    patchEmailButton('qt-email', function(){ return (document.querySelector('[name=email]') || {}).value || ''; });
+    patchDellEmailButton();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tryPatch);
+  } else {
+    // Page JS already ran; patch immediately then once more after a tick
+    // in case page JS clones/re-wires buttons during initialisation.
+    tryPatch();
+    setTimeout(tryPatch, 500);
+  }
+}());
+</script>
+  <!-- Add-in state persistence: survives task-pane reloads -->
+  <script>
+(function(){
+  var KEY = 'qb_addin_state_' + location.pathname.replace(/[^a-z0-9]/gi,'_');
+  var TS_KEY = KEY + '_ts';
+  var DEBOUNCE = 400;
+  var MAX_AGE = 8 * 60 * 60 * 1000; // 8 hours — auto-expire stale state
+  var _timer = null;
+
+  function getAllInputs(){
+    return document.querySelectorAll('input,textarea,select');
+  }
+
+  function saveState(){
+    try {
+      var state = {};
+      getAllInputs().forEach(function(el,i){
+        var id = el.id || el.name || ('_idx_'+i);
+        if(el.type==='checkbox'||el.type==='radio'){ state[id] = el.checked; }
+        else if(el.value) { state[id] = el.value; }
+      });
+      // Save which steps/sections are visible
+      var visible = [];
+      document.querySelectorAll('[id]').forEach(function(el){
+        if(el.style && el.style.display !== 'none' && el.id &&
+           (el.id.indexOf('step')>-1 || el.id.indexOf('Step')>-1)){
+          visible.push(el.id);
+        }
+      });
+      state._visibleSteps = visible;
+      localStorage.setItem(KEY, JSON.stringify(state));
+      localStorage.setItem(TS_KEY, Date.now().toString());
+    } catch(e){ /* storage full or blocked */ }
+  }
+
+  function restoreState(){
+    try {
+      // Check age — don't restore stale state from yesterday
+      var ts = parseInt(localStorage.getItem(TS_KEY) || '0', 10);
+      if(Date.now() - ts > MAX_AGE){ localStorage.removeItem(KEY); localStorage.removeItem(TS_KEY); return; }
+      var raw = localStorage.getItem(KEY);
+      if(!raw) return;
+      var state = JSON.parse(raw);
+      var hasValues = Object.keys(state).some(function(k){ return k !== '_visibleSteps' && state[k]; });
+      if(!hasValues) return;
+      if(window.console) console.log('[ADDIN] Restoring saved quotation state');
+      getAllInputs().forEach(function(el,i){
+        var id = el.id || el.name || ('_idx_'+i);
+        if(!(id in state)) return;
+        if(el.type==='checkbox'||el.type==='radio'){ el.checked = !!state[id]; }
+        else { el.value = state[id]; }
+        // Fire change event so page JS picks up the value
+        try { el.dispatchEvent(new Event('change',{bubbles:true})); } catch(e){}
+      });
+    } catch(e){ /* parse error or blocked */ }
+  }
+
+  function debouncedSave(){
+    clearTimeout(_timer);
+    _timer = setTimeout(saveState, DEBOUNCE);
+  }
+
+  // Listen for changes on all current and future inputs
+  document.addEventListener('input', debouncedSave, true);
+  document.addEventListener('change', debouncedSave, true);
+  document.addEventListener('click', debouncedSave, true);
+
+  // Periodic auto-save: CRM lookups populate fields via JS without firing
+  // input/change events, so poll every 3 seconds to catch those values.
+  setInterval(saveState, 3000);
+
+  // Also save immediately when the page is about to unload/hide
+  window.addEventListener('beforeunload', saveState);
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState==='hidden') saveState();
+  });
+
+  // Restore state after page JS has initialised
+  function init(){
+    setTimeout(restoreState, 300);
+    if(window.console) console.log('[ADDIN] State persistence active, key=' + KEY);
+
+    // Intercept alert() to detect save success and clear state.
+    // The page JS calls alert('Quotation saved to SharePoint...') on success.
+    var _origAlert = window.alert;
+    window.alert = function(msg) {
+      _origAlert.apply(window, arguments);
+      if (typeof msg === 'string' && msg.indexOf('saved') > -1 && msg.indexOf('successfully') > -1) {
+        if(window.console) console.log('[ADDIN] Save success detected — clearing saved state');
+        window._clearAddinState();
+      }
+    };
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else { init(); }
+
+  // Clear saved state after a successful save/email (clean slate)
+  window._clearAddinState = function(){ try{ localStorage.removeItem(KEY); localStorage.removeItem(TS_KEY); }catch(e){} };
+}());
+</script>
+</body>
+</html>
